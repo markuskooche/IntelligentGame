@@ -1,2 +1,12 @@
+client/Player.java
+ client.Player
+client/Piece.java
+ client.Piece
+client/enums/Direction.java
+ client.enums.Direction
 Main.java
  Main
+client/Game.java
+ client.Game
+client/Board.java
+ client.Board
