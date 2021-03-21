@@ -1,8 +1,0 @@
-client/PlayerTest.java
- client.PlayerTest
-client/enums/DirectionTest.java
- client.enums.DirectionTest
-client/PieceTest.java
- client.PieceTest
-client/BoardTest.java
- client.BoardTest
