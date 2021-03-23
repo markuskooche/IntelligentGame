@@ -39,4 +39,9 @@ public class Transition {
     public int getR2() {
         return r2;
     }
+
+    @Override
+    public String toString() {
+        return "[" + x1 + " " + y1 + " " + r1 + " <-> " + x2 + " "+ y2 + " " + r2 + "]";
+    }
 }
