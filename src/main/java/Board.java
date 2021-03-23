@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Board {
 
@@ -15,6 +17,19 @@ public class Board {
 
         this.height = field.length;
         this.width = field[0].length;
+    }
+
+    public void executeMove(int x, int y, char player) {
+        List<int[]> moves = new ArrayList<>();
+
+        checkMove(x, y, player);
+        //Wenn true -> zeichnen
+    }
+
+    public void checkMove(int x, int y, char player) {
+        List<int[]> moves = new ArrayList<>();
+        List<int[]> tmp;
+        int[] path = new int[2];
     }
 
     public int getBombRadius() {
