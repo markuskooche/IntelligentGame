@@ -76,6 +76,7 @@ public class Game {
         return transitions;
     }
 
+        //test
     @Override
     public String toString() {
         StringBuilder gameString = new StringBuilder();
