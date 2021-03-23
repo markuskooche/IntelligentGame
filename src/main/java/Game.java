@@ -101,10 +101,7 @@ public class Game {
         gameString.append(String.format("%s\n", board.toString()));
 
         HashMap<String, Transition> transitions = board.getTransition();
-
-        for (int i = 0; i < transitions.size(); i++) {
-            gameString.append(String.format("%s\n", transitions.get(i)));
-        }
+        gameString.append(transitions);
 
         return gameString.toString();
     }
