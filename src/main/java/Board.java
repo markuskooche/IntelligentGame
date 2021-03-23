@@ -17,6 +17,10 @@ public class Board {
         this.width = field[0].length;
     }
 
+    public boolean validTransition() {
+        return false;
+    }
+
     public int getBombRadius() {
         return bombRadius;
     }
