@@ -8,12 +8,9 @@ public class Game {
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
-        createMap(initMap);
+        createBoard(initMap);
     }
 
-    /**
-     * Methode zur Erstellung der Spieler
-     */
     private void createPlayers(List<String> initMap) {
         int playerAmount = Integer.parseInt(initMap.get(0));
         int overrideStone = Integer.parseInt(initMap.get(1));
@@ -27,10 +24,7 @@ public class Game {
         }
     }
 
-    /**
-     * Methode zur Erstellung der Map
-     */
-    private void createMap(List<String> initMap) {
+    private void createBoard(List<String> initMap) {
         String[] bombInfo = initMap.get(2).split(" ");
         int bombRadius = Integer.parseInt(bombInfo[1]);
 
@@ -56,9 +50,6 @@ public class Game {
         board = new Board(mapField, transitions, bombRadius);
     }
 
-    /**
-     * Methode zur Erstellung der Transitionen
-     */
     private HashMap<String, Transition> createTransitions(List<String> initMapTransitions) {
         HashMap<String, Transition> transitions = new HashMap<>();
         int x1, y1, r1, x2, y2, r2;
@@ -75,7 +66,6 @@ public class Game {
 
             Transition transition = new Transition(x1, y1, r1, x2, y2, r2);
 
-            // TODO: ich denke hier müsste man x1 y1 r2 bzw. x2 y2 r1 verwenden
             String transPos1 = x1 + " " + y1 + " " + r1;
             transitions.put(transPos1, transition);
 
