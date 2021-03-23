@@ -59,7 +59,7 @@ public class Game {
                 y2 = Integer.parseInt(line[5]);
                 r2 = Integer.parseInt(line[6]);
 
-                System.out.println("'" +  x1 + "' '" +  y1 + "' '" +  r1 + "' '" +  x2 + "' '" +  y2 + "' '" +  r2 + "'");
+                //System.out.println("'" +  x1 + "' '" +  y1 + "' '" +  r1 + "' '" +  x2 + "' '" +  y2 + "' '" +  r2 + "'");
 
                 board.setTransition(x1, y1, r1, x2, y2, r2);
                 currentLine++;
