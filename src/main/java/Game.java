@@ -1,72 +1,111 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Game {
-    private List<Player> players;
-    private Map map;
+
+    private Player[] players;
+    private Board board;
 
     public Game(List<String> initMap) {
-        players = createPlayers(initMap);
-        map = createMap(initMap);
-        map.printMap();
+        createPlayers(initMap);
+        createMap(initMap);
     }
 
-    private Map createMap(List<String> initMap) {
-        int hight = Integer.valueOf(initMap.get(3).substring(0, 2));
-        int width = Integer.valueOf(initMap.get(3).substring(3, 5));
-        int bombRadius = Integer.valueOf(initMap.get(2).substring(2, 3));
-        String [][] mapField = new String [hight][width];
-        List<String> initMapField = initMap.subList(4, hight + 4);
+    /**
+     * Methode zur Erstellung der Spieler
+     */
+    private void createPlayers(List<String> initMap) {
+        int playerAmount = Integer.parseInt(initMap.get(0));
+        int overrideStone = Integer.parseInt(initMap.get(1));
 
-        //Create Field
-        int y = 0;
-        for (String line : initMapField) {
-            String [] fields = line.split(" ");
+        String[] bombInfo = initMap.get(2).split(" ");
+        int bombAmount = Integer.parseInt(bombInfo[0]);
+
+        players = new Player[playerAmount];
+        for (int i = 0; i < playerAmount; i++) {
+            players[i] = new Player(overrideStone, bombAmount);
+        }
+    }
+
+    /**
+     * Methode zur Erstellung der Map
+     */
+    private void createMap(List<String> initMap) {
+        String[] bombInfo = initMap.get(2).split(" ");
+        int bombRadius = Integer.parseInt(bombInfo[1]);
+
+        String[] sizeInfo = initMap.get(3).split(" ");
+        int height = Integer.parseInt(sizeInfo[0]);
+        int width = Integer.parseInt(sizeInfo[1]);
+
+        char[][] mapField = new char[height][width];
+
+        // Create Field
+        for (int y = 0; y < height; y++) {
+            String[] fields = initMap.get(y + 4).split(" ");
+
             for (int x = 0; x < width; x++) {
-                mapField [y][x] = fields[x];
+                mapField [y][x] = fields[x].charAt(0);
             }
-            y++;
         }
 
-        //Create Transitions
-        List<String> initMapTransitions = initMap.subList(hight + 4, initMap.size());
+        // Create Transitions
+        List<String> initMapTransitions = initMap.subList(height + 4, initMap.size());
         HashMap<String, Transition> transitions = createTransitions(initMapTransitions);
 
-        return new Map(mapField, transitions, bombRadius);
+        board = new Board(mapField, transitions, bombRadius);
     }
 
+    /**
+     * Methode zur Erstellung der Transitionen
+     */
     private HashMap<String, Transition> createTransitions(List<String> initMapTransitions) {
-        HashMap<String, Transition> trans = new HashMap<String, Transition>();
+        HashMap<String, Transition> transitions = new HashMap<>();
+        int x1, y1, r1, x2, y2, r2;
+
         for (String line : initMapTransitions) {
-            String [] fields = line.split(" ");
-            int x1 = Integer.valueOf(fields[0]);
-            int y1 = Integer.valueOf(fields[1]);
-            int r1 = Integer.valueOf(fields[2]);
-            int x2 = Integer.valueOf(fields[4]);
-            int y2 = Integer.valueOf(fields[5]);
-            int r2 = Integer.valueOf(fields[6]);
+            String[] fields = line.split(" ");
+
+            x1 = Integer.parseInt(fields[0]);
+            y1 = Integer.parseInt(fields[1]);
+            r1 = Integer.parseInt(fields[2]);
+            x2 = Integer.parseInt(fields[4]);
+            y2 = Integer.parseInt(fields[5]);
+            r2 = Integer.parseInt(fields[6]);
+
             Transition transition = new Transition(x1, y1, r1, x2, y2, r2);
 
-            String trans_pos_1 = fields[0] + " " + fields[1] + " " + fields[2];
-            trans.put(trans_pos_1, transition);
+            // TODO: ich denke hier müsste man x1 y1 r2 bzw. x2 y2 r1 verwenden
+            String transPos1 = x1 + " " + y1 + " " + r1;
+            transitions.put(transPos1, transition);
 
-            String trans_pos_2 = fields[4] + " " + fields[5] + " " + fields[6];
-            trans.put(trans_pos_2, transition);
+            String transPos2 = x2 + " " + y2 + " " + r2;
+            transitions.put(transPos2, transition);
         }
-        return trans;
+
+        return transitions;
     }
 
-    private List<Player> createPlayers(List<String> initMap) {
-        List<Player> players = new ArrayList<>();
-        int numPlayer = Integer.valueOf(initMap.get(0));
-        int changeStone = Integer.valueOf(initMap.get(1));
-        int numBomb = Integer.valueOf(initMap.get(2).substring(0, 1));
+    @Override
+    public String toString() {
+        StringBuilder gameString = new StringBuilder();
 
-        for (int i = 0; i < numPlayer; i++) {
-            Player player = new Player(numBomb, changeStone, true);
-            players.add(player);
+        gameString.append(String.format("Anzahl der Spieler: %s\n", players.length));
+        gameString.append(String.format("Anzahl der Überschreibsteine: %s\n", players[0].getOverrideStone()));
+        gameString.append(String.format("Anzahl der Bomben: %s\n", players[0].getBomb()));
+        gameString.append(String.format("Stärke der Bomben: %s\n", board.getBombRadius()));
+
+        gameString.append(String.format("\nZeilenanzahl des Spielfelds: %s\n", board.getHeight()));
+        gameString.append(String.format("Spaltenanzahl des Spielfelds: %s\n\n", board.getWidth()));
+
+        gameString.append(String.format("%s\n", board.toString()));
+
+        HashMap<String, Transition> transitions = board.getTransition();
+
+        for (int i = 0; i < transitions.size(); i++) {
+            gameString.append(String.format("%s\n", transitions.get(i)));
         }
-        return players;
+
+        return gameString.toString();
     }
 }

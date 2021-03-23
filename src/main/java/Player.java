@@ -1,12 +1,11 @@
 public class Player {
-    private int bomb;
-    private int changeStone;
-    private boolean qualified;
 
-    public Player(int bomb, int changeStone, boolean qualified) {
+    private int bomb;
+    private int overrideStone;
+
+    public Player(int bomb, int changeStone) {
         this.bomb = bomb;
-        this.changeStone = changeStone;
-        this.qualified = qualified;
+        this.overrideStone = changeStone;
     }
 
     public int getBomb() {
@@ -17,19 +16,11 @@ public class Player {
         this.bomb = bomb;
     }
 
-    public int getChangeStone() {
-        return changeStone;
+    public int getOverrideStone() {
+        return overrideStone;
     }
 
-    public void setChangeStone(int changeStone) {
-        this.changeStone = changeStone;
-    }
-
-    public boolean isQualified() {
-        return qualified;
-    }
-
-    public void setQualified(boolean qualified) {
-        this.qualified = qualified;
+    public void setOverrideStone(int overrideStone) {
+        this.overrideStone = overrideStone;
     }
 }
