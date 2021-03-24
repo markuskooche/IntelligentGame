@@ -17,6 +17,10 @@ public class Board {
         this.width = field[0].length;
     }
 
+    public boolean executeMove(int x, int y, int player){
+        return false;
+    }
+
     public int getBombRadius() {
         return bombRadius;
     }
@@ -39,6 +43,14 @@ public class Board {
 
     public HashMap<String, Transition> getTransition() {
         return transitions;
+    }
+
+    public char[][] getField() {
+        return field;
+    }
+
+    public void setField(char[][] field) {
+        this.field = field;
     }
 
     @Override
