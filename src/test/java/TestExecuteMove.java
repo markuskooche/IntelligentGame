@@ -178,6 +178,30 @@ public class TestExecuteMove {
     }
 
     @Test
+    @DisplayName("Test what happens if a player with no overridestones trys to override something")
+    void testOverrideWithNoOverridestones() {
+        Game game = createGame("maps/benesTestMaps/TestOverrideStonesWithNoStones.map");
+
+        boolean moveIsValid = game.getBoard().executeMove(2 , 2, 1);
+        assertFalse(moveIsValid);
+    }
+
+    @Test
+    @DisplayName("Test what happens if a player with no overridestones trys to override something")
+    void testOverride() {
+        Game game = createGame("maps/benesTestMaps/TestOverrideStones.map");
+
+        boolean moveIsValid = game.getBoard().executeMove(2 , 2, 1);
+        assertTrue(moveIsValid);
+
+        char[][] expectedResult = {{'0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                                   {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                                   {'0', '0', '1', '1', '0', '0', '0', '0', '0'},
+                                   {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                                   {'0', '0', '0', '0', '0', '0', '0', '0', '0'}};
+    }
+
+    @Test
     @DisplayName("Test for all directions")
     void testAllDirection() {
 
@@ -197,7 +221,25 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 1. evil Map")
+    @DisplayName("Test for all directions while using an Override stone")
+    void testAllDirectionsWithOverrideStones() {
+
+        Game game = createGame("maps/benesTestMaps/TestOverrideStonesAllDirections.map");
+
+        boolean moveIsValid = game.getBoard().executeMove(2 , 3, 2);
+        assertTrue(moveIsValid);
+
+        char[][] expectedResult = {{'0', '2', '2', '2', '2', '2', '0', '0', '0'},
+                                   {'0', '2', '2', '1', '2', '2', '0', '0', '0'},
+                                   {'0', '2', '2', '2', '1', '2', '0', '0', '0'},
+                                   {'0', '2', '2', '2', '2', '2', '0', '0', '0'},
+                                   {'0', '2', '2', '2', '2', '2', '0', '0', '0'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult);
+    }
+
+    @Test
+    @DisplayName("Test the first evil Map")
     void TestEvilMap1() {
 
         Game game = createGame("maps/evilMaps/boeseMap01.map");
@@ -208,7 +250,7 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 2. evil Map")
+    @DisplayName("Test the second evil Map")
     void TestEvilMap2() {
 
         Game game = createGame("maps/evilMaps/boeseMap02.map");
@@ -224,7 +266,7 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 3. evil Map")
+    @DisplayName("Test the 3th evil Map")
     void TestEvilMap3() {
 
         Game game = createGame("maps/evilMaps/boeseMap03.map");
@@ -242,7 +284,7 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 4. evil Map")
+    @DisplayName("Test the 4th evil Map")
     void TestEvilMap4() {
 
         Game game = createGame("maps/evilMaps/boeseMap04.map");
@@ -260,7 +302,7 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 5. evil Map")
+    @DisplayName("Test the 5th evil Map")
     void TestEvilMap5() {
 
         Game game = createGame("maps/evilMaps/boeseMap05.map");
@@ -278,7 +320,7 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 6. evil Map")
+    @DisplayName("Test the 6th evil Map")
     void TestEvilMap6() {
 
         Game game = createGame("maps/evilMaps/boeseMap06.map");
@@ -300,7 +342,7 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 7. evil Map")
+    @DisplayName("Test the 7th evil Map")
     void TestEvilMap7() {
 
         Game game = createGame("maps/evilMaps/boeseMap07.map");
@@ -322,46 +364,118 @@ public class TestExecuteMove {
     }
 
     @Test
-    @DisplayName("Test the 8. evil Map")
+    @DisplayName("Test the 8th evil Map")
     void TestEvilMap8() {
 
-        Game game = createGame("maps/evilMaps/boeseMap07.map");
-        boolean moveIsValid = game.getBoard().executeMove(10 , 2, 2);
+        Game game = createGame("maps/evilMaps/boeseMap08.map");
+        boolean moveIsValid = game.getBoard().executeMove(6 , 2, 1);
 
         assertTrue(moveIsValid);
 
         char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
-                                   {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                                   {'-', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'},
-                                   {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                                   {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                                   {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                                   {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                                   {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'}};
+                                   {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                                   {'-', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'},
+                                   {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                                   {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                                   {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                                   {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                                   {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'}};
 
         assertArrayEquals(game.getBoard().getField(),expectedResult);
 
     }
 
     @Test
-    @DisplayName("Test the 9 n . evil Map")
+    @DisplayName("Test the 9th evil Map")
     void TestEvilMap9() {
 
-        Game game = createGame("maps/evilMaps/boeseMap07.map");
-        boolean moveIsValid = game.getBoard().executeMove(10 , 2, 2);
+        Game game = createGame("maps/evilMaps/boeseMap09.map");
+        boolean moveIsValid = game.getBoard().executeMove(4 , 4, 1);
 
         assertTrue(moveIsValid);
 
-        char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
-                {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                {'-', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'},
-                {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
-                {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'}};
+        char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '-', '-'},
+                                   {'-', '1', '0', '0', '1', '0', '0', '1'},
+                                   {'-', '0', '1', '0', '1', '0', '1', '0'},
+                                   {'-', '0', '0', '1', '1', '1', '0', '0'},
+                                   {'-', '1', '1', '1', '1', '1', '1', '1'},
+                                   {'-', '0', '0', '1', '1', '1', '0', '0'},
+                                   {'-', '0', '1', '0', '1', '0', '1', '0'},
+                                   {'-', '1', '0', '0', '1', '0', '0', '1'}};
 
         assertArrayEquals(game.getBoard().getField(),expectedResult);
+
+        //TODO choise take stones of player 2 makes no sense but do it anyways
+
+        char[][] expectedResult2 = {{'-', '-', '-', '-', '-', '-', '-', '-'},
+                                   {'-', '2', '0', '0', '2', '0', '0', '2'},
+                                   {'-', '0', '2', '0', '2', '0', '2', '0'},
+                                   {'-', '0', '0', '2', '2', '2', '0', '0'},
+                                   {'-', '2', '2', '2', '2', '2', '2', '2'},
+                                   {'-', '0', '0', '2', '2', '2', '0', '0'},
+                                   {'-', '0', '2', '0', '2', '0', '2', '0'},
+                                   {'-', '2', '0', '0', '2', '0', '0', '2'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult2);
+
+    }
+
+    @Test
+    @DisplayName("Test the 10th evil Map")
+    void TestEvilMap10() {
+
+        Game game = createGame("maps/evilMaps/boeseMap10.map");
+        boolean moveIsValid = game.getBoard().executeMove(4 , 4, 1);
+
+        assertTrue(moveIsValid);
+
+        char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '-', '-'},
+                {'-', '1', '0', '0', '1', '0', '0', '1'},
+                {'-', '0', '1', '0', '1', '0', '1', '0'},
+                {'-', '0', '0', '1', '1', '1', '0', '0'},
+                {'-', '1', '1', '1', '1', '1', '1', '1'},
+                {'-', '0', '0', '1', '1', '1', '0', '0'},
+                {'-', '0', '1', '0', '1', '0', '1', '0'},
+                {'-', '1', '0', '0', '1', '0', '0', '1'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult);
+
+        //TODO invertion player 1 becomes player 2
+
+        char[][] expectedResult2 = {{'-', '-', '-', '-', '-', '-', '-', '-'},
+                {'-', '2', '0', '0', '2', '0', '0', '2'},
+                {'-', '0', '2', '0', '2', '0', '2', '0'},
+                {'-', '0', '0', '2', '2', '2', '0', '0'},
+                {'-', '2', '2', '2', '2', '2', '2', '2'},
+                {'-', '0', '0', '2', '2', '2', '0', '0'},
+                {'-', '0', '2', '0', '2', '0', '2', '0'},
+                {'-', '2', '0', '0', '2', '0', '0', '2'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult2);
+
+    }
+
+    @Test
+    @DisplayName("Test the 11th evil Map")
+    void TestEvilMap11() {
+
+        Game game = createGame("maps/evilMaps/boeseMap11.map");
+        boolean moveIsValid = game.getBoard().executeMove(3 , 2, 1);
+
+        assertTrue(moveIsValid);
+
+        char[][] expectedResult = {{'-', '-', '-', '-'},
+                                   {'-', '-', '-', '2'},
+                                   {'-', '-', '-', '1'},
+                                   {'-', '-', '-', '1'},
+                                   {'-', '-', '-', '1'},
+                                   {'-', '-', '-', '0'},
+                                   {'-', '-', '-', '0'},
+                                   {'-', '-', '-', '0'},
+                                   {'-', '-', '-', '0'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult);
+
 
     }
 }
