@@ -9,7 +9,7 @@ public class Server {
 
     public static void main(String[] args) {
         Game game;
-        String filename = "maps/initialMaps/oth.map";
+        String filename = "E:\\OTH\\4 Semester\\FW - Reversi\\DeveloperMap.txt";
         Path path = Paths.get(filename);
 
         try {
