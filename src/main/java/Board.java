@@ -63,7 +63,7 @@ public class Board {
         }
     }
 
-    public void printTransition() {
+  /*  public void printTransition() {
         int heightCopy = height + 2;
         int widthCopy = width + 2;
         char[][] fieldCopy = new char[heightCopy][widthCopy];
@@ -76,7 +76,7 @@ public class Board {
 
         for (int h = 1; h < (heightCopy - 1); h++) {
             for (int w = 1; w < (widthCopy - 1); w++) {
-                fieldCopy[h][w] = field[h-1][w-1];
+                fieldCopy[h][w] = field[h - 1][w - 1];
             }
         }
 
@@ -88,10 +88,10 @@ public class Board {
             int y2 = transition.getY2();
             int r2 = transition.getR2();
 
-            if (fieldCopy[y1+1][x1+1] == '-') {
+            if (fieldCopy[y1 + 1][x1 + 1] == '-') {
                 System.out.println("ERROR: x1=" + x1 + " || y1=" + y1);
             } else {
-                fieldCopy[y1+1][x1+1] = '█';
+                fieldCopy[y1 + 1][x1 + 1] = '█';
             }
 
             if (fieldCopy[y2 + 1][x2 + 1] == '-') {
@@ -102,25 +102,25 @@ public class Board {
 
             switch (r1) {
                 case 0:
-                    fieldCopy[y1][x1+1] = '↕';
+                    fieldCopy[y1][x1 + 1] = '↕';
                     break;
                 case 1:
-                    fieldCopy[y1][x1+2] = '⤢';
+                    fieldCopy[y1][x1 + 2] = '⤢';
                     break;
                 case 2:
-                    fieldCopy[y1+1][x1+2] = '↔';
+                    fieldCopy[y1 + 1][x1 + 2] = '↔';
                     break;
                 case 3:
-                    fieldCopy[y1+2][x1+2] = '⤡';
+                    fieldCopy[y1 + 2][x1 + 2] = '⤡';
                     break;
                 case 4:
-                    fieldCopy[y1+2][x1+1] = '↕';
+                    fieldCopy[y1 + 2][x1 + 1] = '↕';
                     break;
                 case 5:
-                    fieldCopy[y1+2][x1] = '⤢';
+                    fieldCopy[y1 + 2][x1] = '⤢';
                     break;
                 case 6:
-                    fieldCopy[y1+1][x1] = '↔';
+                    fieldCopy[y1 + 1][x1] = '↔';
                     break;
                 case 7:
                     fieldCopy[y1][x1] = '⤡';
@@ -131,25 +131,25 @@ public class Board {
 
             switch (r2) {
                 case 0:
-                    fieldCopy[y2][x2+1] = '↕';
+                    fieldCopy[y2][x2 + 1] = '↕';
                     break;
                 case 1:
-                    fieldCopy[y2][x2+2] = '⤢';
+                    fieldCopy[y2][x2 + 2] = '⤢';
                     break;
                 case 2:
-                    fieldCopy[y2+1][x2+2] = '↔';
+                    fieldCopy[y2 + 1][x2 + 2] = '↔';
                     break;
                 case 3:
-                    fieldCopy[y2+2][x2+2] = '⤡';
+                    fieldCopy[y2 + 2][x2 + 2] = '⤡';
                     break;
                 case 4:
-                    fieldCopy[y2+2][x2+1] = '↕';
+                    fieldCopy[y2 + 2][x2 + 1] = '↕';
                     break;
                 case 5:
-                    fieldCopy[y2+2][x2] = '⤢';
+                    fieldCopy[y2 + 2][x2] = '⤢';
                     break;
                 case 6:
-                    fieldCopy[y2+1][x2] = '↔';
+                    fieldCopy[y2 + 1][x2] = '↔';
                     break;
                 case 7:
                     fieldCopy[y2][x2] = '⤡';
@@ -165,6 +165,9 @@ public class Board {
             }
             System.out.println();
         }
+    }
+
+   */
     public void executeMove(int xPos, int yPos, char player) {
         List<int[]> moves = checkMove(xPos, yPos, player);
 
@@ -240,8 +243,9 @@ public class Board {
      */
     private List<int[]> getTransitionFromField(int [] direction, int xPos, int yPos) {
         Directions directions = new Directions();
-        String dir = "" + directions.getNumberFromDir(direction);
-        String key = xPos + " " + yPos + " " + dir;
+        int dir = directions.getNumberFromDir(direction);
+       // String key = xPos + " " + yPos + " " + dir;
+        int key = Transition.hash(xPos, yPos, dir);
         Transition transition = transitions.get(key);
         List<int[]> destination = new ArrayList<>();
 
