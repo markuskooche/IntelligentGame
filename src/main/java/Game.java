@@ -9,8 +9,6 @@ public class Game {
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
-        System.out.println(toString());
-        board.executeMove(4, 2, '1');
     }
 
     private void createPlayers(List<String> initMap) {
