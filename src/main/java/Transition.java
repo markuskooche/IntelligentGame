@@ -48,8 +48,15 @@ public class Transition {
         return r2;
     }
 
+    /**
+     * @return An Integer which represents a transition
+     */
+    public static int hash(int x, int y, int r) {
+        return 1000 * x + 10 * y + r;
+    }
+
     @Override
     public String toString() {
-        return "[" + x1 + " " + y1 + " " + r1 + " <-> " + x2 + " "+ y2 + " " + r2 + "]";
+        return x1 + " " + y1 + " " + r1 + " <-> " + x2 + " "+ y2 + " " + r2;
     }
 }

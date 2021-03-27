@@ -1,10 +1,11 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class Game {
 
     private Player[] players;
-    private Board board;
+    public Board board;
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
@@ -45,13 +46,13 @@ public class Game {
 
         // Create Transitions
         List<String> initMapTransitions = initMap.subList(height + 4, initMap.size());
-        HashMap<String, Transition> transitions = createTransitions(initMapTransitions);
+        HashMap<Integer, Transition> transitions = createTransitions(initMapTransitions);
 
-        board = new Board(mapField, transitions, bombRadius);
+        board = new Board(mapField, transitions, players.length, bombRadius);
     }
 
-    private HashMap<String, Transition> createTransitions(List<String> initMapTransitions) {
-        HashMap<String, Transition> transitions = new HashMap<>();
+    private HashMap<Integer, Transition> createTransitions(List<String> initMapTransitions) {
+        HashMap<Integer, Transition> transitions = new HashMap<>();
         int x1, y1, r1, x2, y2, r2;
 
         for (String line : initMapTransitions) {
@@ -66,10 +67,10 @@ public class Game {
 
             Transition transition = new Transition(x1, y1, r1, x2, y2, r2);
 
-            String transPos1 = x1 + " " + y1 + " " + r1;
+            int transPos1 = Transition.hash(x1, y1, r1);
             transitions.put(transPos1, transition);
 
-            String transPos2 = x2 + " " + y2 + " " + r2;
+            int transPos2 = Transition.hash(x2, y2, r2);
             transitions.put(transPos2, transition);
         }
 
@@ -106,8 +107,14 @@ public class Game {
 
         gameString.append(String.format("%s\n", board.toString()));
 
-        HashMap<String, Transition> transitions = board.getTransition();
-        gameString.append(transitions);
+        ArrayList<Transition> transitionList = new ArrayList<>();
+        for (Transition transition : board.getTransition().values()) {
+            if (!transitionList.contains(transition)) {
+                transitionList.add(transition);
+                gameString.append(transition);
+                gameString.append("\n");
+            }
+        }
 
         return gameString.toString();
     }
