@@ -9,14 +9,14 @@ public class Server {
 
     public static void main(String[] args) {
         Game game;
-        String filename = "maps/testMaps/transitions/map01.map";
+        String filename = "maps/testMaps/transitions/map04.map";
         Path path = Paths.get(filename);
 
         try {
             List<String> file = Files.lines(path).collect(Collectors.toList());
 
             game = new Game(file);
-            System.out.println(game.toString());
+            game.board.printTransition();
 
         } catch (IOException e) {
             e.printStackTrace();

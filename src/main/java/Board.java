@@ -63,7 +63,7 @@ public class Board {
         }
     }
 
-  /*  public void printTransition() {
+    public void printTransition() {
         int heightCopy = height + 2;
         int widthCopy = width + 2;
         char[][] fieldCopy = new char[heightCopy][widthCopy];
@@ -91,39 +91,39 @@ public class Board {
             if (fieldCopy[y1 + 1][x1 + 1] == '-') {
                 System.out.println("ERROR: x1=" + x1 + " || y1=" + y1);
             } else {
-                fieldCopy[y1 + 1][x1 + 1] = '█';
+                fieldCopy[y1 + 1][x1 + 1] = '©';
             }
 
             if (fieldCopy[y2 + 1][x2 + 1] == '-') {
                 System.out.println("ERROR: x2=" + x2 + " || y2=" + y2);
             } else {
-                fieldCopy[y2 + 1][x2 + 1] = '█';
+                fieldCopy[y2 + 1][x2 + 1] = '©';
             }
 
             switch (r1) {
                 case 0:
-                    fieldCopy[y1][x1 + 1] = '↕';
+                    fieldCopy[y1][x1 + 1] = '|';
                     break;
                 case 1:
-                    fieldCopy[y1][x1 + 2] = '⤢';
+                    fieldCopy[y1][x1 + 2] = '/';
                     break;
                 case 2:
-                    fieldCopy[y1 + 1][x1 + 2] = '↔';
+                    fieldCopy[y1 + 1][x1 + 2] = '=';
                     break;
                 case 3:
-                    fieldCopy[y1 + 2][x1 + 2] = '⤡';
+                    fieldCopy[y1 + 2][x1 + 2] = '\\';
                     break;
                 case 4:
-                    fieldCopy[y1 + 2][x1 + 1] = '↕';
+                    fieldCopy[y1 + 2][x1 + 1] = '|';
                     break;
                 case 5:
-                    fieldCopy[y1 + 2][x1] = '⤢';
+                    fieldCopy[y1 + 2][x1] = '/';
                     break;
                 case 6:
-                    fieldCopy[y1 + 1][x1] = '↔';
+                    fieldCopy[y1 + 1][x1] = '=';
                     break;
                 case 7:
-                    fieldCopy[y1][x1] = '⤡';
+                    fieldCopy[y1][x1] = '\\';
                     break;
                 default:
                     break;
@@ -131,28 +131,28 @@ public class Board {
 
             switch (r2) {
                 case 0:
-                    fieldCopy[y2][x2 + 1] = '↕';
+                    fieldCopy[y2][x2 + 1] = '|';
                     break;
                 case 1:
-                    fieldCopy[y2][x2 + 2] = '⤢';
+                    fieldCopy[y2][x2 + 2] = '/';
                     break;
                 case 2:
-                    fieldCopy[y2 + 1][x2 + 2] = '↔';
+                    fieldCopy[y2 + 1][x2 + 2] = '=';
                     break;
                 case 3:
-                    fieldCopy[y2 + 2][x2 + 2] = '⤡';
+                    fieldCopy[y2 + 2][x2 + 2] = '\\';
                     break;
                 case 4:
-                    fieldCopy[y2 + 2][x2 + 1] = '↕';
+                    fieldCopy[y2 + 2][x2 + 1] = '|';
                     break;
                 case 5:
-                    fieldCopy[y2 + 2][x2] = '⤢';
+                    fieldCopy[y2 + 2][x2] = '/';
                     break;
                 case 6:
-                    fieldCopy[y2 + 1][x2] = '↔';
+                    fieldCopy[y2 + 1][x2] = '=';
                     break;
                 case 7:
-                    fieldCopy[y2][x2] = '⤡';
+                    fieldCopy[y2][x2] = '\\';
                     break;
                 default:
                     break;
@@ -167,7 +167,6 @@ public class Board {
         }
     }
 
-   */
     public void executeMove(int xPos, int yPos, char player) {
         List<int[]> moves = checkMove(xPos, yPos, player);
 
