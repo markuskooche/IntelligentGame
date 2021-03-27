@@ -16,6 +16,14 @@ public class Transition {
         this.r2 = r2;
     }
 
+    public int[] getPos1() {
+        return new int[] {x1, y1, r1};
+    }
+
+    public int[] getPos2() {
+        return new int[] {x2, y2, r2};
+    }
+
     public int getX1() {
         return x1;
     }
