@@ -5,7 +5,7 @@ import java.util.List;
 public class Game {
 
     private Player[] players;
-    public Board board;
+    private Board board;
 
     public Game(List<String> initMap) {
         createPlayers(initMap);

@@ -16,7 +16,7 @@ public class Server {
             List<String> file = Files.lines(path).collect(Collectors.toList());
 
             game = new Game(file);
-            game.board.printTransition();
+            game.getBoard().printTransition();
 
         } catch (IOException e) {
             e.printStackTrace();
