@@ -21,26 +21,6 @@ public class Board {
         this.width = field[0].length;
     }
 
-    /*
-    private boolean inversion = false;
-
-    // private weil man sonst inversion außerhalb ändern könnte
-    private List checkMove() {
-        sdkfjasdjf;
-
-        inversion = true;
-    }
-
-    public void executeMove() {
-        ajdlf;
-
-        if (inversion) {
-            kajdflkj;
-            inversion = false;
-        }
-    }
-    */
-
     public void choice() {
         System.out.print("Please enter two Players you would like to change: ");
         Scanner scanner = new Scanner(System.in);
