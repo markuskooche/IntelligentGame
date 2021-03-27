@@ -9,7 +9,7 @@ public class Server {
 
     public static void main(String[] args) {
         Game game;
-        String filename = "maps/initialMaps/europa2.map";
+        String filename = "maps/testMaps/transitions/map01.map";
         Path path = Paths.get(filename);
 
         try {
