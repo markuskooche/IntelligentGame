@@ -91,13 +91,13 @@ public class Board {
             if (fieldCopy[y1 + 1][x1 + 1] == '-') {
                 System.out.println("ERROR: x1=" + x1 + " || y1=" + y1);
             } else {
-                fieldCopy[y1 + 1][x1 + 1] = '©';
+                fieldCopy[y1 + 1][x1 + 1] = '@';
             }
 
             if (fieldCopy[y2 + 1][x2 + 1] == '-') {
                 System.out.println("ERROR: x2=" + x2 + " || y2=" + y2);
             } else {
-                fieldCopy[y2 + 1][x2 + 1] = '©';
+                fieldCopy[y2 + 1][x2 + 1] = '@';
             }
 
             switch (r1) {
@@ -172,6 +172,8 @@ public class Board {
 
         if (!moves.isEmpty()) {
             moves.add(new int[] {xPos, yPos});
+        }else{
+            System.err.println("Error invalid move");
         }
 
         for (int[] position : moves) {
@@ -186,7 +188,7 @@ public class Board {
         List<int[]> tmp = new ArrayList<>();
 
         if (!isPickedPositionValid(xPos, yPos, player)) {
-            System.out.println("Invalid Picked Move Position: " + xPos + " " + yPos + " " + "Player " + player);
+            System.err.println("Invalid Picked Move Position: " + xPos + " " + yPos + " " + "Player " + player);
             return fieldsToMark;
         }
 
