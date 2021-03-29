@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 public class Game {
 
@@ -21,7 +22,7 @@ public class Game {
 
         players = new Player[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
-            players[i] = new Player(overrideStone, bombAmount);
+            players[i] = new Player((i+1), bombAmount, overrideStone);
         }
     }
 
@@ -75,6 +76,24 @@ public class Game {
         }
 
         return transitions;
+    }
+
+    public void executeMove(char player) {
+        System.out.print(getBoard() + "\n");
+
+        System.out.println("PLAYER '" + player + "' SELECTED");
+        System.out.print("Please enter a valid move: ");
+        Scanner scanner = new Scanner(System.in);
+        int x = scanner.nextInt();
+        int y = scanner.nextInt();
+
+        executeMove(x, y, player);
+    }
+
+    public void executeMove(int x, int y, char player) {
+        // ASCII '1' - 49 = 0
+        int index = player - 49;
+        board.executeMove(x, y, players[index]);
     }
 
     public Player[] getPlayers() {

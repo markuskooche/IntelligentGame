@@ -9,14 +9,19 @@ public class Server {
 
     public static void main(String[] args) {
         Game game;
-        String filename = "maps/testMaps/transitions/map04.map";
+
+        //String filename = "maps/benesTestMaps/TestOverrideStonesWithNoStones.map";
+        //String filename = "maps/testMaps/transitions/map08.map";
+        //String filename = "maps/testMaps/bonus.map";
+        String filename = "maps/evilMaps/boeseMap01.map";
+
         Path path = Paths.get(filename);
 
         try {
             List<String> file = Files.lines(path).collect(Collectors.toList());
 
             game = new Game(file);
-            game.getBoard().printTransition();
+            game.executeMove('1');
 
         } catch (IOException e) {
             e.printStackTrace();

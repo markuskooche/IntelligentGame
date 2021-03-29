@@ -16,12 +16,14 @@ public class Transition {
         this.r2 = r2;
     }
 
-    public int[] getPos1() {
-        return new int[] {x1, y1, r1};
-    }
-
-    public int[] getPos2() {
-        return new int[] {x2, y2, r2};
+    public int[] getDestination(int x, int y, int r) {
+        if (x == x1 && y == y1 && r == r1) {
+            return new int[] {x2, y2, r2};
+        } else if (x == x2 && y == y2 && r == r2) {
+            return new int[] {x1, y1, r1};
+        } else {
+            return null;
+        }
     }
 
     public int getX1() {
