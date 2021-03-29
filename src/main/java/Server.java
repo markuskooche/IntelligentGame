@@ -14,7 +14,7 @@ public class Server {
         //String filename = "maps/benesTestMaps/TestOverrideStonesWithNoStones.map";
         //String filename = "maps/testMaps/transitions/map08.map";
         String filename = "maps/testMaps/bonus.map";
-        //String filename = "maps/evilMaps/boeseMap01.map";
+        //String filename = "maps/evilMaps/boeseMap08.map";
 
         Path path = Paths.get(filename);
 

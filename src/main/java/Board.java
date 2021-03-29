@@ -229,6 +229,11 @@ public class Board {
             bonus(player);
         }
 
+        if (field[y][x] == 'x' && player.hasOverrideStone()) {
+            field[y][x] = player.getNumber();
+            moveWasValid = true;
+        }
+
         if (moveWasValid) {
             System.out.println("\n" + toString());
         } else {
@@ -441,7 +446,7 @@ public class Board {
                 if (nextPiece == player) {
                     break;
                 }
-                else if (nextPiece == 'b' || nextPiece == 'i' || nextPiece == 'c' || nextPiece == 'x') {
+                else if (nextPiece == 'b' || nextPiece == 'i' || nextPiece == 'c') {
                     if (!checkMove.isEmpty()) {
                         checkMove.add(new int[]{nextX, nextY});
 
@@ -449,7 +454,7 @@ public class Board {
                             checkMove.setInversion();
                         } else if (nextPiece == 'c') {
                             checkMove.setChoice();
-                        } else if (nextPiece == 'b') {
+                        } else {
                             checkMove.setBonus();
                         }
 
