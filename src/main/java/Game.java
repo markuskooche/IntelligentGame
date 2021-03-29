@@ -79,7 +79,10 @@ public class Game {
     }
 
     public void executeMove(char player) {
-        System.out.print(getBoard() + "\n");
+        System.out.print(getBoard());
+
+        board.getLegalMoves(player);
+        System.out.println();
 
         System.out.println("PLAYER '" + player + "' SELECTED");
         System.out.print("Please enter a valid move: ");

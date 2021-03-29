@@ -376,7 +376,6 @@ public class Board {
      */
     public List<Moves> getLegalMoves(char player) {
         List<Moves> legalMoves = new LinkedList<>();
-        LinkedList<int[]> pieces  = new LinkedList<>();
 
         // searches for all pieces and adds the legal moves to the list
         for (int y = 0; y < height; y++) {
@@ -403,7 +402,7 @@ public class Board {
     public List<Moves> checkDirection(int x, int y, char player) {
         List<Moves> legalMoves = new LinkedList<>();
 
-        int[][] directions = {{-1, 0 }, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
 
         int[] currentDirection;
 
