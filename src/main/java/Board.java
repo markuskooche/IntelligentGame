@@ -112,13 +112,13 @@ public class Board {
             if (fieldCopy[y1 + 1][x1 + 1] == '-') {
                 System.out.println("ERROR: x1=" + x1 + " || y1=" + y1);
             } else {
-                fieldCopy[y1 + 1][x1 + 1] = '©';
+                fieldCopy[y1 + 1][x1 + 1] = '@';
             }
 
             if (fieldCopy[y2 + 1][x2 + 1] == '-') {
                 System.out.println("ERROR: x2=" + x2 + " || y2=" + y2);
             } else {
-                fieldCopy[y2 + 1][x2 + 1] = '©';
+                fieldCopy[y2 + 1][x2 + 1] = '@';
             }
 
             switch (r1) {
