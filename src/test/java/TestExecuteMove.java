@@ -436,7 +436,7 @@ public class TestExecuteMove {
     void TestEvilMap11() {
 
         Game game = createGame("maps/evilMaps/boeseMap11.map");
-        game.getBoard().executeMove(3 , 2, ' ');
+        game.getBoard().executeMove(3 , 2, '1');
 
         char[][] expectedResult = {{'-', '-', '-', '-'},
                                    {'-', '-', '-', '2'},
