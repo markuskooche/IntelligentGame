@@ -1,8 +1,6 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 public class Board {
 
@@ -14,6 +12,7 @@ public class Board {
     private final int width;
     private final int height;
 
+    @NotNull
     public Board(char[][] field, HashMap<Integer, Transition> transitions, int playerAmount, int bombRadius) {
         this.playerAmount = playerAmount;
         this.transitions = transitions;
@@ -45,6 +44,28 @@ public class Board {
                     }
                 }
             }
+        }
+    }
+
+    public void bonus(Player player) {
+        System.out.print("!!BONUS!! choose your item (b = bomb, o = override): ");
+        Scanner scanner = new Scanner(System.in);
+
+        char item = scanner.next().charAt(0);
+
+        if (item == 'b') {
+            System.out.println("BOMB selected");
+            System.out.println("BEFORE: " + player.getBomb());
+            player.setBomb(player.getBomb() + 1);
+            System.out.println("AFTER: " + player.getBomb());
+        } else if (item == 'o') {
+            System.out.println("OVERRIDE selected");
+            System.out.println("BEFORE: " + player.getOverrideStone());
+            player.setOverrideStone(player.getOverrideStone() + 1);
+            System.out.println("AFTER: " + player.getOverrideStone());
+        } else {
+            System.out.println("INVALID SELECTION");
+            System.exit(1);
         }
     }
 
@@ -167,138 +188,336 @@ public class Board {
         }
     }
 
-    public void executeMove(int xPos, int yPos, char player) {
-        List<int[]> moves = checkMove(xPos, yPos, player);
+    public void executeMove(int x, int y, Player player) {
+        List<Moves> legalMoves = getLegalMoves(player.getNumber());
+        boolean inversion = false;
+        boolean choice = false;
+        boolean bonus = false;
 
-        if (!moves.isEmpty()) {
-            moves.add(new int[] {xPos, yPos});
-        }else{
-            System.err.println("Error invalid move");
-        }
+        int[] move = new int[] {x, y};
 
-        for (int[] position : moves) {
-            int x = position[0];
-            int y = position[1];
-            field[y][x] = player;
-        }
-    }
+        boolean moveWasValid = false;
+        for (Moves legalMove : legalMoves) {
+            if (legalMove.isMove(move)) {
+                for (int[] position : legalMove.getList()) {
+                    int colorizeX = position[0];
+                    int colorizeY = position[1];
+                    field[colorizeY][colorizeX] = player.getNumber();
+                    moveWasValid = true;
 
-    public List<int[]> checkMove(int xPos, int yPos, char player) {
-        List<int[]> fieldsToMark = new ArrayList<>();
-        List<int[]> tmp = new ArrayList<>();
-
-        if (!isPickedPositionValid(xPos, yPos, player)) {
-            System.err.println("Invalid Picked Move Position: " + xPos + " " + yPos + " " + "Player " + player);
-            return fieldsToMark;
-        }
-
-        List<int[]> directions = new Directions().getDirectionList();
-        for (int [] dir : directions) {
-            fieldsToMark.addAll(checkDirection(dir, xPos, yPos, player, tmp));
-            tmp.clear();
-        }
-        return fieldsToMark;
-    }
-
-    private List<int[]> checkDirection(int [] direction, int xPos, int yPos, char player, List<int[]> tmp) {
-        Character[] notEnemyOrMe = {'-', '0', 'b', 'c', 'i'};
-
-        int x = xPos;
-        int y = yPos;
-        while (true) {
-            //Check for Transition
-            List<int[]> destTransition = getTransitionFromField(direction, x, y);
-            if (!destTransition.isEmpty()) {
-                int [] newDir = destTransition.get(1);
-                int xNew = destTransition.get(0)[0] - newDir[0]; //will be added above again
-                int yNew = destTransition.get(0)[1] - newDir[1];
-                checkDirection(newDir, xNew, yNew,player, tmp);
-                break;
+                    if (legalMove.getInversion()) {
+                        inversion = true;
+                    } else if (legalMove.getChoice()) {
+                        choice = true;
+                    } else if (legalMove.getBonus()) {
+                        bonus = true;
+                    }
+                }
             }
+        }
 
-            x += direction[0];
-            y += direction[1];
+        if (inversion) {
+            inversion();
+        } else if (choice) {
+            // try only for TestExecuteMove
+            try {
+                choice();
+            } catch (NoSuchElementException e) {
+                choice('1', '2');
+            }
+        } else if (bonus) {
+            bonus(player);
+        }
 
-            if (x < 0 || x >= width || y < 0 || y >= height) {
-                tmp.clear();
-                break;
-            }
-            if (field[y][x] == player) {
-                break;
-            }
-            if (isThisPositionValid(x, y, notEnemyOrMe)) {
-                int[] posToMark = {x, y};
-                tmp.add(posToMark);
+        if (moveWasValid) {
+            System.out.println("\n" + toString());
+        } else {
+            if (player.hasOverrideStone()) {
+                if (tryOverrideMove(move[0], move[1], player.getNumber())) {
+                    System.out.println("\n" + toString());
+                } else {
+                    System.out.println("DISQUALIFIED: not a legal move (not a possible override stone)");
+                }
             } else {
-                tmp.clear();
-                break;
+                System.out.println("DISQUALIFIED: not a legal move (no valid position selected & no override stone)");
             }
         }
-        return tmp;
+    }
+
+    private boolean tryOverrideMove(int x, int y, char player) {
+        List<Moves> legalOverrideMoves = new LinkedList<>();
+        boolean validOverrideMove = false;
+
+        int[][] directions = {{-1, 0 }, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+        int[] currentDirection;
+
+        for (int[] direction : directions) {
+            Moves checkMove = new Moves();
+            currentDirection = direction;
+
+            int currentX = x;
+            int currentY = y;
+
+            while (true) {
+                int nextX = currentX + currentDirection[1];
+                int nextY = currentY + currentDirection[0];
+                boolean isTransition = false;
+
+                // avoids IndexOutOfBounds exception
+                if (nextX < 0 || nextX >= width || nextY < 0 || nextY >= height) {
+                    int directionValue = Direction.indexOf(direction);
+
+                    int transitionKey = Transition.hash(currentX, currentY, directionValue);
+                    Transition transition = transitions.get(transitionKey);
+
+                    if (transition != null) {
+                        isTransition = true;
+                    } else {
+                        break;
+                    }
+                }
+
+                char nextPiece = 'T';
+                if (!isTransition) {
+                    nextPiece = field[nextY][nextX];
+                }
+
+                if (nextPiece == player) {
+                    if (!checkMove.isEmpty()) {
+                        checkMove.add(new int[]{nextX, nextY});
+                        checkMove.add(new int[]{x, y});
+                        legalOverrideMoves.add(checkMove);
+                        validOverrideMove = true;
+                        System.out.println("VALID OVERRIDE MOVE" + Arrays.toString(direction));
+                    }
+                    break;
+                }
+                else if (nextX == x && nextY == y) {
+                    break;
+                }
+                else if (nextPiece == 'b' || nextPiece == 'i' || nextPiece == 'c' || nextPiece == 'x') {
+                    break;
+                }
+                // check if a transition is possible
+                else if (nextPiece == '-' || nextPiece == 'T') {
+                    int directionValue = Direction.indexOf(direction);
+
+                    int transitionKey = Transition.hash(currentX, currentY, directionValue);
+                    Transition transition = transitions.get(transitionKey);
+
+                    if (transition == null) {
+                        break;
+                    } else {
+                        int[] newPosition = transition.getDestination(currentX, currentY, directionValue);
+                        char transitionPiece = field[newPosition[1]][newPosition[0]];
+
+                        if (transitionPiece == player) {
+                            if (!checkMove.isEmpty()) {
+                                checkMove.add(new int[]{newPosition[0], newPosition[1]});
+                                checkMove.add(new int[]{x, y});
+                                legalOverrideMoves.add(checkMove);
+                                validOverrideMove = true;
+                                System.out.println("VALID OVERRIDE MOVE (with transition)");
+                            }
+                            break;
+                        }
+                        else if (transitionPiece == '0') {
+                            break;
+                        }
+                        else {
+                            int[] newDirection = Direction.valueOf(newPosition[2]);
+                            if (newDirection != null) {
+                                currentDirection[0] = (-1) * newDirection[0];
+                                currentDirection[1] = (-1) * newDirection[1];
+                                checkMove.add(new int[]{newPosition[0], newPosition[1]});
+                                currentX = newPosition[0];
+                                currentY = newPosition[1];
+                            } else {
+                                System.err.println("FIXME: Transition found no value");
+                                System.err.println("(" + x + ", " + y + ")");
+                                System.err.println(toString());
+                                break;
+                            }
+                        }
+                    }
+                }
+                // finishes a valid move
+                else if (nextPiece == '0') {
+                    break;
+                }
+                // when it is an opponent
+                else {
+                    checkMove.add(new int[] {nextX, nextY});
+                    currentX = nextX;
+                    currentY = nextY;
+
+                    nextX += currentDirection[1];
+                    nextY += currentDirection[0];
+                }
+
+            }
+        }
+
+        for (Moves legalMove : legalOverrideMoves) {
+            for (int[] position : legalMove.getList()) {
+                int colorizeX = position[0];
+                int colorizeY = position[1];
+                field[colorizeY][colorizeX] = player;
+            }
+        }
+
+        return validOverrideMove;
     }
 
     /**
-     * Returns the destination position form a field with a transition as list
-     * Index: 0 = destination position
-     * Index: 1 = out coming direction when using the transition
+     * Creates a list with legal moves for a selected player
+     *
+     * @returns List of allowed positions for the player [0] = x and [1] = y
      */
-    private List<int[]> getTransitionFromField(int [] direction, int xPos, int yPos) {
-        Directions directions = new Directions();
-        int dir = directions.getNumberFromDir(direction);
-       // String key = xPos + " " + yPos + " " + dir;
-        int key = Transition.hash(xPos, yPos, dir);
-        Transition transition = transitions.get(key);
-        List<int[]> destination = new ArrayList<>();
+    public List<Moves> getLegalMoves(char player) {
+        List<Moves> legalMoves = new LinkedList<>();
 
-        if (transition != null) {
-            int [] dest = null;
-            int [] newDir = null;
-            if (transition.getPos1()[0] == xPos && transition.getPos1()[1] == yPos) {
-                dest = transition.getPos2();
-                newDir = directions.getDirectionFromNum(dest[2]);
-                //Invert the direction
-                newDir[0] = newDir[0] * -1;
-                newDir[1] = newDir[1] * -1;
+        // searches for all pieces and adds the legal moves to the list
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (field[y][x] == player) {
+                    List<Moves> tmpMoves = checkDirection(x, y, player);
+                    legalMoves.addAll(tmpMoves);
+                }
             }
-            if (transition.getPos2()[0] == xPos && transition.getPos2()[1] == yPos) {
-                dest = transition.getPos1();
-                newDir = directions.getDirectionFromNum(dest[2]);
-                //Invert the direction
-                newDir[0] = newDir[0] * -1;
-                newDir[1] = newDir[1] * -1;
-            }
-            destination.add(dest);
-            destination.add(newDir);
         }
-        return destination;
+
+        System.out.println("\nLEGAL MOVES FROM PLAYER '" + player + "'");
+        if (!legalMoves.isEmpty()) {
+            for (Moves move : legalMoves) {
+                System.out.println(move);
+            }
+        } else {
+            System.out.println("THERE ARE NOT LEGAL MOVES");
+        }
+
+        return legalMoves;
     }
 
-    /**
-     * Compare the given field(xPos, yPos) with invalidChars. <br>
-     * Returns true, if invalidChars does not contain the field
-     */
-    private boolean isThisPositionValid(int xPos, int yPos, Character[] invalidChars) {
-        if (xPos < 0 || xPos >= width || yPos < 0 || yPos >= height) {
-            return false;
-        }
-        char fieldToCheck = field[yPos][xPos];
-        List<Character> invalidFields = new ArrayList<>(Arrays.asList(invalidChars));
+    public List<Moves> checkDirection(int x, int y, char player) {
+        List<Moves> legalMoves = new LinkedList<>();
 
-        if (!invalidFields.contains(fieldToCheck)) {
-            return true;
-        }
-        return false;
-    }
+        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
 
-    private boolean isPickedPositionValid(int xPos, int yPos, char player) {
-        char fieldPos = field[yPos][xPos];
-        if (fieldPos != '-' && fieldPos != player) {
-            if (fieldPos == '0' || fieldPos == 'b' || fieldPos == 'c' || fieldPos == 'i') {
-                return true;
+        int[] currentDirection;
+
+        for (int[] direction : directions) {
+            Moves checkMove = new Moves();
+            currentDirection = direction;
+
+            int currentX = x;
+            int currentY = y;
+
+            while (true) {
+                int nextX = currentX + currentDirection[1];
+                int nextY = currentY + currentDirection[0];
+                boolean isTransition = false;
+
+                // avoids IndexOutOfBounds exception
+                if (nextX < 0 || nextX >= width || nextY < 0 || nextY >= height) {
+                    int directionValue = Direction.indexOf(direction);
+
+                    int transitionKey = Transition.hash(currentX, currentY, directionValue);
+                    Transition transition = transitions.get(transitionKey);
+
+                    if (transition != null) {
+                        isTransition = true;
+                    } else {
+                        break;
+                    }
+                }
+
+                char nextPiece = 'T';
+                if (!isTransition) {
+                    nextPiece = field[nextY][nextX];
+                }
+
+                // check if it is a non-allowed field
+                if (nextPiece == player) {
+                    break;
+                }
+                else if (nextPiece == 'b' || nextPiece == 'i' || nextPiece == 'c' || nextPiece == 'x') {
+                    if (!checkMove.isEmpty()) {
+                        checkMove.add(new int[]{nextX, nextY});
+
+                        if (nextPiece == 'i') {
+                            checkMove.setInversion();
+                        } else if (nextPiece == 'c') {
+                            checkMove.setChoice();
+                        } else if (nextPiece == 'b') {
+                            checkMove.setBonus();
+                        }
+
+                        legalMoves.add(checkMove);
+                    }
+                    break;
+                }
+                // check if a transition is possible
+                else if (nextPiece == '-' || nextPiece == 'T') {
+                    int directionValue = Direction.indexOf(direction);
+
+                    int transitionKey = Transition.hash(currentX, currentY, directionValue);
+                    Transition transition = transitions.get(transitionKey);
+
+                    if (transition == null) {
+                        break;
+                    } else {
+                        int[] newPosition = transition.getDestination(currentX, currentY, directionValue);
+                        char transitionPiece = field[newPosition[1]][newPosition[0]];
+
+                        if (transitionPiece == player) {
+                            break;
+                        }
+                        else if (transitionPiece == '0') {
+                            if (!checkMove.isEmpty()) {
+                                checkMove.add(new int[]{newPosition[0], newPosition[1]});
+                                legalMoves.add(checkMove);
+                            }
+                            break;
+                        }
+                        else {
+                            int[] newDirection = Direction.valueOf(newPosition[2]);
+                            if (newDirection != null) {
+                                currentDirection[0] = (-1) * newDirection[0];
+                                currentDirection[1] = (-1) * newDirection[1];
+                                checkMove.add(new int[]{newPosition[0], newPosition[1]});
+                                currentX = newPosition[0];
+                                currentY = newPosition[1];
+                            } else {
+                                System.err.println("FIXME: Transition found no value");
+                                System.err.println("(" + x + ", " + y + ")");
+                                System.err.println(toString());
+                                return null;
+                            }
+                        }
+                    }
+                }
+                // finishes a valid move
+                else if (nextPiece == '0') {
+                    if (!checkMove.isEmpty()) {
+                        checkMove.add(new int[]{nextX, nextY});
+                        legalMoves.add(checkMove);
+                    }
+                    break;
+                }
+                // when it is an opponent
+                else {
+                    checkMove.add(new int[] {nextX, nextY});
+                    currentX = nextX;
+                    currentY = nextY;
+
+                    nextX += currentDirection[1];
+                    nextY += currentDirection[0];
+                }
             }
         }
 
-        return false;
+        return legalMoves;
     }
 
     public int getBombRadius() {
@@ -311,10 +530,6 @@ public class Board {
 
     public int getWidth() {
         return width;
-    }
-
-    public char[][] getBoard() {
-        return field;
     }
 
     public void setPiece(int height, int width, char piece) {

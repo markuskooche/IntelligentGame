@@ -8,9 +8,9 @@
 % Titelseite
 % ----------------------------------------------------------------------------------------------------------
 \MyTitlepage[pics/gamefield02]{???}{
-\texttt{stud1@st.oth-regensburg.de}\\
-\texttt{stud2@st.oth-regensburg.de}\\
-\texttt{stud3@st.oth-regensburg.de}}
+\texttt{benedikt.halbritter@st.oth-regensburg.de}\\
+\texttt{markus1.koch@st.oth-regensburg.de}\\
+\texttt{iwan.eckert@st.oth-regensburg.de}}
 {??.??.\the\year} % FIXME optional: Gruppenlogo als PNG, Pflichtfelder: Gruppe, Authoren durch "\\" getrennt und Abgabedatum eingeben
 
 \setcounter{page}{1} 
@@ -94,18 +94,36 @@ Der Umfang dieses Abschnitts sollte mindestens eine $\frac{3}{4}$-Seite betragen
 % Kapitel: Spielfeldbewertung
 % ----------------------------------------------------------------------------------
 \section{Spielfeldbewertung}
-Versuchen Sie eine \emph{weiche} Überleitung in dieses Kapitel zu formulieren, indem Sie kurz beschreiben, was den Leser in diesem Kapitel erwartet und warum das für die entstehende K.\,I.\ interessant ist.
+Ein wesentlicher Aspekt der K.I. ist es die aktuelle Spielfeldsituation der unterschiedlichen Spieler zu bewerten. Dadurch ist es der K.I. möglich Spielzüge besser einzustufen und gegebenenfalls das Spiel mit Spezialsteinen zu beeinflussen. Ein naiver Ansatz wäre der Vergleich der aktuellen Spielsteine jeden Spielers. Dieses Vorgehen reicht jedoch nicht für eine adäquate Bewertung der Spielsituation. In Abbildung 1 würde die naive Vorgehensweise den roten Spieler besser einstufen, jedoch hat er hier keinerlei mögliche Spielzüge. Der rote Spieler kann trotz dieser Überlegenheit nicht mehr gewinnen, da der blaue Spieler im nächsten Spielzug über alle roten hinweg ziehen kann. Genau aus diesem Grund reicht eine naive Spielfeldbestimmung nicht für ein aussagekräfigtes Resultat aus.
+
+\vspace{1em}
+\begin{minipage}{\linewidth}
+	\centering
+	\includegraphics[width=0.6\linewidth]{pics/naive-spielsituation.png}
+	\captionof{figure}[Spielfeldsituation 01]{Problematik der naven Bewertung}
+	\label{fig:naivespielfeld01}
+\end{minipage}
 
 \subsection{Bestandteile und Implementierung}\label{kap:Heuristik}
-Beschreiben Sie detailliert, welche Elemente Sie in Ihrer Heuristik für Ihren Client umgesetzt. Beschreiben Sie dazu auch Werte von Parametern (Kriterien und Gewichtungen), die Sie in den einzelnen Implementierungen nutzen. Welche statischen Vorberechnungen Sie machen, um z.\,B.\ das Spielfeld zu analysieren, etc.
+\subsubsection{Variante 1: Gewichtung der einzelnen Felder}
+Wie bereits in der Einleitung gezeigt ist das Abzählen der Spielsteine nicht ausreichend. Eine bessere Alternative ist es das Spielfeld an sich zu bewerten. Es gibt gewisse Positionen die für einen Spieler wertvoller sind als andere. Zu diesen Positionen zählen unter anderem Kanten und Ecken, da es wesentlich schwieriger, bis garnicht möglich ist, diese einzunehmen. Eine Außnahme stellt hier das Einnehmen mithilfe von Überschreib-, bzw. Spezialsteine dar. Insbesondere sind Felder die zwei Felder oder mehr von einem Bonusfeld in direkter Richtung entfernt sind höher gewichtet, da sie die Möglichkeit geben einen solchen Bonusstein einzunehmen, falls ein Gegner auf ein direktes Nachbarfeld des Spezialfeldes zieht.
 
-Nutzen Sie zum besseren Verständnis - wie auch in den vorhergehenden beiden Abschnitten - Bilder und erklären Sie jeweils, was darauf zu sehen ist.
+\vspace{1em}
+\begin{minipage}{\linewidth}
+	\centering
+	\includegraphics[width=0.5\linewidth]{pics/bewertung.png}
+	\captionof{figure}[Bewertungsverfahren 01]{Spielfeldpositionen mit Gewichtungen}
+	\label{fig:bewertungsverfahren01}
+\end{minipage}
 
-Bei der finalen Abgabe des Dokuments im Juni ist dieser Abschnitt eines der wichtigsten Kapitel im gesamten Projektbericht. Stellen Sie sicher, dass am Ende alle Elemente der Heuristik, die Sie in Ihrem Client umgesetzt haben, auch in diesem Kapitel detailliert inkl.\ verwendeter Gewichtungen und Parameter etc.\ beschrieben werden.
+Der Score eines Spielers setzt sich dann aus der Summe der belegten Felder mit der entsprechenden Gewichtung.
 
-Auch hier wäre eine Gegenüberstellung von Vor- und Nachteilen der einzelnen Heuristikbestandteile wünschenswert.
+Dieses Bewertungsverfahren bietet Vor- und Nachteile. Positiv ist es, dass bei Beginn des Spieles jedem Feld eine Gewichtung zugeteilt wird und diese nur noch durch erreichen von Spezialfeldern geringfügig geändert wird. Negativ ist jedoch, dass dieses Bewertungsverfahren besonders bei großen rechteckigen Spielfeldern mit wenig Spezialfeldern annähernd wie die naive Variante funktionert.
 
-Der Umfang dieses Abschnitts sollte bei der ersten Abgabe im April mindestens eine $\frac{1}{2}$-Seite und bei der finalen Abgabe im Juni mindestens 2 Seiten betragen.
+\subsubsection{Variante 2: Aussage über die möglichen Spielzüge}
+Eine andere Vorgehensweise ist es, Spielsituationen anhand der Beweglichkeit der Spieler einzustufen. Hierbei wird die Anzahl an Spielzügen eines jeden Spielers bestimmt und miteinander verglichen. Wie bereits in der Einleitung gezeigt kann ein Spieler seine positive Stellung nur halten, solange er weiterhin spielfähig bleibt. Aus diesem Grund wird in diesem Ansatz bestimmt wie beweglich ein Spieler gegenüber die Anderen ist.
+
+Ein Vorteil dieses Verfahrens im Gegensatz zur ersten Variante ist es, dass die Form und größe des Spielfeldes keine negativen Einflüsse auf diesen Alogithmus hat. Ein Problem daran ist jedoch, dass diese Verfahren bei großen Maps und bei fortschreiten des Spieles extrem rechenlastig und zeitintesiv wird, da es immer mehr Züge vorrausberechnen muss.
 
 \newpage
 % ----------------------------------------------------------------------------------
