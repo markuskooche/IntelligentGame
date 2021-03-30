@@ -3,7 +3,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Server {
@@ -11,10 +10,7 @@ public class Server {
     public static void main(String[] args) {
         Game game;
 
-        //String filename = "maps/benesTestMaps/TestOverrideStonesWithNoStones.map";
-        //String filename = "maps/testMaps/transitions/map08.map";
         String filename = "maps/testMaps/bonus.map";
-        //String filename = "maps/evilMaps/boeseMap08.map";
 
         Path path = Paths.get(filename);
 

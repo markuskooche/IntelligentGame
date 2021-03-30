@@ -21,7 +21,7 @@ hs_err_pid*
 
 # LaTeX Files
 /out/*
-!/out/Projektbericht.pdf
+# !/out/Projektbericht.pdf
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
