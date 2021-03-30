@@ -3,36 +3,18 @@
   <ID>JAVA</ID>
   <OriginalElement />
   <nodes>
-    <node x="895.0" y="1121.0">com</node>
-    <node x="530.0" y="1046.0">netscape</node>
-    <node x="0.0" y="947.0">Server</node>
-    <node x="943.0" y="0.0">Directions</node>
-    <node x="0.0" y="0.0">TestExecuteMove</node>
-    <node x="524.0" y="947.0">toolbarButtonGraphics</node>
-    <node x="1058.0" y="1121.0">sun</node>
-    <node x="762.0" y="671.0">Direction</node>
-    <node x="187.0" y="1121.0">apple</node>
-    <node x="273.0" y="1046.0">groovyjarjarasm</node>
-    <node x="724.0" y="1121.0">java</node>
-    <node x="716.0" y="0.0">Moves</node>
-    <node x="362.0" y="0.0">Board</node>
-    <node x="366.0" y="1121.0">javax</node>
-    <node x="828.0" y="947.0">groovyjarjarpicocli</node>
-    <node x="934.0" y="1046.0">images</node>
-    <node x="545.0" y="1121.0">junit</node>
-    <node x="1033.0" y="671.0">Player</node>
-    <node x="0.0" y="1196.0">org</node>
-    <node x="163.0" y="1196.0">jdk</node>
-    <node x="732.0" y="1046.0">META-INF</node>
-    <node x="0.0" y="1121.0">groovy</node>
-    <node x="287.0" y="671.0">Game</node>
-    <node x="0.0" y="671.0">Transition</node>
-    <node x="212.0" y="947.0">groovyjarjarcommonscli</node>
-    <node x="0.0" y="1046.0">groovyjarjarantlr</node>
+    <node x="271.0" y="751.0">Player</node>
+    <node x="354.0" y="0.0">Moves</node>
+    <node x="0.0" y="0.0">Board</node>
+    <node x="287.0" y="475.0">Game</node>
+    <node x="540.0" y="751.0">Server</node>
+    <node x="581.0" y="0.0">Directions</node>
+    <node x="0.0" y="475.0">Transition</node>
+    <node x="0.0" y="751.0">Direction</node>
   </nodes>
   <notes />
   <edges />
-  <settings layout="Hierarchic Group" zoom="1.0" x="614.0" y="395.0" />
+  <settings layout="Hierarchic Group" zoom="1.0" x="614.0" y="443.0" />
   <SelectedNodes />
   <Categories>
     <Category>Fields</Category>
