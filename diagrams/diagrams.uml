@@ -3,23 +3,78 @@
   <ID>JAVA</ID>
   <OriginalElement />
   <nodes>
-    <node x="271.0" y="751.0">Player</node>
-    <node x="354.0" y="0.0">Moves</node>
-    <node x="0.0" y="0.0">Board</node>
-    <node x="287.0" y="475.0">Game</node>
-    <node x="540.0" y="751.0">Server</node>
-    <node x="581.0" y="0.0">Directions</node>
-    <node x="0.0" y="475.0">Transition</node>
-    <node x="0.0" y="751.0">Direction</node>
+    <node x="649.0" y="99.0">Player</node>
+    <node x="466.0" y="0.0">Moves</node>
+    <node x="294.7083333333333" y="947.0">Game</node>
+    <node x="266.86805555555554" y="424.0">Board</node>
+    <node x="408.2083333333333" y="1229.0">Server</node>
+    <node x="890.0" y="0.0">Directions</node>
+    <node x="0.0" y="55.0">Transition</node>
+    <node x="245.99999999999997" y="110.5">Direction</node>
   </nodes>
   <notes />
-  <edges />
-  <settings layout="Hierarchic Group" zoom="1.0" x="614.0" y="443.0" />
+  <edges>
+    <edge source="Game" target="Transition">
+      <point x="-117.5" y="-116.0" />
+      <point x="365.2083333333333" y="917.0" />
+      <point x="62.0" y="917.0" />
+      <point x="62.0" y="404.0" />
+      <point x="84.75" y="404.0" />
+      <point x="-28.25" y="127.0" />
+    </edge>
+    <edge source="Server" target="Game">
+      <point x="-37.25" y="-27.0" />
+      <point x="445.4583333333333" y="1204.0" />
+      <point x="388.7083333333333" y="1204.0" />
+      <point x="-94.0" y="116.0" />
+    </edge>
+    <edge source="Board" target="Direction">
+      <point x="-28.166666666666686" y="-226.5" />
+      <point x="407.70138888888886" y="384.0" />
+      <point x="346.0" y="384.0" />
+      <point x="0.0" y="71.5" />
+    </edge>
+    <edge source="Board" target="Player">
+      <point x="140.83333333333337" y="-226.5" />
+      <point x="576.7013888888889" y="404.0" />
+      <point x="673.5" y="404.0" />
+      <point x="-73.5" y="83.0" />
+    </edge>
+    <edge source="Game" target="Player">
+      <point x="70.5" y="-116.0" />
+      <point x="553.2083333333333" y="907.0" />
+      <point x="760.5" y="907.0" />
+      <point x="760.5" y="404.0" />
+      <point x="722.5" y="404.0" />
+      <point x="-24.5" y="83.0" />
+    </edge>
+    <edge source="Board" target="Moves">
+      <point x="28.16666666666663" y="-226.5" />
+      <point x="464.0347222222222" y="404.0" />
+      <point x="506.75" y="404.0" />
+      <point x="-40.75" y="182.0" />
+    </edge>
+    <edge source="Board" target="Transition">
+      <point x="-140.83333333333337" y="-226.5" />
+      <point x="295.0347222222222" y="404.0" />
+      <point x="141.25" y="404.0" />
+      <point x="28.25" y="127.0" />
+    </edge>
+    <edge source="Game" target="Board">
+      <point x="-70.5" y="-116.0" />
+      <point x="412.2083333333333" y="907.0" />
+      <point x="323.20138888888886" y="907.0" />
+      <point x="-112.66666666666669" y="226.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="737.5" y="262.5" />
   <SelectedNodes />
   <Categories>
-    <Category>Fields</Category>
-    <Category>Methods</Category>
+    <Category>Inner Classes</Category>
     <Category>Properties</Category>
+    <Category>Methods</Category>
+    <Category>Fields</Category>
+    <Category>Constructors</Category>
   </Categories>
   <SCOPE>All</SCOPE>
   <VISIBILITY>private</VISIBILITY>
