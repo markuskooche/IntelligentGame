@@ -22,6 +22,7 @@ public class Server {
             analyzer.createField();
             System.out.println(analyzer.toString());
             System.out.println(analyzer.calculateScoreForPlayer('1'));
+            //analyzer.createReachableField(0, 0);
         //game.executeMove('1');
 
         } catch (IOException e) {
