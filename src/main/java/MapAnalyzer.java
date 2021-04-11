@@ -2,7 +2,7 @@ public class MapAnalyzer {
 
     private int[][] field;
     private Board board;
-    private int[][] reachableField;
+    private int[][] reachableField; // bool array
 
     public MapAnalyzer(Board b) {
         board = b;
@@ -90,6 +90,12 @@ public class MapAnalyzer {
 
         reachableField[y][x] = 1;
 
+
+        if( x == 29 && y == 18){
+            System.out.println("test");
+        }
+
+
         //System.out.println("(" + x + ")(" + y + ") Wurde gelockt");
         for (int[] direction : directions) {
             currentDirection = direction;
@@ -97,8 +103,8 @@ public class MapAnalyzer {
             int nextX = x + currentDirection[1];
             int nextY = y + currentDirection[0];
 
-            // avoids IndexOutOfBounds exception
-            if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight()) {
+            // avoids IndexOutOfBounds exception                                                     required for intermap transactions
+            if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight() || board.getField()[nextY][nextX] == '-') {
                 int directionValue = Direction.indexOf(direction);
 
                 int transitionKey = Transition.hash(x, y, directionValue);

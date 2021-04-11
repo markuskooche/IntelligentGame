@@ -10,7 +10,8 @@ public class Server {
     public static void main(String[] args) {
         Game game;
 
-        String filename = "maps/benesTestMaps/TestMapAnalyze.map";
+       // String filename = "maps/benesTestMaps/EasyTestMap.map";
+        String filename = "maps/initialMaps/europa2.map";
 
         Path path = Paths.get(filename);
 
