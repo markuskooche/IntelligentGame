@@ -1,14 +1,32 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * The Game class creates a new instance of a game when all important information is passed,
+ * such as the playing field, the number of players, bomb radius, transitions and much more.
+ * Subsequently, a game can control all steps of an action until disqualification or until
+ * one has won or lost. This is a class that can control all other classes directly or indirectly.
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
+ */
 public class Game {
 
     private Player[] players;
     private Board board;
+    private Heuristics heuristics;
+    private MapAnalyzer mapAnalyzer;
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
+        mapAnalyzer = new MapAnalyzer(board);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
+        System.out.println(mapAnalyzer.toString());
     }
 
     private void createPlayers(List<String> initMap) {
@@ -20,7 +38,7 @@ public class Game {
 
         players = new Player[playerAmount];
         for (int i = 0; i < playerAmount; i++) {
-            players[i] = new Player(overrideStone, bombAmount);
+            players[i] = new Player((i+1), bombAmount, overrideStone);
         }
     }
 
@@ -45,13 +63,13 @@ public class Game {
 
         // Create Transitions
         List<String> initMapTransitions = initMap.subList(height + 4, initMap.size());
-        HashMap<String, Transition> transitions = createTransitions(initMapTransitions);
+        HashMap<Integer, Transition> transitions = createTransitions(initMapTransitions);
 
-        board = new Board(mapField, transitions, bombRadius);
+        board = new Board(mapField, transitions, players.length, bombRadius);
     }
 
-    private HashMap<String, Transition> createTransitions(List<String> initMapTransitions) {
-        HashMap<String, Transition> transitions = new HashMap<>();
+    private HashMap<Integer, Transition> createTransitions(List<String> initMapTransitions) {
+        HashMap<Integer, Transition> transitions = new HashMap<>();
         int x1, y1, r1, x2, y2, r2;
 
         for (String line : initMapTransitions) {
@@ -66,14 +84,70 @@ public class Game {
 
             Transition transition = new Transition(x1, y1, r1, x2, y2, r2);
 
-            String transPos1 = x1 + " " + y1 + " " + r1;
+            int transPos1 = Transition.hash(x1, y1, r1);
             transitions.put(transPos1, transition);
 
-            String transPos2 = x2 + " " + y2 + " " + r2;
+            int transPos2 = Transition.hash(x2, y2, r2);
             transitions.put(transPos2, transition);
         }
 
         return transitions;
+    }
+
+    /**
+     * Executes a move for a passed position and a passed player.
+     *
+     * @param x integer of the x coordinate
+     * @param y integer of the y coordinate
+     * @param player char representation of the player
+     *
+     * @see Board
+     */
+    public void executeMove(int x, int y, char player) {
+        // ASCII '1' - 49 = 0
+        int index = player - 49;
+        board.executeMove(x, y, players[index], true);
+    }
+
+    /**
+     * Returns the player class by the passed number.
+     *
+     * @param number char representation of the player
+     *
+     * @return a player class
+     *
+     * @see Player
+     */
+    public Player getPlayer(char number) {
+        for (Player player : players) {
+            if (player.getNumber() == number) {
+                return player;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a list of all players.
+     *
+     * @return a list of all players
+     *
+     * @see Player
+     */
+    public Player[] getPlayers() {
+        return players;
+    }
+
+    /**
+     * Returns the current board.
+     *
+     * @return the current board
+     *
+     * @see Board
+     */
+    public Board getBoard() {
+        return board;
     }
 
     @Override
@@ -90,8 +164,14 @@ public class Game {
 
         gameString.append(String.format("%s\n", board.toString()));
 
-        HashMap<String, Transition> transitions = board.getTransition();
-        gameString.append(transitions);
+        ArrayList<Transition> transitionList = new ArrayList<>();
+        for (Transition transition : board.getAllTransitions().values()) {
+            if (!transitionList.contains(transition)) {
+                transitionList.add(transition);
+                gameString.append(transition);
+                gameString.append("\n");
+            }
+        }
 
         return gameString.toString();
     }
