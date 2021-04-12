@@ -40,7 +40,7 @@ public class TestExecuteMove {
                                {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
                                {'0', '0', '0', '0', '0', '0', '0', '0', '0'}};
 
-        Game game = createGame("maps/benesTestMaps/EasyTestMap.map");
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
         //checks if a move to a Edge is valid
         game.executeMove(8 , 4, '1');
         //check if the board is still the same
@@ -69,7 +69,7 @@ public class TestExecuteMove {
     @DisplayName("Simulates a few turns of a game to see if the board is updated properly")
     void simulateGame() {
 
-        Game game = createGame("maps/benesTestMaps/EasyTestMap.map");
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
 
         //Move 1
         game.executeMove(4 , 3, '1');
@@ -159,7 +159,7 @@ public class TestExecuteMove {
     @DisplayName("Test if the turns over holes are invalid")
     void testTurnWithHolesInBetween() {
 
-        Game game = createGame("maps/benesTestMaps/TestMapForHoles.map");
+        Game game = createGame("maps/testMaps/standard/TestMapForHoles.map");
 
         char[][] expectedResult = {{'0', '0', '0', '0', '0', '0', '0', '0', '0'},
                                    {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -174,7 +174,7 @@ public class TestExecuteMove {
     @Test
     @DisplayName("Test what happens if a player with no overridestones trys to override something")
     void testOverrideWithNoOverridestones() {
-        Game game = createGame("maps/benesTestMaps/TestOverrideStonesWithNoStones.map");
+        Game game = createGame("maps/testMaps/standard/TestOverrideStonesWithNoStones.map");
 
         game.executeMove(2 , 2, '1');
 
@@ -190,7 +190,7 @@ public class TestExecuteMove {
     @Test
     @DisplayName("Test what happens if a player with no overridestones trys to override something")
     void testOverride() {
-        Game game = createGame("maps/benesTestMaps/TestOverrideStones.map");
+        Game game = createGame("maps/testMaps/standard/TestOverrideStones.map");
 
         game.executeMove(2 , 2, '1');
 
@@ -207,7 +207,7 @@ public class TestExecuteMove {
     @DisplayName("Test for all directions")
     void testAllDirection() {
 
-        Game game = createGame("maps/benesTestMaps/AllDirectionsTestMap.map");
+        Game game = createGame("maps/testMaps/standard/AllDirectionsTestMap.map");
 
         game.executeMove(3 , 2, '2');
 
@@ -225,7 +225,7 @@ public class TestExecuteMove {
     @DisplayName("Test for all directions while using an Override stone")
     void testAllDirectionsWithOverrideStones() {
 
-        Game game = createGame("maps/benesTestMaps/TestOverrideStonesAllDirections.map");
+        Game game = createGame("maps/testMaps/standard/TestOverrideStonesAllDirections.map");
 
         game.executeMove(2 , 3, '2');
 
@@ -370,6 +370,26 @@ public class TestExecuteMove {
                                    {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
                                    {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'},
                                    {'-', '-', '-', '-', '-', '-', '2', '-', '-', '-', '-'}};
+
+        System.out.println(game.getBoard());
+        assertArrayEquals(game.getBoard().getField(),expectedResult);
+
+    }
+
+    @Test
+    @DisplayName("Test the 8th evil Map (override themself)")
+    void TestEvilMap8OverrideThemself() {
+        Game game = createGame("maps/evilMaps/boeseMap08.map");
+        game.executeMove(6 , 0, '1');
+
+        char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                {'-', '1', '1', '1', '1', '1', '1', '1', '1', '1', '0'},
+                {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
+                {'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'}};
 
         assertArrayEquals(game.getBoard().getField(),expectedResult);
 
