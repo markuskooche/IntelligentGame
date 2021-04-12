@@ -3,27 +3,30 @@ import java.util.List;
 
 public class Heuristics {
 
-    private char [] players = {'1' , '2', '3', '4', '5', '6' , '7' , '8'};
+//    private char [] players = {'1' , '2', '3', '4', '5', '6' , '7' , '8'};
     private Board board;
     private MapAnalyzer mapAnalyzer;
-    public Heuristics(Board board, MapAnalyzer mapAnalyzer) {
+    private Player[] players;
+    public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer) {
         this.board = board;
         this.mapAnalyzer = mapAnalyzer;
+        this.players = players;
     }
 
     public int getEvaluationForPlayer(Player player) {
         int mapValue = mapAnalyzer.calculateScoreForPlayer(player.getNumber());
         int coinParity = getCoinParity(player);
         int mobility = getMobility(player);
+        System.out.println("Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility;
     }
 
     public int getCoinParity(Player player) {
         List<int[]> myStones = new ArrayList<>();
         List<List<int[]>> playerStones = new ArrayList<>();
-        for (char p : players) {
-            List<int[]> stones = board.getStonesOfPlayer(p);
-            if (player.getNumber() == p) myStones = stones;
+        for (Player p : players) {
+            List<int[]> stones = board.getPlayerPositions(p.getNumber());
+            if (player.getNumber() == p.getNumber()) myStones = stones;
             playerStones.add(stones);
         }
 
@@ -40,16 +43,16 @@ public class Heuristics {
     }
 
     public int getMobility(Player player) {
-        List<Moves> myMoves = new ArrayList<>();
-        List<List<Moves>> playerMoves = new ArrayList<>();
-        for (char p : players) {
-            List<Moves> moves = board.getLegalMoves(p);
-            if (player.getNumber() == p) myMoves = moves;
+        List<Move> myMoves = new ArrayList<>();
+        List<List<Move>> playerMoves = new ArrayList<>();
+        for (Player p : players) {
+            List<Move> moves = board.getLegalMoves(p, false);
+            if (player.getNumber() == p.getNumber()) myMoves = moves;
             playerMoves.add(moves);
         }
 
         double allMoves = 0;
-        for (List<Moves> move : playerMoves) {
+        for (List<Move> move : playerMoves) {
             allMoves += move.size();
         }
 

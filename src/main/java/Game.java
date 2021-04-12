@@ -23,10 +23,10 @@ public class Game {
         createPlayers(initMap);
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board);
-        mapAnalyzer.createField();
-        heuristics = new Heuristics(board, mapAnalyzer);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
+        System.out.println(mapAnalyzer.toString());
     }
 
     private void createPlayers(List<String> initMap) {
@@ -165,7 +165,7 @@ public class Game {
         gameString.append(String.format("%s\n", board.toString()));
 
         ArrayList<Transition> transitionList = new ArrayList<>();
-        for (Transition transition : board.getTransitions().values()) {
+        for (Transition transition : board.getAllTransitions().values()) {
             if (!transitionList.contains(transition)) {
                 transitionList.add(transition);
                 gameString.append(transition);

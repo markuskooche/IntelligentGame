@@ -215,7 +215,7 @@ public class Board {
      *
      * @return a list of all positions from a passed player
      */
-    public List<int[]> getPositions(char player) {
+    public List<int[]> getPlayerPositions(char player) {
         List<int[]> positions = new LinkedList<>();
 
         // searches for all pieces of a player
@@ -246,7 +246,7 @@ public class Board {
         List<Move> legalOverrideMoves = new LinkedList<>();
 
         // inserts all legal moves of a player's pieces into a list
-        for (int[] position : getPositions(player.getNumber())) {
+        for (int[] position : getPlayerPositions(player.getNumber())) {
             legalMoves.addAll(checkNormalMoves(position[0], position[1], player.getNumber()));
 
             if (player.hasOverrideStone() && overrideMoves) {
@@ -255,7 +255,7 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
-            for (int[] expansion : getPositions('x')) {
+            for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalOverrideMoves.add(expansionMove);
             }
@@ -278,11 +278,11 @@ public class Board {
         return legalMoves;
     }
 
-    private List<Move> getLegalMoves(Player player, boolean overrideMoves) {
+    public List<Move> getLegalMoves(Player player, boolean overrideMoves) {
         List<Move> legalMoves = new LinkedList<>();
 
         // inserts all legal moves of a player's pieces into a list
-        for (int[] position : getPositions(player.getNumber())) {
+        for (int[] position : getPlayerPositions(player.getNumber())) {
             legalMoves.addAll(checkNormalMoves(position[0], position[1], player.getNumber()));
 
             if (player.hasOverrideStone() && overrideMoves) {
@@ -291,7 +291,7 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
-            for (int[] expansion : getPositions('x')) {
+            for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalMoves.add(expansionMove);
             }
@@ -396,7 +396,7 @@ public class Board {
             while (true) {
                 int nextX, nextY;
                 int directionValue = Direction.indexOf(currentDirection);
-                Transition transition = getTransition(directionValue, currentX, currentY);
+                Transition transition = getTransition(currentX, currentY, directionValue);
 
                 // checks if there is a transaction, otherwise it goes one step further
                 if (transition != null) {
@@ -473,7 +473,7 @@ public class Board {
             while (true) {
                 int nextX, nextY;
                 int directionValue = Direction.indexOf(currentDirection);
-                Transition transition = getTransition(directionValue, currentX, currentY);
+                Transition transition = getTransition(currentX, currentY, directionValue);
 
                 // checks if there is a transaction, otherwise it goes one step further
                 if (transition != null) {
@@ -562,21 +562,9 @@ public class Board {
         return null;
     }
 
-    private Transition getTransition(int direction, int x, int y) {
+    public Transition getTransition(int x, int y, int direction) {
         int transitionKey = Transition.hash(x, y, direction);
         return transitions.get(transitionKey);
-    }
-
-    public List<int[]> getStonesOfPlayer(char player) {
-        List<int[]> stones = new ArrayList<>();
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (field[y][x] == player) {
-                    stones.add(new int[] {x, y});
-                }
-            }
-        }
-        return stones;
     }
 
     public int getBombRadius() {
@@ -608,7 +596,7 @@ public class Board {
      *
      * @see Transition
      */
-    public HashMap<Integer, Transition> getTransitions() {
+    public HashMap<Integer, Transition> getAllTransitions() {
         return transitions;
     }
 

@@ -6,6 +6,7 @@ public class MapAnalyzer {
 
     public MapAnalyzer(Board b) {
         board = b;
+        createField();
     }
 
     /**
@@ -23,11 +24,9 @@ public class MapAnalyzer {
 
                 char currField = board.getField()[i][j];
 
-                System.out.println("Ausgabe: " + j + " + " + i);
-
                 if (currField != '-') {
                     //create RechableField for the First field that is Writable (The most performant way would by around the middle of the Map
-                    createReachableField(j, i);
+//                    createReachableField(j, i);
                     int newValue = getLocationValue(j, i);
                     field[i][j] += newValue * 3;
 
@@ -107,8 +106,7 @@ public class MapAnalyzer {
             if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight() || board.getField()[nextY][nextX] == '-') {
                 int directionValue = Direction.indexOf(direction);
 
-                int transitionKey = Transition.hash(x, y, directionValue);
-                Transition transition = board.getTransition().get(transitionKey);
+                Transition transition = board.getTransition(x, y, directionValue);
 
                 // Follow Transactions
                 if (transition != null) {
@@ -177,8 +175,7 @@ public class MapAnalyzer {
 
                     int directionValue = Direction.indexOf(direction);
 
-                    int transitionKey = Transition.hash(oldX, oldY, directionValue);
-                    Transition transition = board.getTransition().get(transitionKey);
+                    Transition transition = board.getTransition(oldX, oldY, directionValue);
 
                     if (transition != null) {
                         followTransaction(transition, oldX, oldY, direction, range - currRange, startValue, exhaustion);
@@ -244,8 +241,7 @@ public class MapAnalyzer {
 
                 directionValue = Direction.indexOf(newDirection);
 
-                int transitionKey = Transition.hash(oldX, oldY, directionValue);
-                transition = board.getTransition().get(transitionKey);
+                transition = board.getTransition(oldX, oldY, directionValue);
 
                 if (transition == null) {
                     return;
@@ -295,8 +291,7 @@ public class MapAnalyzer {
             if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight()) {
                 int directionValue = Direction.indexOf(direction);
 
-                int transitionKey = Transition.hash(x, y, directionValue);
-                Transition transition = board.getTransition().get(transitionKey);
+                Transition transition = board.getTransition(x, y, directionValue);
 
                 if (transition != null) {
                     continue;
