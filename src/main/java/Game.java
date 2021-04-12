@@ -1,8 +1,17 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
+/**
+ * The Game class creates a new instance of a game when all important information is passed,
+ * such as the playing field, the number of players, bomb radius, transitions and much more.
+ * Subsequently, a game can control all steps of an action until disqualification or until
+ * one has won or lost. This is a class that can control all other classes directly or indirectly.
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
+ */
 public class Game {
 
     private Player[] players;
@@ -85,41 +94,60 @@ public class Game {
         return transitions;
     }
 
-    public void executeMove(char player) {
-        System.out.print(getBoard());
-
-        board.getLegalMoves(player);
-        System.out.println();
-
-        System.out.println("PLAYER '" + player + "' SELECTED");
-        System.out.print("Please enter a valid move: ");
-        Scanner scanner = new Scanner(System.in);
-        int x = scanner.nextInt();
-        int y = scanner.nextInt();
-
-        executeMove(x, y, player);
-    }
-
+    /**
+     * Executes a move for a passed position and a passed player.
+     *
+     * @param x integer of the x coordinate
+     * @param y integer of the y coordinate
+     * @param player char representation of the player
+     *
+     * @see Board
+     */
     public void executeMove(int x, int y, char player) {
         // ASCII '1' - 49 = 0
         int index = player - 49;
-        board.executeMove(x, y, players[index]);
+        board.executeMove(x, y, players[index], true);
     }
 
+    /**
+     * Returns the player class by the passed number.
+     *
+     * @param number char representation of the player
+     *
+     * @return a player class
+     *
+     * @see Player
+     */
+    public Player getPlayer(char number) {
+        for (Player player : players) {
+            if (player.getNumber() == number) {
+                return player;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a list of all players.
+     *
+     * @return a list of all players
+     *
+     * @see Player
+     */
     public Player[] getPlayers() {
         return players;
     }
 
-    public void setPlayers(Player[] players) {
-        this.players = players;
-    }
-
+    /**
+     * Returns the current board.
+     *
+     * @return the current board
+     *
+     * @see Board
+     */
     public Board getBoard() {
         return board;
-    }
-
-    public void setBoard(Board board) {
-        this.board = board;
     }
 
     @Override
@@ -137,7 +165,7 @@ public class Game {
         gameString.append(String.format("%s\n", board.toString()));
 
         ArrayList<Transition> transitionList = new ArrayList<>();
-        for (Transition transition : board.getTransition().values()) {
+        for (Transition transition : board.getTransitions().values()) {
             if (!transitionList.contains(transition)) {
                 transitionList.add(transition);
                 gameString.append(transition);

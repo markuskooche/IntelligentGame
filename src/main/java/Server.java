@@ -7,27 +7,26 @@ import java.util.stream.Collectors;
 
 public class Server {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Game game;
 
-//        String filename = "maps/benesTestMaps/EasyTestMap.map";
-        String filename = "maps/initialMaps/bomb.map";
+        //String filename = "maps/initialMaps/bomb.map";
+        String filename = "maps/evilMaps/boeseMap08.map";
 
         Path path = Paths.get(filename);
+        List<String> file = Files.lines(path).collect(Collectors.toList());
 
-        try {
-            List<String> file = Files.lines(path).collect(Collectors.toList());
+        game = new Game(file);
+        System.out.println(game.getBoard());
 
-            game = new Game(file);
-            MapAnalyzer analyzer = new MapAnalyzer(game.getBoard());
-            analyzer.createField();
-//            System.out.println(analyzer.toString());
-//            System.out.println(analyzer.calculateScoreForPlayer('1'));
-            //analyzer.createReachableField(0, 0);
-        //game.executeMove('1');
+        int currentPlayer = 1;
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (true) {
+            Player player = game.getPlayer((char) (currentPlayer + 48));
+            game.getBoard().executeMove(player, true);
+
+            currentPlayer = (currentPlayer % game.getPlayers().length) + 1;
         }
+
     }
 }
