@@ -7,10 +7,17 @@ public class Game {
 
     private Player[] players;
     private Board board;
+    private Heuristics heuristics;
+    private MapAnalyzer mapAnalyzer;
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
+        mapAnalyzer = new MapAnalyzer(board);
+        mapAnalyzer.createField();
+        heuristics = new Heuristics(board, mapAnalyzer);
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
     }
 
     private void createPlayers(List<String> initMap) {

@@ -10,8 +10,8 @@ public class Server {
     public static void main(String[] args) {
         Game game;
 
-       // String filename = "maps/benesTestMaps/EasyTestMap.map";
-        String filename = "maps/initialMaps/europa2.map";
+//        String filename = "maps/benesTestMaps/EasyTestMap.map";
+        String filename = "maps/initialMaps/bomb.map";
 
         Path path = Paths.get(filename);
 
@@ -21,8 +21,8 @@ public class Server {
             game = new Game(file);
             MapAnalyzer analyzer = new MapAnalyzer(game.getBoard());
             analyzer.createField();
-            System.out.println(analyzer.toString());
-            System.out.println(analyzer.calculateScoreForPlayer('1'));
+//            System.out.println(analyzer.toString());
+//            System.out.println(analyzer.calculateScoreForPlayer('1'));
             //analyzer.createReachableField(0, 0);
         //game.executeMove('1');
 

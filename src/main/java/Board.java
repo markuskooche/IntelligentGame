@@ -525,6 +525,18 @@ public class Board {
         return legalMoves;
     }
 
+    public List<int[]> getStonesOfPlayer(char player) {
+        List<int[]> stones = new ArrayList<>();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (field[y][x] == player) {
+                    stones.add(new int[] {x, y});
+                }
+            }
+        }
+        return stones;
+    }
+
     public int getBombRadius() {
         return bombRadius;
     }
