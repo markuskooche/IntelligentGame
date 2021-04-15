@@ -103,10 +103,9 @@ public class Game {
      *
      * @see Board
      */
-    public void executeMove(int x, int y, char player) {
+    public void executeMove(int x, int y, int player) {
         // ASCII '1' - 49 = 0
-        int index = player - 49;
-        board.executeMove(x, y, players[index], true);
+        board.executeMove(x, y, players[player - 1], true);
     }
 
     /**
@@ -118,11 +117,9 @@ public class Game {
      *
      * @see Player
      */
-    public Player getPlayer(char number) {
-        for (Player player : players) {
-            if (player.getNumber() == number) {
-                return player;
-            }
+    public Player getPlayer(int number) {
+        if (number < players.length) {
+            return players[number - 1];
         }
 
         return null;

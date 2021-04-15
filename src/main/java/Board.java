@@ -335,7 +335,6 @@ public class Board {
 
         int[] move = new int[] {x, y};
         colorizeMove(legalMoves, move, player);
-
     }
 
     private void colorizeMove(List<Move> legalMoves, int[] move, Player player) {
@@ -613,7 +612,19 @@ public class Board {
     public String toString() {
         StringBuilder boardString = new StringBuilder();
 
+        boardString.append("    ");
+        for (int i = 0; i < height; i++) {
+            boardString.append(i + " ");
+        }
+
+        boardString.append("\n  /");
+        for (int i = 0; i < height; i++) {
+            boardString.append("--");
+        }
+
+        boardString.append("\n");
         for (int y = 0; y < height; y++) {
+            boardString.append(y + " | ");
             for (int x = 0; x < width; x++) {
                 boardString.append(field[y][x]);
                 boardString.append(" ");
