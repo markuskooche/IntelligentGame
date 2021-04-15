@@ -1,0 +1,27 @@
+\begin{center}
+    \begin{tikzpicture}
+        \umlclass{Player}{
+            - overrideStone: int \\
+            - number: char \\
+            - bomb: int
+        }{
+            + hasBomb(): boolean \\
+            + hasOverrideStone(): boolean
+        }
+    \end{tikzpicture}
+
+    \begin{tikzpicture}
+        \umlclass{Board}{
+            - allTransitions: HashMap"<Integer, Transition"> \\
+            - bombRadius: int \\
+            - field: char[][]
+        }{
+            - choice(): void \\
+            - bonus(player: Player): void \\
+            - inversion(): void \\
+            - colorizeMove(moves: List"<Move">, position: int[], player: Player) \\
+            + getLegalMoves(Player, boolean): List"<Move"> \\
+            + executeMove(x: int, y: int, player: Player, overrideMoves: boolean): void
+        }
+    \end{tikzpicture}
+\end{center}
