@@ -10,8 +10,8 @@ public class Server {
     public static void main(String[] args) throws IOException {
         Game game;
 
-        String filename = "maps/initialMaps/bomb.map";
-//        String filename = "maps/evilMaps/boeseMap08.map";
+        String filename = "maps/benesTestMaps/TestMapAnalyze2.map";
+        //String filename = "maps/testMaps/standard/EasyTestMap.map";
 
         Path path = Paths.get(filename);
         List<String> file = Files.lines(path).collect(Collectors.toList());
