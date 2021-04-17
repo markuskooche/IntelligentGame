@@ -102,112 +102,6 @@ public class Board {
         }
     }
 
-    // TODO: delete me later
-    public void printTransition() {
-        int heightCopy = height + 2;
-        int widthCopy = width + 2;
-        char[][] fieldCopy = new char[heightCopy][widthCopy];
-
-        for (int h = 0; h < heightCopy; h++) {
-            for (int w = 0; w < widthCopy; w++) {
-                fieldCopy[h][w] = '-';
-            }
-        }
-
-        for (int h = 1; h < (heightCopy - 1); h++) {
-            for (int w = 1; w < (widthCopy - 1); w++) {
-                fieldCopy[h][w] = field[h - 1][w - 1];
-            }
-        }
-
-        for (Transition transition : transitions.values()) {
-            int x1 = transition.getX1();
-            int y1 = transition.getY1();
-            int r1 = transition.getR1();
-            int x2 = transition.getX2();
-            int y2 = transition.getY2();
-            int r2 = transition.getR2();
-
-            if (fieldCopy[y1 + 1][x1 + 1] == '-') {
-                System.out.println("ERROR: x1=" + x1 + " || y1=" + y1);
-            } else {
-                fieldCopy[y1 + 1][x1 + 1] = '@';
-            }
-
-            if (fieldCopy[y2 + 1][x2 + 1] == '-') {
-                System.out.println("ERROR: x2=" + x2 + " || y2=" + y2);
-            } else {
-                fieldCopy[y2 + 1][x2 + 1] = '@';
-            }
-
-            switch (r1) {
-                case 0:
-                    fieldCopy[y1][x1 + 1] = '|';
-                    break;
-                case 1:
-                    fieldCopy[y1][x1 + 2] = '/';
-                    break;
-                case 2:
-                    fieldCopy[y1 + 1][x1 + 2] = '=';
-                    break;
-                case 3:
-                    fieldCopy[y1 + 2][x1 + 2] = '\\';
-                    break;
-                case 4:
-                    fieldCopy[y1 + 2][x1 + 1] = '|';
-                    break;
-                case 5:
-                    fieldCopy[y1 + 2][x1] = '/';
-                    break;
-                case 6:
-                    fieldCopy[y1 + 1][x1] = '=';
-                    break;
-                case 7:
-                    fieldCopy[y1][x1] = '\\';
-                    break;
-                default:
-                    break;
-            }
-
-            switch (r2) {
-                case 0:
-                    fieldCopy[y2][x2 + 1] = '|';
-                    break;
-                case 1:
-                    fieldCopy[y2][x2 + 2] = '/';
-                    break;
-                case 2:
-                    fieldCopy[y2 + 1][x2 + 2] = '=';
-                    break;
-                case 3:
-                    fieldCopy[y2 + 2][x2 + 2] = '\\';
-                    break;
-                case 4:
-                    fieldCopy[y2 + 2][x2 + 1] = '|';
-                    break;
-                case 5:
-                    fieldCopy[y2 + 2][x2] = '/';
-                    break;
-                case 6:
-                    fieldCopy[y2 + 1][x2] = '=';
-                    break;
-                case 7:
-                    fieldCopy[y2][x2] = '\\';
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        for (int h = 0; h < heightCopy; h++) {
-            for (int w = 0; w < widthCopy; w++) {
-                System.out.print(fieldCopy[h][w] + " ");
-            }
-            System.out.println();
-        }
-    }
-
-
     /**
      * Returns a list of all positions from a passed player.
      *
@@ -215,6 +109,7 @@ public class Board {
      *
      * @return a list of all positions from a passed player
      */
+
     public List<int[]> getPlayerPositions(char player) {
         List<int[]> positions = new LinkedList<>();
 
@@ -400,7 +295,7 @@ public class Board {
                 // checks if there is a transaction, otherwise it goes one step further
                 if (transition != null) {
                     // if there is a transition, the position is updated
-                    int[] newPosition = transition.getDestination(currentX, currentY, directionValue);
+                    int[] newPosition = transition.getDestination();
                     nextX = newPosition[0];
                     nextY = newPosition[1];
 
@@ -477,7 +372,7 @@ public class Board {
                 // checks if there is a transaction, otherwise it goes one step further
                 if (transition != null) {
                     // if there is a transition, the position is updated
-                    int[] newPosition = transition.getDestination(currentX, currentY, directionValue);
+                    int[] newPosition = transition.getDestination();
                     nextX = newPosition[0];
                     nextY = newPosition[1];
 
@@ -614,7 +509,7 @@ public class Board {
 
         boardString.append("    ");
         for (int i = 0; i < height; i++) {
-            boardString.append(i + " ");
+            boardString.append((i % 10) + " ");
         }
 
         boardString.append("\n  /");
@@ -624,7 +519,7 @@ public class Board {
 
         boardString.append("\n");
         for (int y = 0; y < height; y++) {
-            boardString.append(y + " | ");
+            boardString.append((y % 10) + " | ");
             for (int x = 0; x < width; x++) {
                 boardString.append(field[y][x]);
                 boardString.append(" ");

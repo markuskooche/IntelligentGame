@@ -82,13 +82,13 @@ public class Game {
             y2 = Integer.parseInt(fields[5]);
             r2 = Integer.parseInt(fields[6]);
 
-            Transition transition = new Transition(x1, y1, r1, x2, y2, r2);
+            int transitionKeyOne = Transition.hash(x1, y1, r1);
+            Transition transitionOne = new Transition(x2, y2, r2);
+            transitions.put(transitionKeyOne, transitionOne);
 
-            int transPos1 = Transition.hash(x1, y1, r1);
-            transitions.put(transPos1, transition);
-
-            int transPos2 = Transition.hash(x2, y2, r2);
-            transitions.put(transPos2, transition);
+            int transitionKeyTwo = Transition.hash(x2, y2, r2);
+            Transition transitionTwo = new Transition(x1, y1, r1);
+            transitions.put(transitionKeyTwo, transitionTwo);
         }
 
         return transitions;
@@ -161,12 +161,19 @@ public class Game {
 
         gameString.append(String.format("%s\n", board.toString()));
 
-        ArrayList<Transition> transitionList = new ArrayList<>();
+        ArrayList<Transition> list = new ArrayList<>();
+
         for (Transition transition : board.getAllTransitions().values()) {
-            if (!transitionList.contains(transition)) {
-                transitionList.add(transition);
-                gameString.append(transition);
-                gameString.append("\n");
+            int x = transition.getX();
+            int y = transition.getY();
+            int r = transition.getR();
+
+            Transition opposite = board.getTransition(x, y, r);
+
+            if (!list.contains(transition) || !list.contains(opposite)) {
+                gameString.append(transition + " <-> " + opposite + "\n");
+                list.add(transition);
+                list.add(opposite);
             }
         }
 

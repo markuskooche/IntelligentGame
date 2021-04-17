@@ -3,7 +3,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.util.*;
 
 public class ServerConnection {
@@ -37,22 +36,21 @@ public class ServerConnection {
         outputStream.write(message);
     }
 
-    // 01 | 00 00 00 03 | 06 07 08
-
     private void receiveMessage() throws IOException {
         InputStream inputStream = socket.getInputStream();
-        System.out.println(inputStream.toString());
         byte[] messageHeader = new byte[5];
-
         inputStream.read(messageHeader, 0, 5);
-        byte messageType = messageHeader[0];
 
-        int messageLength = ByteBuffer.wrap(Arrays.copyOfRange(messageHeader, 1, 5)).getInt();
+        // create an integer from the byte array
+        int messageLength = messageHeader[1] << 24;
+        messageLength += messageHeader[2] << 16;
+        messageLength += messageHeader[3] << 8;
+        messageLength += messageHeader[4];
 
         byte[] byteMessage = new byte[messageLength];
         inputStream.read(byteMessage, 0, messageLength);
 
-        switch (messageType) {
+        switch (messageHeader[0]) {
             case 2:
                 game = new Game(createMap(byteMessage));
                 System.out.println(game.toString());
@@ -61,21 +59,23 @@ public class ServerConnection {
                 player = byteMessage[0];
                 break;
             case 4:
-                System.out.println("TYPE 4");
-                byte[] send = {5, 0, 0, 0, 5, 0, 3, 0, 1, 0};
-                sendMessage(send);
+                byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+                //TODO: Aktuell wird nur ein statischer Zug übergeben
+                // -> int[] executedMove = game.executeOurMove(player);
+                int[] executedMove = new int[] {3, 1, 0};
 
-                //int[] myMove = game.executeOurMove(player);
-                // [x, y, s]
-                // x = x-Koordinate
-                // y = y-Koordinate
-                // s = 0 bei normalem Feld
-                //       beim Choice-Feld die Spielernummer mit der getauscht wird
-                //       beim Bonus-Felder eine 20 fü̈r Bombe
-                //       beim Bonus-Felder eine 21 fü̈r Ü̈berschreibstein
+                // insert the x coordinate into the byte array
+                move[6] = (byte) (executedMove[0]);
+                move[5] = (byte) ((executedMove[0]) >> 8);
 
+                // insert the y coordinate into the byte array
+                move[8] = (byte) (executedMove[1]);
+                move[7] = (byte) ((executedMove[1]) >> 8);
 
-                //TODO: hier muss der Zug (Type 5) erstellt werden
+                // insert the special field into the byte array
+                move[9] = (byte) (executedMove[2]);
+
+                sendMessage(move);
                 break;
             case 6:
                 int x = byteMessage[0] << 8;
@@ -84,11 +84,10 @@ public class ServerConnection {
                 int y = byteMessage[2] << 8;
                 y += byteMessage[3];
 
-                // TODO: Spezialfelder werden noch nicht beachtet
-                int spezialField = byteMessage[4];
-                int executor = byteMessage[5];
-
+                //TODO: Spezialfelder werden noch nicht beachtet
+                // -> game.executeMove(x, y, byteMessage[5], byteMessage[4]);
                 game.executeMove(x, y, byteMessage[5]);
+
                 break;
             case 7:
                 if (byteMessage[0] == player) {
