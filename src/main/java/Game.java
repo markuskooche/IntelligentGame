@@ -104,7 +104,6 @@ public class Game {
      * @see Board
      */
     public void executeMove(int x, int y, int player) {
-        // ASCII '1' - 49 = 0
         board.executeMove(x, y, players[player - 1], true);
     }
 
@@ -118,7 +117,7 @@ public class Game {
      * @see Player
      */
     public Player getPlayer(int number) {
-        if (number < players.length) {
+        if (number <= players.length) {
             return players[number - 1];
         }
 

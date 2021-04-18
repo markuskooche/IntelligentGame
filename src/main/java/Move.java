@@ -189,11 +189,30 @@ public class Move {
     }
 
     private int getX() {
-        return list.get(list.size()-1)[0];
+        return list.get(0)[0];
     }
 
     private int getY() {
-        return list.get(list.size()-1)[1];
+        return list.get(0)[1];
+    }
+
+    public void merge(Move two) {
+        if (two.getInversion()) {
+            setInversion();
+        }
+        if (two.getOverride()) {
+            setOverride();
+        }
+        if (two.getChoice()) {
+            setChoice();
+        }
+        if (two.getBonus()) {
+            setBonus();
+        }
+
+        for (int[] position : two.getList()) {
+            add(position);
+        }
     }
 
     @Override
@@ -201,8 +220,8 @@ public class Move {
         StringBuilder moveString = new StringBuilder();
 
         if (list.size() != 0) {
-            moveString.append("(" + getX() + ", " + getY() + ")");
-            moveString.append(" -> [");
+            moveString.append("(" + getX() + ", " + getY() + ")\t | {I: " + inversion + " C: " + choice + " B: " + bonus + " O: " + override + "}");
+            moveString.append("\t -> [");
 
             for (int i = 0; i < list.size(); i++) {
                 moveString.append("(" + list.get(i)[0] + ", " + list.get(i)[1] + ")");

@@ -8,8 +8,8 @@ public class Main {
         for (int i = 0; i < args.length; i=i+2) {
             switch (args[i]) {
                 case "-h":
-                    System.out.println("-i <IP>");
-                    System.out.println("-p <PORT>");
+                    System.out.println("-i <IP>     Change to a specific ip");
+                    System.out.println("-p <PORT>   Change to a specific port");
                     System.exit(0);
                     break;
                 case "-i":

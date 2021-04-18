@@ -109,7 +109,6 @@ public class Board {
      *
      * @return a list of all positions from a passed player
      */
-
     public List<int[]> getPlayerPositions(char player) {
         List<int[]> positions = new LinkedList<>();
 
@@ -141,11 +140,24 @@ public class Board {
         List<Move> legalOverrideMoves = new LinkedList<>();
 
         // inserts all legal moves of a player's pieces into a list
-        for (int[] position : getPlayerPositions(player.getNumber())) {
-            legalMoves.addAll(checkNormalMoves(position[0], position[1], player.getNumber()));
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (field[y][x] != '-') {
+                    if ("12345678".indexOf(field[y][x]) == -1) {
+                        Move legalMove = checkMove(x, y, player.getNumber(), false);
 
-            if (player.hasOverrideStone() && overrideMoves) {
-                legalOverrideMoves.addAll(checkOverrideMoves(position[0], position[1], player.getNumber()));
+                        if (!legalMove.isEmpty()) {
+                            legalMoves.add(legalMove);
+                        }
+                    }
+
+                    if (player.hasOverrideStone() && overrideMoves && "0ibc".indexOf(field[y][x]) == -1) {
+                        Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
+                        if (!legalOverrideMove.isEmpty()) {
+                            legalOverrideMoves.add(legalOverrideMove);
+                        }
+                    }
+                }
             }
         }
 
@@ -170,6 +182,7 @@ public class Board {
 
         legalMoves.addAll(legalOverrideMoves);
 
+
         return legalMoves;
     }
 
@@ -177,11 +190,24 @@ public class Board {
         List<Move> legalMoves = new LinkedList<>();
 
         // inserts all legal moves of a player's pieces into a list
-        for (int[] position : getPlayerPositions(player.getNumber())) {
-            legalMoves.addAll(checkNormalMoves(position[0], position[1], player.getNumber()));
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (field[y][x] != '-') {
+                    if ("12345678".indexOf(field[y][x]) == -1) {
+                        Move legalMove = checkMove(x, y, player.getNumber(), false);
 
-            if (player.hasOverrideStone() && overrideMoves) {
-                legalMoves.addAll(checkOverrideMoves(position[0], position[1], player.getNumber()));
+                        if (!legalMove.isEmpty()) {
+                            legalMoves.add(legalMove);
+                        }
+                    }
+
+                    if (player.hasOverrideStone() && overrideMoves && "0ibc".indexOf(field[y][x]) == -1) {
+                        Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
+                        if (!legalOverrideMove.isEmpty()) {
+                            legalMoves.add(legalOverrideMove);
+                        }
+                    }
+                }
             }
         }
 
@@ -275,13 +301,20 @@ public class Board {
         }
     }
 
-    private List<Move> checkNormalMoves(int x, int y, char player) {
-        List<Move> legalMoves = new LinkedList<>();
+    private Move checkMove(int x, int y, char player, boolean isOverrideMove) {
+        Move legalMove;
+
+        if (isOverrideMove) {
+            legalMove = new Move();
+            legalMove.setOverride();
+        } else {
+            legalMove = checkSpecialField(field[y][x]);
+        }
         int[] currentDirection;
 
         for (int[] direction : Direction.getList()) {
-            Move checkMove = new Move();
             currentDirection = new int[] {direction[0], direction[1]};
+            Move checkMove = new Move();
             char nextPiece;
 
             int currentX = x;
@@ -292,7 +325,7 @@ public class Board {
                 int directionValue = Direction.indexOf(currentDirection);
                 Transition transition = getTransition(currentX, currentY, directionValue);
 
-                // checks if there is a transaction, otherwise it goes one step further
+                // checks if there is a transition, otherwise it goes one step further
                 if (transition != null) {
                     // if there is a transition, the position is updated
                     int[] newPosition = transition.getDestination();
@@ -315,26 +348,23 @@ public class Board {
                     nextPiece = field[nextY][nextX];
                 }
 
-                // it is not allowed to reach himself or a hole
-                if (nextPiece == player || nextPiece == '-') {
+                // it is not allowed to reach a hole, a empty or special piece
+                if ("0-bic".indexOf(nextPiece) != -1) {
                     break;
                 }
-                // checks the validity for special fields
-                else if (nextPiece == 'b' || nextPiece == 'i' || nextPiece == 'c') {
-                    Move move = checkSpecialField(checkMove, nextPiece, nextX, nextY);
-
-                    // when a move is returned it is an allowed move
-                    if (move != null) {
-                        legalMoves.add(checkMove);
-                    }
+                // when you get to the start position it is not a valid move
+                // (this situation can only be achieved with the help of transitions)
+                else if (nextX == x && nextY == y) {
                     break;
                 }
                 // checks if it is a legal move
-                else if (nextPiece == '0') {
+                else if (nextPiece == player) {
                     // checks if there are fields between 'player' and '0'
                     if (!checkMove.isEmpty()) {
-                        checkMove.add(new int[]{nextX, nextY});
-                        legalMoves.add(checkMove);
+                        if (legalMove.isEmpty()) {
+                            legalMove.add(new int[] {x, y});
+                        }
+                        legalMove.merge(checkMove);
                     }
                     break;
                 }
@@ -347,113 +377,27 @@ public class Board {
             }
         }
 
-        return legalMoves;
+        return legalMove;
     }
 
-    private List<Move> checkOverrideMoves(int x, int y, char player) {
-        LinkedList<Move> overrideMoves = new LinkedList<>();
-        int[] currentDirection;
+    private Move checkSpecialField(char piece) {
+        Move move = new Move();
 
-        for (int[] direction : Direction.getList()) {
-            Move checkMove = new Move();
-            checkMove.setOverride();
-
-            currentDirection = new int[] {direction[0], direction[1]};
-            char nextPiece;
-
-            int currentX = x;
-            int currentY = y;
-
-            while (true) {
-                int nextX, nextY;
-                int directionValue = Direction.indexOf(currentDirection);
-                Transition transition = getTransition(currentX, currentY, directionValue);
-
-                // checks if there is a transaction, otherwise it goes one step further
-                if (transition != null) {
-                    // if there is a transition, the position is updated
-                    int[] newPosition = transition.getDestination();
-                    nextX = newPosition[0];
-                    nextY = newPosition[1];
-
-                    // if there is a transition, the direction is updated
-                    int[] newDirection = Direction.valueOf(newPosition[2]);
-                    currentDirection[0] = (-1) * newDirection[0];
-                    currentDirection[1] = (-1) * newDirection[1];
-                } else {
-                    nextX = currentX + currentDirection[0];
-                    nextY = currentY + currentDirection[1];
-                }
-
-                // checks if the next step is no longer on the game field
-                if (nextX < 0 || nextX >= width || nextY < 0 || nextY >= height) {
-                    break;
-                } else {
-                    nextPiece = field[nextY][nextX];
-                }
-                // it is not allowed to reach a hole, a empty or special piece
-                if (nextPiece == '-' || nextPiece == 'b' || nextPiece == 'i' || nextPiece == 'c' || nextPiece == '0') {
-                    break;
-                }
-                // when you get to the start position it is not a valid move
-                // (this situation can only be achieved with the help of transitions)
-                else if (nextX == x && nextY == y) {
-                    break;
-                }
-                // it is allowed to achieve a figure of itself
-                if (nextPiece == player) {
-                    if (!checkMove.isEmpty()) {
-                        checkMove.add(new int[]{nextX, nextY});
-                        overrideMoves.add(checkMove);
-                    }
-                    break;
-
-                }
-                // when you come upon an opponent you can move on
-                else {
-                    // moves are not added if the override stone is
-                    // set to a position that is already in the list
-                    if (!checkMove.contains(nextX, nextY)) {
-                        checkMove.add(new int[]{nextX, nextY});
-                        currentX = nextX;
-                        currentY = nextY;
-
-                        // a new instance is created and added to the list
-                        if (checkMove.size() >= 2) {
-                            Move move = new Move(checkMove);
-                            overrideMoves.add(move);
-                        }
-                    } else {
-                        checkMove.add(new int[]{nextX, nextY});
-                        currentX = nextX;
-                        currentY = nextY;
-                    }
-                }
-            }
+        switch (piece) {
+            case 'b':
+                move.setBonus();
+                break;
+            case 'c':
+                move.setChoice();
+                break;
+            case 'i':
+                move.setInversion();
+                break;
+            default:
+                break;
         }
 
-        return overrideMoves;
-    }
-
-    private Move checkSpecialField(Move checkMove, char nextPiece, int nextX, int nextY) {
-        // if a current move does not contain any elements, it means that the next
-        // square is right next to the actual player, but this is not a valid move
-        if (!checkMove.isEmpty()) {
-            // if there is at least one field in between, it is a valid move
-            checkMove.add(new int[]{nextX, nextY});
-
-            if (nextPiece == 'i') {
-                checkMove.setInversion();
-            } else if (nextPiece == 'c') {
-                checkMove.setChoice();
-            } else {
-                checkMove.setBonus();
-            }
-
-            return checkMove;
-        }
-
-        return null;
+        return move;
     }
 
     public Transition getTransition(int x, int y, int direction) {
@@ -508,12 +452,12 @@ public class Board {
         StringBuilder boardString = new StringBuilder();
 
         boardString.append("    ");
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < width; i++) {
             boardString.append((i % 10) + " ");
         }
 
         boardString.append("\n  /");
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < width; i++) {
             boardString.append("--");
         }
 
