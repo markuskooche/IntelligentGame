@@ -1,3 +1,7 @@
+package server;
+
+import controller.Game;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

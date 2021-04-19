@@ -1,3 +1,4 @@
+import controller.Game;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -71,7 +72,7 @@ public class TestExecuteMove {
 
         Game game = createGame("maps/testMaps/standard/EasyTestMap.map", 1);
 
-        //Move 1
+        //map.Move 1
         game.executeMove(4 , 3, 1, 0);
 
         char[][] expectedResult1 = {{'0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -82,7 +83,7 @@ public class TestExecuteMove {
 
         Assertions.assertArrayEquals(game.getBoard().getField(),expectedResult1);
 
-        //Move 2
+        //map.Move 2
         game.executeMove(3 , 3, 2, 0);
 
         char[][] expectedResult2 = {{'0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -93,7 +94,7 @@ public class TestExecuteMove {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult2);
 
-        //Move 3
+        //map.Move 3
         game.executeMove(5 , 0, 1, 0);
 
         char[][] expectedResult3 = {{'0', '0', '0', '0', '0', '1', '0', '0', '0'},
@@ -104,7 +105,7 @@ public class TestExecuteMove {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult3);
 
-        //Move 4
+        //map.Move 4
         game.executeMove(6 , 0, 2, 0);
 
         char[][] expectedResult4 = {{'0', '0', '0', '0', '0', '1', '2', '0', '0'},
@@ -115,7 +116,7 @@ public class TestExecuteMove {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult4);
 
-        //Move 5
+        //map.Move 5
         game.executeMove(7 , 0, 1, 0);
 
         char[][] expectedResult5 = {{'0', '0', '0', '0', '0', '1', '1', '1', '0'},
@@ -126,7 +127,7 @@ public class TestExecuteMove {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult5);
 
-        //Move 6
+        //map.Move 6
         game.executeMove(4 , 4, 2, 0);
 
         char[][] expectedResult6 = {{'0', '0', '0', '0', '0', '1', '1', '1', '0'},
@@ -137,7 +138,7 @@ public class TestExecuteMove {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult6);
 
-        //Move 7
+        //map.Move 7
         game.executeMove(2 , 4, 1, 0);
 
         char[][] expectedResult7 = {{'0', '0', '0', '0', '0', '1', '1', '1', '0'},
@@ -148,7 +149,7 @@ public class TestExecuteMove {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult7);
 
-        //Move 8 This move is invalid because there is a 0 between the stones
+        //map.Move 8 This move is invalid because there is a 0 between the stones
         game.executeMove(1 , 4, 2, 0);
 
         assertArrayEquals(game.getBoard().getField(),expectedResult7);

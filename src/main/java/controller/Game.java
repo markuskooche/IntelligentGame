@@ -1,10 +1,19 @@
+package controller;
+
+import heuristic.Heuristics;
+import map.Board;
+import map.Move;
+import map.Player;
+import map.Transition;
+import mapanalyze.MapAnalyzer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 /**
- * The Game class creates a new instance of a game when all important information is passed,
+ * The controller.Game class creates a new instance of a game when all important information is passed,
  * such as the playing field, the number of players, bomb radius, transitions and much more.
  * Subsequently, a game can control all steps of an action until disqualification or until
  * one has won or lost. This is a class that can control all other classes directly or indirectly.

@@ -1,3 +1,5 @@
+package map;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -21,7 +23,7 @@ public class Board {
     private final int height;
 
     /**
-     * Creates a Board class with all information about it.
+     * Creates a map.Board class with all information about it.
      *
      * @param field two-dimensional char array which represents the board
      * @param transitions a HashMap of all transitions

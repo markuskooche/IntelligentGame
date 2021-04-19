@@ -1,3 +1,5 @@
+package map;
+
 /**
  * The player class is created for each player and contains the number of bombs and
  * override stones, as well as the number of his starting position. All information
@@ -101,6 +103,6 @@ public class Player {
 
     @Override
     public String toString() {
-        return "Player " + number + " [o=" + overrideStone + " b=" + bomb + "]";
+        return "map.Player " + number + " [o=" + overrideStone + " b=" + bomb + "]";
     }
 }

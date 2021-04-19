@@ -1,9 +1,11 @@
+package map;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Move class creates an allowed move in one direction. If there is a valid position with several playing
- * fields to be colored in different directions, several Move classes must be created. In a Move class, both
+ * The map.Move class creates an allowed move in one direction. If there is a valid position with several playing
+ * fields to be colored in different directions, several map.Move classes must be created. In a map.Move class, both
  * fields to be colored in and any kind of additional information, such as inversion, choice, etc., are stored.
  *
  * @author Benedikt Halbritter
@@ -19,7 +21,7 @@ public class Move {
     private boolean bonus;
 
     /**
-     * Creates a Move class that contains all information about a legal move.
+     * Creates a map.Move class that contains all information about a legal move.
      */
     public Move() {
         list = new ArrayList<>();
@@ -29,7 +31,7 @@ public class Move {
     }
 
     /**
-     * Creates a Move class that contains all information about a legal move.
+     * Creates a map.Move class that contains all information about a legal move.
      * This constructor is called if it is an override stone.
      *
      * @param element a integer array with a coordinate [x, y]
@@ -43,7 +45,7 @@ public class Move {
     }
 
     /**
-     * Creates a Move class that contains all information about a legal move.
+     * Creates a map.Move class that contains all information about a legal move.
      * This constructor is called when you want to create a new instance of an existing move.
      *
      * @param move a move class which should be copied

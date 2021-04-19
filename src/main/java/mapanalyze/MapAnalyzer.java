@@ -1,3 +1,9 @@
+package mapanalyze;
+
+import map.Board;
+import map.Direction;
+import map.Transition;
+
 public class MapAnalyzer {
 
     private int[][] field;
@@ -126,9 +132,9 @@ public class MapAnalyzer {
         }
     }
     /**
-     * Calculates the Map-Score for the given Player
+     * Calculates the Map-Score for the given map.Player
      *
-     * @return int with the value of the Player-Score for the given player
+     * @return int with the value of the map.Player-Score for the given player
      */
     public int calculateScoreForPlayer(char playernumber) {
         int height = board.getHeight();

@@ -1,5 +1,7 @@
+package map;
+
 /**
- * The Direction class is a static class to get single directions as well
+ * The map.Direction class is a static class to get single directions as well
  * as the whole list and to convert a direction into an array or vice versa.
  *
  * @author Benedikt Halbritter
