@@ -1,3 +1,7 @@
+package loganalyze;
+
+import map.Player;
+
 public class PlayerStatistic {
 
     private final String[] players;

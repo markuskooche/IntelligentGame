@@ -1,3 +1,7 @@
+package loganalyze;
+
+import controller.Game;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -158,7 +162,7 @@ public class GameFileManager {
         int x = Integer.parseInt(lineArray[4]);
         int y = Integer.parseInt(lineArray[5]);
         int s = Integer.parseInt(lineArray[7]);
-        game.executeMove(x, y, p);
+        game.executeMove(x, y, p, s);
 
         addBoardArray();
         setPlayerArray();

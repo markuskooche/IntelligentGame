@@ -1,3 +1,5 @@
+package loganalyze;
+
 public class FieldStatistic {
 
     private final char[][] field;

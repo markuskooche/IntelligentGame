@@ -1,3 +1,5 @@
+package loganalyze;
+
 import java.util.Arrays;
 
 public class AnalyzeParser {
@@ -27,7 +29,7 @@ public class AnalyzeParser {
     }
 
     public static void main(String[] args) {
-        //AnalyzeParser.parseBoard();
+        //loganalyze.AnalyzeParser.parseBoard();
         AnalyzeParser.parseMove(1, 2, (byte) 3, (byte) 0);
         AnalyzeParser.disqualifyPlayer((byte) 2);
         AnalyzeParser.startBombPhase();

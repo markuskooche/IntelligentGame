@@ -1,3 +1,5 @@
+package loganalyze;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -27,7 +29,7 @@ public class GameAnalyzer extends JFrame {
 
     public GameAnalyzer() {
 
-        setTitle("GameAnalyzer v0.2.1");
+        setTitle("loganalyze.GameAnalyzer v0.2.1");
         setSize(1000, 700);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
