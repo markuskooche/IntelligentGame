@@ -1,6 +1,4 @@
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.*;
@@ -42,10 +40,7 @@ public class ServerConnection {
         inputStream.read(messageHeader, 0, 5);
 
         // create an integer from the byte array
-        int messageLength = messageHeader[1] << 24;
-        messageLength += messageHeader[2] << 16;
-        messageLength += messageHeader[3] << 8;
-        messageLength += messageHeader[4];
+        int messageLength = getMessageLength(messageHeader);
 
         byte[] byteMessage = new byte[messageLength];
         inputStream.read(byteMessage, 0, messageLength);
@@ -53,7 +48,6 @@ public class ServerConnection {
         switch (messageHeader[0]) {
             case 2:
                 game = new Game(createMap(byteMessage));
-                System.out.println(game.toString());
                 break;
             case 3:
                 player = byteMessage[0];
@@ -88,6 +82,12 @@ public class ServerConnection {
                 // -> game.executeMove(x, y, byteMessage[5], byteMessage[4]);
                 game.executeMove(x, y, byteMessage[5]);
 
+                /*
+                System.out.println("XT01-06-PL" + String.format("%02d", byteMessage[5])
+                        + String.format("%02d", x) + "-" + String.format("%02d", y)
+                        + "-SF-" + String.format("%02d", byteMessage[4]));
+                */
+
                 break;
             case 7:
                 if (byteMessage[0] == player) {
@@ -120,6 +120,28 @@ public class ServerConnection {
         String string = String.valueOf(message);
         String[] lines = string.split("\n");
 
+        /*
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter("test.txt"));
+            out.write("XT01-02-" + Arrays.toString(elements));
+            out.close();
+            System.out.println("File created successfully");
+        }
+        catch (IOException ignored) {
+        }
+         */
+
         return new LinkedList<>(Arrays.asList(lines));
+    }
+
+    private int getMessageLength(byte[] header) {
+        int length = 0;
+
+        for (int i = 0; i < 4; i++) {
+            int shift = (4 - 1 - i) * 8;
+            length += (header[i + 1] & 0x000000FF) << shift;
+        }
+
+        return length;
     }
 }
