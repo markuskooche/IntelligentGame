@@ -61,7 +61,7 @@ public class Game {
         if (pickedMove.isChoice()) {
             //Choose the exchange partner
             //Current: choose a random player
-            ourMove[2] = r.nextInt(players.length);
+            ourMove[2] = r.nextInt(players.length - 1) + 1;
 
         } else if (pickedMove.isBonus()) {
             //Decide witch bonus we take
