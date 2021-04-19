@@ -209,6 +209,10 @@ public class Board {
         return legalMoves;
     }
 
+    public void executeBomb(int x, int y) {
+        field[y][x] = '-';
+    }
+
     /**
      * Executing a valid move entered by a human (for testing).
      *

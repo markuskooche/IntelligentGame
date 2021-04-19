@@ -11,6 +11,8 @@ import java.util.*;
 
 public class ServerConnection {
 
+    private boolean bomb = false;
+
     private Game game;
     private byte ourPlayer;
     private Socket socket;
@@ -61,22 +63,49 @@ public class ServerConnection {
                 game.setOurPlayerNumber(ourPlayer);
                 break;
             case 4:
-                byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                //int[] executedMove = new int[] {3, 1, 0};
-                int [] executedMove = game.executeOurMove();
+               if (!bomb) {
+                    byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+                    int[] executedMove = game.executeOurMove();
 
-                // insert the x coordinate into the byte array
-                move[6] = (byte) (executedMove[0]);
-                move[5] = (byte) ((executedMove[0]) >> 8);
+                    // insert the x coordinate into the byte array
+                    move[6] = (byte) (executedMove[0]);
+                    move[5] = (byte) ((executedMove[0]) >> 8);
 
-                // insert the y coordinate into the byte array
-                move[8] = (byte) (executedMove[1]);
-                move[7] = (byte) ((executedMove[1]) >> 8);
+                    // insert the y coordinate into the byte array
+                    move[8] = (byte) (executedMove[1]);
+                    move[7] = (byte) ((executedMove[1]) >> 8);
 
-                // insert the special field into the byte array
-                move[9] = (byte) (executedMove[2]);
+                    // insert the special field into the byte array
+                    move[9] = (byte) (executedMove[2]);
+                    sendMessage(move);
+                   System.out.println("NORM: " + Arrays.toString(move));
+                } else {
+                    char[][] field = game.getBoard().getField();
+                    byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
 
-                sendMessage(move);
+                    int xBomb = 0;
+                    int yBomb = 0;
+
+                    for (int i = 0; i < field.length; i++) {
+                        for (int j = 0; j < field[0].length; j++) {
+                            if (field[i][j] != '-') {
+                                xBomb = j;
+                                yBomb = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    bombMove[6] = (byte) (xBomb);
+                    bombMove[5] = (byte) ((xBomb) >> 8);
+
+                    bombMove[8] = (byte) (yBomb);
+                    bombMove[7] = (byte) ((yBomb) >> 8);
+
+                    sendMessage(bombMove);
+                    game.executeBomb(xBomb, yBomb);
+                    System.out.println("BOMB: " + xBomb + " " + yBomb);
+                }
                 break;
             case 6:
                 int x = byteMessage[0] << 8;
@@ -86,9 +115,14 @@ public class ServerConnection {
                 y += byteMessage[3];
 
                 int player = byteMessage[5];
-                int additionalOperation = byteMessage[4];
 
-                game.executeMove(x, y, player, additionalOperation);
+                if (!bomb) {
+                    int additionalOperation = byteMessage[4];
+
+                    game.executeMove(x, y, player, additionalOperation);
+                } else {
+                    game.executeBomb(x, y);
+                }
 
                 break;
             case 7:
@@ -100,8 +134,7 @@ public class ServerConnection {
                 break;
             case 8:
                 System.out.println("TODO: TYPE 8 - BOMBENPHASE");
-                byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                sendMessage(bombMove);
+                bomb = true;
                 break;
             case 9:
                 running = false;

@@ -178,6 +178,10 @@ public class Game {
         return null;
     }
 
+    public void executeBomb(int x, int y) {
+        board.executeBomb(x, y);
+    }
+
     /**
      * Returns a list of all players.
      *
