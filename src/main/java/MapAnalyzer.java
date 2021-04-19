@@ -314,8 +314,8 @@ public class MapAnalyzer {
 
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {
-                boardString.append(field[y][x]);
-                boardString.append(" ");
+                boardString.append(String.format("%4s", field[y][x]));
+               // boardString.append(field[y][x]);
             }
             boardString.append("\n");
         }
