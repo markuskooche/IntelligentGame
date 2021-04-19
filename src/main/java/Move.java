@@ -53,10 +53,10 @@ public class Move {
         for (int[] item : move.getList()) {
             add(item);
         }
-        this.inversion = move.getInversion();
-        this.override = move.getOverride();
-        this.choice = move.getChoice();
-        this.bonus = move.getBonus();
+        this.inversion = move.isInversion();
+        this.override = move.isOverride();
+        this.choice = move.isChoice();
+        this.bonus = move.isBonus();
     }
 
     /**
@@ -89,7 +89,7 @@ public class Move {
      *
      * @return status of Bonux property
      */
-    public boolean getBonus() {
+    public boolean isBonus() {
         return bonus;
     }
 
@@ -105,7 +105,7 @@ public class Move {
      *
      * @return status of Choice property
      */
-    public boolean getChoice() {
+    public boolean isChoice() {
         return choice;
     }
 
@@ -121,7 +121,7 @@ public class Move {
      *
      * @return status of Inversion property
      */
-    public boolean getInversion() {
+    public boolean isInversion() {
         return inversion;
     }
 
@@ -137,7 +137,7 @@ public class Move {
      *
      * @return status of Override property
      */
-    public boolean getOverride() {
+    public boolean isOverride() {
         return override;
     }
 
@@ -188,25 +188,25 @@ public class Move {
         return move[0] == getX() && move[1] == getY();
     }
 
-    private int getX() {
+    public int getX() {
         return list.get(0)[0];
     }
 
-    private int getY() {
+    public int getY() {
         return list.get(0)[1];
     }
 
     public void merge(Move two) {
-        if (two.getInversion()) {
+        if (two.isInversion()) {
             setInversion();
         }
-        if (two.getOverride()) {
+        if (two.isOverride()) {
             setOverride();
         }
-        if (two.getChoice()) {
+        if (two.isChoice()) {
             setChoice();
         }
-        if (two.getBonus()) {
+        if (two.isBonus()) {
             setBonus();
         }
 

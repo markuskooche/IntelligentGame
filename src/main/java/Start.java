@@ -13,7 +13,7 @@ public class Start {
 
         try {
             List<String> file = Files.lines(path).collect(Collectors.toList());
-            game = new Game(file);
+            game = new Game(file, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,7 +28,7 @@ public class Start {
         Player player = game.getPlayer(1);
 
         System.out.println(player);
-        game.getBoard().executeMove(player, true);
+        game.getBoard().executeMoveManually(player, true);
         System.out.println(player);
     }
 }

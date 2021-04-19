@@ -8,7 +8,7 @@ import java.util.*;
 public class ServerConnection {
 
     private Game game;
-    private byte player;
+    private byte ourPlayer;
     private Socket socket;
     private boolean running = true;
 
@@ -52,17 +52,16 @@ public class ServerConnection {
 
         switch (messageHeader[0]) {
             case 2:
-                game = new Game(createMap(byteMessage));
+                game = new Game(createMap(byteMessage), ourPlayer);
                 System.out.println(game.toString());
                 break;
             case 3:
-                player = byteMessage[0];
+                ourPlayer = byteMessage[0];
                 break;
             case 4:
                 byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                //TODO: Aktuell wird nur ein statischer Zug übergeben
-                // -> int[] executedMove = game.executeOurMove(player);
-                int[] executedMove = new int[] {3, 1, 0};
+                //int[] executedMove = new int[] {3, 1, 0};
+                int [] executedMove = game.executeOurMove();
 
                 // insert the x coordinate into the byte array
                 move[6] = (byte) (executedMove[0]);
@@ -84,14 +83,15 @@ public class ServerConnection {
                 int y = byteMessage[2] << 8;
                 y += byteMessage[3];
 
-                //TODO: Spezialfelder werden noch nicht beachtet
-                // -> game.executeMove(x, y, byteMessage[5], byteMessage[4]);
-                game.executeMove(x, y, byteMessage[5]);
+                int player = byteMessage[5];
+                int additionalOperation = byteMessage[4];
+
+                game.executeMove(x, y, player, additionalOperation);
 
                 break;
             case 7:
-                if (byteMessage[0] == player) {
-                    System.err.println("YOU WERE DISQUALIFIED (PLAYER " + player + ")\n");
+                if (byteMessage[0] == ourPlayer) {
+                    System.err.println("YOU WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
                     System.err.println(game.getBoard().toString());
                     System.exit(1);
                 }

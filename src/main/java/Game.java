@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
  * The Game class creates a new instance of a game when all important information is passed,
@@ -18,15 +19,45 @@ public class Game {
     private Board board;
     private Heuristics heuristics;
     private MapAnalyzer mapAnalyzer;
+    private int ourPlayerNumber;
 
-    public Game(List<String> initMap) {
+    public Game(List<String> initMap, int ourPlayerNumber) {
         createPlayers(initMap);
         createBoard(initMap);
+        this.ourPlayerNumber = ourPlayerNumber;
         mapAnalyzer = new MapAnalyzer(board);
         heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
         System.out.println(mapAnalyzer.toString());
+    }
+
+    public int[] executeOurMove() {
+        Player p = players[ourPlayerNumber - 1];
+        int [] ourMove = new int[3];
+        List<Move> allMoves = board.getLegalMoves(p, true);
+
+        Random r = new Random();
+        int randomPick = r.nextInt(allMoves.size());
+
+        Move pickedMove = allMoves.get(randomPick);
+        ourMove[0] = pickedMove.getX();
+        ourMove[1] = pickedMove.getY();
+
+        if (pickedMove.isChoice()) {
+            //Choose the exchange partner
+            //Current: choose a random player
+            ourMove[2] = r.nextInt(players.length);
+
+        } else if (pickedMove.isBonus()) {
+            //Decide witch bonus we take
+            ourMove[2] = 21; //Extra Overridestone
+        } else {
+            // Just a normal move
+            ourMove[2] = 0;
+        }
+
+        return ourMove;
     }
 
     private void createPlayers(List<String> initMap) {
@@ -103,8 +134,8 @@ public class Game {
      *
      * @see Board
      */
-    public void executeMove(int x, int y, int player) {
-        board.executeMove(x, y, players[player - 1], true);
+    public void executeMove(int x, int y, int player, int additionalOperation) {
+        board.executeMove(x, y, players[player - 1], additionalOperation, true);
     }
 
     /**

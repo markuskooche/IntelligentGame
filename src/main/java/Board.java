@@ -41,7 +41,7 @@ public class Board {
         this.width = field[0].length;
     }
 
-    private void choice() {
+    private void choiceManually() {
         System.out.print("Please enter two Players you would like to change: ");
         Scanner scanner = new Scanner(System.in);
 
@@ -65,25 +65,11 @@ public class Board {
         }
     }
 
-    private void bonus(Player player) {
-        System.out.print("!!BONUS!! choose your item (b = bomb, o = override): ");
-        Scanner scanner = new Scanner(System.in);
-
-        char item = scanner.next().charAt(0);
-
-        if (item == 'b') {
-            System.out.println("BOMB selected");
-            System.out.println("BEFORE: " + player.getBomb());
-            player.increaseBomb();
-            System.out.println("AFTER: " + player.getBomb());
-        } else if (item == 'o') {
-            System.out.println("OVERRIDE selected");
-            System.out.println("BEFORE: " + player.getOverrideStone());
+    private void bonus(Player player, int bonus) {
+        if (bonus == 21) {
             player.increaseOverrideStone();
-            System.out.println("AFTER: " + player.getOverrideStone());
-        } else {
-            System.out.println("INVALID SELECTION");
-            System.exit(1);
+        } else if(bonus == 20) {
+            player.increaseBomb();
         }
     }
 
@@ -222,22 +208,23 @@ public class Board {
     }
 
     /**
-     * Executing a valid move entered by a human.
+     * Executing a valid move entered by a human (for testing).
      *
      * @param player player who should execute the move
      * @param overrideMoves boolean whether override stones are to be executed as well
      *
      * @see Move
      */
-    public void executeMove(Player player, boolean overrideMoves) {
+    public void executeMoveManually(Player player, boolean overrideMoves) {
         getLegalMovesPrint(player, overrideMoves);
 
         System.out.print("\nPlease enter a valid move: ");
         Scanner scanner = new Scanner(System.in);
         int x = scanner.nextInt();
         int y = scanner.nextInt();
+        int additionalOperation = scanner.nextInt();
 
-        executeMove(x, y, player, overrideMoves);
+        executeMove(x, y, player, additionalOperation, overrideMoves);
         System.out.println("\n" + toString());
     }
 
@@ -251,14 +238,14 @@ public class Board {
      *
      * @see Move
      */
-    public void executeMove(int x, int y, Player player, boolean overrideMoves) {
+    public void executeMove(int x, int y, Player player, int additionalOperation, boolean overrideMoves) {
         List<Move> legalMoves = getLegalMoves(player, overrideMoves);
 
         int[] move = new int[] {x, y};
-        colorizeMove(legalMoves, move, player);
+        colorizeMove(legalMoves, move, player, additionalOperation);
     }
 
-    private void colorizeMove(List<Move> legalMoves, int[] move, Player player) {
+    private void colorizeMove(List<Move> legalMoves, int[] move, Player player, int additionalOperation) {
         boolean override = false;
 
         boolean inversion = false;
@@ -272,13 +259,13 @@ public class Board {
                     int colorizeY = position[1];
                     field[colorizeY][colorizeX] = player.getNumber();
 
-                    if (legalMove.getInversion()) {
+                    if (legalMove.isInversion()) {
                         inversion = true;
-                    } else if (legalMove.getChoice()) {
+                    } else if (legalMove.isChoice()) {
                         choice = true;
-                    } else if (legalMove.getBonus()) {
+                    } else if (legalMove.isBonus()) {
                         bonus = true;
-                    } else if (legalMove.getOverride()) {
+                    } else if (legalMove.isOverride()) {
                         override = true;
                     }
                 }
@@ -288,14 +275,9 @@ public class Board {
         if (inversion) {
             inversion();
         } else if (choice) {
-            // try only for TestExecuteMove
-            try {
-                choice();
-            } catch (NoSuchElementException e) {
-                choice('1', '2');
-            }
+            choice(player.getNumber(), (char) (additionalOperation + '0'));
         } else if (bonus) {
-            bonus(player);
+            bonus(player, additionalOperation);
         } else if (override) {
             player.decreaseOverrideStone();
         }
