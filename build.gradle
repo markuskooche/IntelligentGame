@@ -14,7 +14,7 @@ jar {
     manifest {
         attributes "Implementation-Title": archivesBaseName
         attributes "Implementation-Version": 0.1
-        attributes "Main-Class": "Server"
+        attributes "Main-Class": "Main"
     }
 }
 
