@@ -52,11 +52,12 @@ public class ServerConnection {
 
         switch (messageHeader[0]) {
             case 2:
-                game = new Game(createMap(byteMessage), ourPlayer);
-                System.out.println(game.toString());
+                game = new Game(createMap(byteMessage));
+                System.out.println(game);
                 break;
             case 3:
                 ourPlayer = byteMessage[0];
+                game.setOurPlayerNumber(ourPlayer);
                 break;
             case 4:
                 byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -97,8 +98,9 @@ public class ServerConnection {
                 }
                 break;
             case 8:
-                System.out.println("TYPE 8 - BOMBENPHASE");
-                System.exit(-1);
+                System.out.println("TODO: TYPE 8 - BOMBENPHASE");
+                byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+                sendMessage(bombMove);
                 break;
             case 9:
                 running = false;

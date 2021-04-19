@@ -32,6 +32,20 @@ public class Game {
         System.out.println(mapAnalyzer.toString());
     }
 
+    public Game(List<String> initMap) {
+        createPlayers(initMap);
+        createBoard(initMap);
+        mapAnalyzer = new MapAnalyzer(board);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
+        System.out.println(mapAnalyzer.toString());
+    }
+
+    public void setOurPlayerNumber(int ourPlayerNumber) {
+        this.ourPlayerNumber = ourPlayerNumber;
+    }
+
     public int[] executeOurMove() {
         Player p = players[ourPlayerNumber - 1];
         int [] ourMove = new int[3];
