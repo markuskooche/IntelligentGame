@@ -26,7 +26,7 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/initialMaps/bomb.map");
+        Game game = createGame("maps/initialMaps/europa.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(1);
