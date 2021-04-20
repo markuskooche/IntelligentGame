@@ -1,9 +1,11 @@
+package map;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Move class creates an allowed move in one direction. If there is a valid position with several playing
- * fields to be colored in different directions, several Move classes must be created. In a Move class, both
+ * The map.Move class creates an allowed move in one direction. If there is a valid position with several playing
+ * fields to be colored in different directions, several map.Move classes must be created. In a map.Move class, both
  * fields to be colored in and any kind of additional information, such as inversion, choice, etc., are stored.
  *
  * @author Benedikt Halbritter
@@ -19,7 +21,7 @@ public class Move {
     private boolean bonus;
 
     /**
-     * Creates a Move class that contains all information about a legal move.
+     * Creates a map.Move class that contains all information about a legal move.
      */
     public Move() {
         list = new ArrayList<>();
@@ -29,7 +31,7 @@ public class Move {
     }
 
     /**
-     * Creates a Move class that contains all information about a legal move.
+     * Creates a map.Move class that contains all information about a legal move.
      * This constructor is called if it is an override stone.
      *
      * @param element a integer array with a coordinate [x, y]
@@ -43,7 +45,7 @@ public class Move {
     }
 
     /**
-     * Creates a Move class that contains all information about a legal move.
+     * Creates a map.Move class that contains all information about a legal move.
      * This constructor is called when you want to create a new instance of an existing move.
      *
      * @param move a move class which should be copied
@@ -53,10 +55,10 @@ public class Move {
         for (int[] item : move.getList()) {
             add(item);
         }
-        this.inversion = move.getInversion();
-        this.override = move.getOverride();
-        this.choice = move.getChoice();
-        this.bonus = move.getBonus();
+        this.inversion = move.isInversion();
+        this.override = move.isOverride();
+        this.choice = move.isChoice();
+        this.bonus = move.isBonus();
     }
 
     /**
@@ -89,7 +91,7 @@ public class Move {
      *
      * @return status of Bonux property
      */
-    public boolean getBonus() {
+    public boolean isBonus() {
         return bonus;
     }
 
@@ -105,7 +107,7 @@ public class Move {
      *
      * @return status of Choice property
      */
-    public boolean getChoice() {
+    public boolean isChoice() {
         return choice;
     }
 
@@ -121,7 +123,7 @@ public class Move {
      *
      * @return status of Inversion property
      */
-    public boolean getInversion() {
+    public boolean isInversion() {
         return inversion;
     }
 
@@ -137,7 +139,7 @@ public class Move {
      *
      * @return status of Override property
      */
-    public boolean getOverride() {
+    public boolean isOverride() {
         return override;
     }
 
@@ -188,12 +190,31 @@ public class Move {
         return move[0] == getX() && move[1] == getY();
     }
 
-    private int getX() {
-        return list.get(list.size()-1)[0];
+    public int getX() {
+        return list.get(0)[0];
     }
 
-    private int getY() {
-        return list.get(list.size()-1)[1];
+    public int getY() {
+        return list.get(0)[1];
+    }
+
+    public void merge(Move two) {
+        if (two.isInversion()) {
+            setInversion();
+        }
+        if (two.isOverride()) {
+            setOverride();
+        }
+        if (two.isChoice()) {
+            setChoice();
+        }
+        if (two.isBonus()) {
+            setBonus();
+        }
+
+        for (int[] position : two.getList()) {
+            add(position);
+        }
     }
 
     @Override
@@ -201,8 +222,8 @@ public class Move {
         StringBuilder moveString = new StringBuilder();
 
         if (list.size() != 0) {
-            moveString.append("(" + getX() + ", " + getY() + ")");
-            moveString.append(" -> [");
+            moveString.append("(" + getX() + ", " + getY() + ")\t | {I: " + inversion + " C: " + choice + " B: " + bonus + " O: " + override + "}");
+            moveString.append("\t -> [");
 
             for (int i = 0; i < list.size(); i++) {
                 moveString.append("(" + list.get(i)[0] + ", " + list.get(i)[1] + ")");

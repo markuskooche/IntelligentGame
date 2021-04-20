@@ -1,3 +1,9 @@
+package mapanalyze;
+
+import map.Board;
+import map.Direction;
+import map.Transition;
+
 public class MapAnalyzer {
 
     private int[][] field;
@@ -25,7 +31,7 @@ public class MapAnalyzer {
                 char currField = board.getField()[i][j];
 
                 if (currField != '-') {
-                    //create RechableField for the First field that is Writable (The most performant way would by around the middle of the Map
+                    //create ReachableField for the First field that is Writable (The most performant way would by around the middle of the Map
 //                    createReachableField(j, i);
                     int newValue = getLocationValue(j, i);
                     field[i][j] += newValue * 3;
@@ -110,10 +116,8 @@ public class MapAnalyzer {
 
                 // Follow Transactions
                 if (transition != null) {
-                    if (reachableField[transition.getY1()][transition.getX1()] != 1) {
-                        traverseMap(transition.getX1(), transition.getY1());
-                    } else if (reachableField[transition.getY2()][transition.getX2()] != 1) {
-                        traverseMap(transition.getX2(), transition.getY2());
+                    if (reachableField[transition.getY()][transition.getX()] != 1) {
+                        traverseMap(transition.getX(), transition.getY());
                     }
                 }
 
@@ -128,9 +132,9 @@ public class MapAnalyzer {
         }
     }
     /**
-     * Calculates the Map-Score for the given Player
+     * Calculates the Map-Score for the given map.Player
      *
-     * @return int with the value of the Player-Score for the given player
+     * @return int with the value of the map.Player-Score for the given player
      */
     public int calculateScoreForPlayer(char playernumber) {
         int height = board.getHeight();
@@ -178,7 +182,7 @@ public class MapAnalyzer {
                     Transition transition = board.getTransition(oldX, oldY, directionValue);
 
                     if (transition != null) {
-                        followTransaction(transition, oldX, oldY, direction, range - currRange, startValue, exhaustion);
+                        followTransaction(transition, direction, range - currRange, startValue, exhaustion);
                     }
                     break;
 
@@ -207,14 +211,14 @@ public class MapAnalyzer {
 
     }
 
-    private void followTransaction(Transition transition, int x, int y, int[] direction, int range, int startValue, int exhaustion) {
+    private void followTransaction(Transition transition, int[] direction, int range, int startValue, int exhaustion) {
 
         int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
         int omen = -1;
         int directionValue = Direction.indexOf(direction);
 
         //get the opposite side of the given transaction
-        int[] newPosition = transition.getDestination(x, y, directionValue);
+        int[] newPosition = transition.getDestination();
         int startX = newPosition[0];
         int startY = newPosition[1];
         int[] newDirection = directions[newPosition[2]];
@@ -246,7 +250,7 @@ public class MapAnalyzer {
                 if (transition == null) {
                     return;
                 } else {
-                    followTransaction(transition, oldX, oldY, newDirection, range, startValue, exhaustion);
+                    followTransaction(transition, newDirection, range, startValue, exhaustion);
                     break;
                 }
             }else{
@@ -314,8 +318,8 @@ public class MapAnalyzer {
 
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {
-                boardString.append(field[y][x]);
-                boardString.append(" ");
+                boardString.append(String.format("%4s", field[y][x]));
+               // boardString.append(field[y][x]);
             }
             boardString.append("\n");
         }

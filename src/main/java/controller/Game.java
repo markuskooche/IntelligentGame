@@ -1,9 +1,19 @@
+package controller;
+
+import heuristic.Heuristics;
+import map.Board;
+import map.Move;
+import map.Player;
+import map.Transition;
+import mapanalyze.MapAnalyzer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
- * The Game class creates a new instance of a game when all important information is passed,
+ * The controller.Game class creates a new instance of a game when all important information is passed,
  * such as the playing field, the number of players, bomb radius, transitions and much more.
  * Subsequently, a game can control all steps of an action until disqualification or until
  * one has won or lost. This is a class that can control all other classes directly or indirectly.
@@ -18,6 +28,18 @@ public class Game {
     private Board board;
     private Heuristics heuristics;
     private MapAnalyzer mapAnalyzer;
+    private int ourPlayerNumber;
+
+    public Game(List<String> initMap, int ourPlayerNumber) {
+        createPlayers(initMap);
+        createBoard(initMap);
+        this.ourPlayerNumber = ourPlayerNumber;
+        mapAnalyzer = new MapAnalyzer(board);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
+        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
+        System.out.println(mapAnalyzer.toString());
+    }
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
@@ -27,6 +49,38 @@ public class Game {
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
         System.out.println(mapAnalyzer.toString());
+    }
+
+    public void setOurPlayerNumber(int ourPlayerNumber) {
+        this.ourPlayerNumber = ourPlayerNumber;
+    }
+
+    public int[] executeOurMove() {
+        Player p = players[ourPlayerNumber - 1];
+        int [] ourMove = new int[3];
+        List<Move> allMoves = board.getLegalMoves(p, true);
+
+        Random r = new Random();
+        int randomPick = r.nextInt(allMoves.size());
+
+        Move pickedMove = allMoves.get(randomPick);
+        ourMove[0] = pickedMove.getX();
+        ourMove[1] = pickedMove.getY();
+
+        if (pickedMove.isChoice()) {
+            //Choose the exchange partner
+            //Current: choose a random player
+            ourMove[2] = r.nextInt(players.length - 1) + 1;
+
+        } else if (pickedMove.isBonus()) {
+            //Decide witch bonus we take
+            ourMove[2] = 21; //Extra Overridestone
+        } else {
+            // Just a normal move
+            ourMove[2] = 0;
+        }
+
+        return ourMove;
     }
 
     private void createPlayers(List<String> initMap) {
@@ -82,13 +136,13 @@ public class Game {
             y2 = Integer.parseInt(fields[5]);
             r2 = Integer.parseInt(fields[6]);
 
-            Transition transition = new Transition(x1, y1, r1, x2, y2, r2);
+            int transitionKeyOne = Transition.hash(x1, y1, r1);
+            Transition transitionOne = new Transition(x2, y2, r2);
+            transitions.put(transitionKeyOne, transitionOne);
 
-            int transPos1 = Transition.hash(x1, y1, r1);
-            transitions.put(transPos1, transition);
-
-            int transPos2 = Transition.hash(x2, y2, r2);
-            transitions.put(transPos2, transition);
+            int transitionKeyTwo = Transition.hash(x2, y2, r2);
+            Transition transitionTwo = new Transition(x1, y1, r1);
+            transitions.put(transitionKeyTwo, transitionTwo);
         }
 
         return transitions;
@@ -103,10 +157,8 @@ public class Game {
      *
      * @see Board
      */
-    public void executeMove(int x, int y, char player) {
-        // ASCII '1' - 49 = 0
-        int index = player - 49;
-        board.executeMove(x, y, players[index], true);
+    public void executeMove(int x, int y, int player, int additionalOperation) {
+        board.executeMove(x, y, players[player - 1], additionalOperation, true);
     }
 
     /**
@@ -118,14 +170,16 @@ public class Game {
      *
      * @see Player
      */
-    public Player getPlayer(char number) {
-        for (Player player : players) {
-            if (player.getNumber() == number) {
-                return player;
-            }
+    public Player getPlayer(int number) {
+        if (number <= players.length) {
+            return players[number - 1];
         }
 
         return null;
+    }
+
+    public void executeBomb(int x, int y) {
+        board.executeBomb(x, y);
     }
 
     /**
@@ -164,12 +218,19 @@ public class Game {
 
         gameString.append(String.format("%s\n", board.toString()));
 
-        ArrayList<Transition> transitionList = new ArrayList<>();
+        ArrayList<Transition> list = new ArrayList<>();
+
         for (Transition transition : board.getAllTransitions().values()) {
-            if (!transitionList.contains(transition)) {
-                transitionList.add(transition);
-                gameString.append(transition);
-                gameString.append("\n");
+            int x = transition.getX();
+            int y = transition.getY();
+            int r = transition.getR();
+
+            Transition opposite = board.getTransition(x, y, r);
+
+            if (!list.contains(transition) || !list.contains(opposite)) {
+                gameString.append(transition + " <-> " + opposite + "\n");
+                list.add(transition);
+                list.add(opposite);
             }
         }
 

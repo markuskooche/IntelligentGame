@@ -1,3 +1,10 @@
+package heuristic;
+
+import map.Board;
+import map.Move;
+import map.Player;
+import mapanalyze.MapAnalyzer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +24,7 @@ public class Heuristics {
         int mapValue = mapAnalyzer.calculateScoreForPlayer(player.getNumber());
         int coinParity = getCoinParity(player);
         int mobility = getMobility(player);
-        System.out.println("Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
+        System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility;
     }
 
