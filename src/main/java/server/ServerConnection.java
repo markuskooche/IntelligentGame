@@ -1,7 +1,6 @@
 package server;
 
 import controller.Game;
-import loganalyze.AnalyzeParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,15 +56,14 @@ public class ServerConnection {
         switch (messageHeader[0]) {
             case 2:
                 game = new Game(createMap(byteMessage));
-                AnalyzeParser.parseBoard(byteMessage);
+                //System.out.println(game);
                 break;
             case 3:
                 ourPlayer = byteMessage[0];
                 game.setOurPlayerNumber(ourPlayer);
-                AnalyzeParser.setPlayer(ourPlayer);
                 break;
             case 4:
-                if (!bomb) {
+               if (!bomb) {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
                     int[] executedMove = game.executeOurMove();
 
@@ -79,8 +77,8 @@ public class ServerConnection {
 
                     // insert the special field into the byte array
                     move[9] = (byte) (executedMove[2]);
-                    //AnalyzeParser.parseMove(executedMove[0], executedMove[1], ourPlayer, executedMove[3]);
                     sendMessage(move);
+                   System.out.println("NORM: " + Arrays.toString(move));
                 } else {
                     char[][] field = game.getBoard().getField();
                     byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -104,9 +102,9 @@ public class ServerConnection {
                     bombMove[8] = (byte) (yBomb);
                     bombMove[7] = (byte) ((yBomb) >> 8);
 
-                    //AnalyzeParser.parseMove(xBomb, yBomb, ourPlayer, 0);
-                    game.executeBomb(xBomb, yBomb);
                     sendMessage(bombMove);
+                    game.executeBomb(xBomb, yBomb);
+                    System.out.println("BOMB: " + xBomb + " " + yBomb);
                 }
                 break;
             case 6:
@@ -122,10 +120,8 @@ public class ServerConnection {
                     int additionalOperation = byteMessage[4];
 
                     game.executeMove(x, y, player, additionalOperation);
-                    AnalyzeParser.parseMove(x, y, player, additionalOperation);
                 } else {
                     game.executeBomb(x, y);
-                    AnalyzeParser.parseMove(x, y, player, 0);
                 }
 
                 break;
@@ -135,14 +131,12 @@ public class ServerConnection {
                     System.err.println(game.getBoard().toString());
                     System.exit(1);
                 }
-                AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;
             case 8:
-                AnalyzeParser.startBombPhase();
+                System.out.println("TODO: TYPE 8 - BOMBENPHASE");
                 bomb = true;
                 break;
             case 9:
-                AnalyzeParser.endGame();
                 running = false;
                 System.exit(0);
                 break;
@@ -160,7 +154,13 @@ public class ServerConnection {
         }
 
         String string = String.valueOf(message);
-        String[] lines = string.split("\n");
+
+        String[] lines;
+        if (elements[1] == (byte) 13) {
+            lines = string.split("\r\n");
+        } else {
+            lines = string.split("\n");
+        }
 
         return new LinkedList<>(Arrays.asList(lines));
     }
