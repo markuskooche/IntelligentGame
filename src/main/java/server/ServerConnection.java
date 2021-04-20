@@ -56,7 +56,7 @@ public class ServerConnection {
         switch (messageHeader[0]) {
             case 2:
                 game = new Game(createMap(byteMessage));
-                System.out.println(game);
+                //System.out.println(game);
                 break;
             case 3:
                 ourPlayer = byteMessage[0];
@@ -154,7 +154,13 @@ public class ServerConnection {
         }
 
         String string = String.valueOf(message);
-        String[] lines = string.split("\n");
+
+        String[] lines;
+        if (elements[1] == (byte) 13) {
+            lines = string.split("\r\n");
+        } else {
+            lines = string.split("\n");
+        }
 
         return new LinkedList<>(Arrays.asList(lines));
     }
