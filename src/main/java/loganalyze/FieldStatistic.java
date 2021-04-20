@@ -17,4 +17,8 @@ public class FieldStatistic {
     public String getPiece(int x, int y) {
         return (field[y][x] + " ");
     }
+
+    public char[][] getField() {
+        return field;
+    }
 }

@@ -7,10 +7,14 @@ public class AnalyzeParser {
     private static final String group = "XT01-";
     
     public static void parseBoard(byte[] map) {
-        System.out.println(group + "02" + Arrays.toString(map));
+        System.out.println(group + "02-" + Arrays.toString(map));
     }
 
-    public static void parseMove(int x, int y, byte player, byte special) {
+    public static void setPlayer(int number) {
+        System.out.println(group + "03-PL-" + String.format("%02d", number));
+    }
+
+    public static void parseMove(int x, int y, int player, int special) {
         System.out.println(group + "06-PL-" + String.format("%02d", player) + "-"
                 + String.format("%02d", x) + "-" + String.format("%02d", y)
                 + "-SF-" + String.format("%02d", special));

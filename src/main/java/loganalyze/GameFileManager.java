@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 
 public class GameFileManager {
 
+    private int bomb;
+    private int override;
+
     private int playerAmount;
     private int height;
     private int width;
@@ -37,6 +40,31 @@ public class GameFileManager {
             List<String> file = Files.lines(path).collect(Collectors.toList());
             parseFile(file);
         }
+    }
+
+    public String[] getMap(int index) {
+        char[][] field = boardArray.get(index).getField();
+        String[] transitions = game.getTransitions();
+        int length = field.length + transitions.length + 4;
+        String[] board = new String[length];
+
+        board[0] = String.valueOf(playerAmount);
+        board[1] = String.valueOf(override);
+        board[2] = bomb + " " + getBombRadius();
+        board[3] = game.getBoard().getHeight() + " " + game.getBoard().getWidth();
+
+        for (int i = 0; i < field.length; i++) {
+            board[i + 4] = "";
+            for (int j = 0; j < field[0].length; j++) {
+                board[i + 4] += field[i][j] + " ";
+            }
+        }
+
+        for (int i = 0; i < transitions.length; i ++) {
+            board[(field.length + 4) + i] = transitions[i];
+        }
+
+        return board;
     }
 
     public String[] getBoard(int index) {
@@ -85,6 +113,7 @@ public class GameFileManager {
         for (String line : file) {
             if (line.length() >= 6) {
                 String id = line.substring(0, 7);
+                System.out.println(line);
 
                 switch (id) {
                     case "XT01-01":
@@ -143,10 +172,14 @@ public class GameFileManager {
 
         List<String> map = new LinkedList<>(Arrays.asList(lines));
         game = new Game(map);
+        System.out.println(game);
 
         height = game.getBoard().getHeight();
         width = game.getBoard().getWidth();
         playerAmount = game.getPlayers().length;
+
+        bomb = game.getPlayer(1).getBomb();
+        override = game.getPlayer(1).getOverrideStone();
 
         addBoardArray();
         setPlayerArray();

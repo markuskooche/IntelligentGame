@@ -7,10 +7,7 @@ import map.Player;
 import map.Transition;
 import mapanalyze.MapAnalyzer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * The controller.Game class creates a new instance of a game when all important information is passed,
@@ -202,6 +199,30 @@ public class Game {
      */
     public Board getBoard() {
         return board;
+    }
+
+    public String[] getTransitions() {
+        Collection<Transition> transitions = board.getAllTransitions().values();
+        String[] returnTransitions = new String[transitions.size() / 2];
+        ArrayList<Transition> list = new ArrayList<>();
+        int counter = 0;
+
+        for (Transition transition : transitions) {
+            int x = transition.getX();
+            int y = transition.getY();
+            int r = transition.getR();
+
+            Transition opposite = board.getTransition(x, y, r);
+
+            if (!list.contains(transition) || !list.contains(opposite)) {
+                returnTransitions[counter] = (transition + " <-> " + opposite);
+                counter++;
+                list.add(transition);
+                list.add(opposite);
+            }
+        }
+
+        return returnTransitions;
     }
 
     @Override

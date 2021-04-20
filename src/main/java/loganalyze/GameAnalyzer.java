@@ -1,14 +1,23 @@
 package loganalyze;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 public class GameAnalyzer extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
     private int counter;
-    private String lastDirectory = ".";
+    //private String lastDirectory = ".";
+    private String lastDirectory = "/Users/markuskooche/Desktop/logAnalyze";
 
     private final JButton next;
     private final JButton previous;
@@ -22,6 +31,7 @@ public class GameAnalyzer extends JFrame {
     private final JTextField lineJumper;
     private final JButton jumperButton;
 
+    private JMenuItem exportItem;
     private GameFileManager gameFileManager;
 
     private final DefaultListModel<String> defaultListModelBoard;
@@ -29,7 +39,7 @@ public class GameAnalyzer extends JFrame {
 
     public GameAnalyzer() {
 
-        setTitle("loganalyze.GameAnalyzer v0.2.1");
+        setTitle("GameAnalyzer v0.2.1");
         setSize(1000, 700);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -44,6 +54,11 @@ public class GameAnalyzer extends JFrame {
         JMenuItem openItem = new JMenuItem("Öffnen");
         menu.add(openItem);
         openItem.addActionListener(e -> loadGame());
+
+        exportItem = new JMenuItem("Exportieren");
+        exportItem.setEnabled(false);
+        menu.add(exportItem);
+        exportItem.addActionListener(e -> exportGame());
 
         menu.add(new JSeparator());
 
@@ -144,10 +159,56 @@ public class GameAnalyzer extends JFrame {
             jumperRadio.setEnabled(true);
             lineJumper.setEnabled(true);
 
+            exportItem.setEnabled(true);
+
             next.setEnabled(gameFileManager.getGameSize() != 1);
             updateFrame();
         }
         catch (Exception ignored) {
+        }
+    }
+
+    private void exportGame() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Aktuelles Spielfeld exportieren");
+        fileChooser.setCurrentDirectory(new File(lastDirectory));
+        fileChooser.setFileFilter(new FileFilter() {
+
+            public String getDescription() {
+                return "ReversiXT Map (*.map)";
+            }
+
+            public boolean accept(File file) {
+                if (file.isDirectory()) {
+                    return true;
+                } else {
+                    String filename = file.getName();
+                    return filename.endsWith(".map");
+                }
+            }
+        });
+
+        int userSelection = fileChooser.showSaveDialog(GameAnalyzer.this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            try {
+                String fileName = fileChooser.getSelectedFile().toString();
+
+                if (!fileName.endsWith(".map")) {
+                    fileName += ".map";
+                }
+
+                Path path = Paths.get(fileName);
+                List<String> list = new ArrayList<>();
+                String[] lines = gameFileManager.getMap(counter);
+
+                Collections.addAll(list, lines);
+
+                Files.write(path, list);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
