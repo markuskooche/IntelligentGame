@@ -130,20 +130,19 @@ public class Board {
         // inserts all legal moves of a player's pieces into a list
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (field[y][x] != '-') {
-                    if ("12345678".indexOf(field[y][x]) == -1) {
-                        Move legalMove = checkMove(x, y, player.getNumber(), false);
+                char piece = field[y][x];
+                if ("0bic".indexOf(piece) != -1) {
+                    Move legalMove = checkMove(x, y, player.getNumber(), false);
 
-                        if (!legalMove.isEmpty()) {
+                    if (!legalMove.isEmpty()) {
                             legalMoves.add(legalMove);
-                        }
                     }
+                }
 
-                    if (player.hasOverrideStone() && overrideMoves && "0ibc".indexOf(field[y][x]) == -1) {
-                        Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
-                        if (!legalOverrideMove.isEmpty()) {
-                            legalOverrideMoves.add(legalOverrideMove);
-                        }
+                if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                    Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
+                    if (!legalOverrideMove.isEmpty()) {
+                        legalOverrideMoves.add(legalOverrideMove);
                     }
                 }
             }
@@ -180,20 +179,19 @@ public class Board {
         // inserts all legal moves of a player's pieces into a list
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (field[y][x] != '-') {
-                    if ("12345678".indexOf(field[y][x]) == -1) {
-                        Move legalMove = checkMove(x, y, player.getNumber(), false);
+                char piece = field[y][x];
+                if ("0bic".indexOf(piece) != -1) {
+                    Move legalMove = checkMove(x, y, player.getNumber(), false);
 
-                        if (!legalMove.isEmpty()) {
-                            legalMoves.add(legalMove);
-                        }
+                    if (!legalMove.isEmpty()) {
+                        legalMoves.add(legalMove);
                     }
+                }
 
-                    if (player.hasOverrideStone() && overrideMoves && "0ibc".indexOf(field[y][x]) == -1) {
-                        Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
-                        if (!legalOverrideMove.isEmpty()) {
-                            legalMoves.add(legalOverrideMove);
-                        }
+                if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                    Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
+                    if (!legalOverrideMove.isEmpty()) {
+                        legalMoves.add(legalOverrideMove);
                     }
                 }
             }

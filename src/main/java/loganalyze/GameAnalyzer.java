@@ -2,45 +2,57 @@ package loganalyze;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 public class GameAnalyzer extends JFrame {
-
     private static final long serialVersionUID = 1L;
+    private static final Color HEADER_COLOR = new Color(190, 190, 190);
+    private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
-    private int counter;
-    //private String lastDirectory = ".";
-    private String lastDirectory = "/Users/markuskooche/Desktop/logAnalyze";
+    private int counter = 0;
+    //private String lastDirectory= ".";
+    private String lastDirectory= "/Users/markuskooche/Desktop/server/all_logfiles/logfiles_04-23_08/logfiles";
 
-    private final JButton next;
-    private final JButton previous;
+    private final JMenuItem exportItem;
+
     private final JLabel moveSize;
-    private final JLabel bombRadius;
-    private final JLabel currentMove;
     private final JLabel ownPlayer;
+    private final JLabel bombRadius;
     private final JLabel amountPlayer;
+    private final JLabel fieldPercentage;
 
-    private JRadioButton jumperRadio;
-    private final JTextField lineJumper;
+    private final JLabel currentMove;
+
+    private final JButton nextGame;
+    private final JButton previousGame;
+
     private final JButton jumperButton;
+    private final JTextField jumperInput;
+    private final JRadioButton jumperRadio;
 
-    private JMenuItem exportItem;
-    private GameFileManager gameFileManager;
+    private final List<PlayerInformation> playerList;
+    private final PlayerTableModel playerTableModel;
+    private final ListSelectionModel playerSelectionModel;
 
-    private final DefaultListModel<String> defaultListModelBoard;
-    private final DefaultListModel<String> defaultListModelPlayer;
+    private GamePanelManager gamePanelManager;
+    private final GameField.GamePanel gamePanel;
 
     public GameAnalyzer() {
+        playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.2.1");
-        setSize(1000, 700);
+        setTitle("GameAnalyzer v0.3.0");
+        setSize(1110, 890);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
         setLayout(null);
@@ -48,7 +60,11 @@ public class GameAnalyzer extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu menu = new JMenu("Datei");
+        JMenu menu;
+
+        // ----- ----- ----- ----- GAME ANALYZER - MENU DATEI ----- ----- ----- -----
+
+        menu = new JMenu("Datei");
         menuBar.add(menu);
 
         JMenuItem openItem = new JMenuItem("Öffnen");
@@ -66,70 +82,144 @@ public class GameAnalyzer extends JFrame {
         menu.add(closeApp);
         closeApp.addActionListener(e -> dispose());
 
+        // ----- ----- ----- ----- GAME ANALYZER - MENU BEARBEITEN ----- ----- ----- -----
+
+        menu = new JMenu("Bearbeiten");
+        menuBar.add(menu);
+
+        JMenuItem showTransition = new JMenuItem("Transition ein");
+        //showTransition.addActionListener(e -> showTransition());
+        menu.add(showTransition);
+
+        JMenuItem hideTransition = new JMenuItem("Transition aus");
+        //hideTransition.addActionListener(e -> hideTransition());
+        menu.add(hideTransition);
+
+        // ----- ----- ----- ----- GAME ANALYZER - MENU FENSTER ----- ----- ----- -----
+
+        menu = new JMenu("Fenster");
+        menuBar.add(menu);
+
+        JMenuItem visibleItem = new JMenuItem("Unerreichbar");
+        visibleItem.addActionListener(e -> openVisibleWindow());
+        menu.add(visibleItem);
+
         // ----- ----- ----- ----- GAME ANALYZER - WINDOW ----- ----- ----- -----
 
         amountPlayer = new JLabel("Anzahl Spieler: -");
-        amountPlayer.setBounds(10, 10, 120, 20);
+        amountPlayer.setBounds(20, 10, 120, 20);
         add(amountPlayer);
 
         ownPlayer = new JLabel("Spielfigur: -");
-        ownPlayer.setBounds(140, 10, 100, 20);
+        ownPlayer.setBounds(150, 10, 100, 20);
         add(ownPlayer);
 
         bombRadius = new JLabel("Bombenradius: -");
         bombRadius.setBounds(250, 10, 120, 20);
         add(bombRadius);
 
+        fieldPercentage = new JLabel("Verteilung: --% ---/----");
+        fieldPercentage.setBounds(410, 10, 170, 20);
+        add(fieldPercentage);
+
         moveSize = new JLabel("Anzahl Züge: -");
-        moveSize.setBounds(550, 10, 150, 20);
+        moveSize.setBounds(640, 10, 150, 20);
         add(moveSize);
 
-        defaultListModelBoard = new DefaultListModel<>();
-        JList<String> listBoard = new JList<>(defaultListModelBoard);
-        listBoard.setFont(new Font("Courier", Font.PLAIN,14));
-        JScrollPane scrollPaneBoard = new JScrollPane(listBoard);
-        scrollPaneBoard.setBounds(10, 40, 730, 560);
-        add(scrollPaneBoard);
+        gamePanel = new GameField.GamePanel();
+        gamePanel.setBounds(20, 40, 751, 751);
 
-        defaultListModelPlayer = new DefaultListModel<>();
-        JList<String> listPlayer = new JList<>(defaultListModelPlayer);
-        listPlayer.setFont(new Font("Courier", Font.PLAIN,14));
-        JScrollPane scrollPanePlayer = new JScrollPane(listPlayer);
-        scrollPanePlayer.setBounds(750, 10, 240, 630);
-        add(scrollPanePlayer);
+        gamePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int x = e.getX() / 15;
+                int y = e.getY() / 15;
+                gamePanel.highlightPlayer(x, y);
+            }
+        });
+
+        add(gamePanel);
+
+        // ----- ----- ----- ----- GAME ANALYZER - PLAYER TABLE ----- ----- ----- -----
+
+        playerTableModel = new PlayerTableModel(playerList);
+
+        JTable table = new JTable(playerTableModel) {
+            public Component prepareRenderer(TableCellRenderer renderer, int rowIndex, int columnIndex) {
+                Component component = super.prepareRenderer(renderer, rowIndex, columnIndex);
+
+                if (!component.getBackground().equals(getSelectionBackground())) {
+                    Color c = (rowIndex % 2 == 1 ? TABLE_COLOR : Color.WHITE);
+                    component.setBackground(c);
+                }
+                return component;
+            }
+        };
+
+        playerSelectionModel = table.getSelectionModel();
+        playerSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent event) {
+                if (event.getClickCount() == 2) {
+                    int row = playerSelectionModel.getMinSelectionIndex();
+                    int selectedPlayer = (row / PlayerTableModel.ITEMS) + 1;
+
+                    if (row % PlayerTableModel.ITEMS != 4) {
+                        gamePanel.highlightPlayer(selectedPlayer);
+                    }
+                }
+            }
+        });
+
+        table.getTableHeader().setBackground(HEADER_COLOR);
+        table.getTableHeader().setFont(new Font("Lucida", Font.PLAIN, 14));
+        table.setFont(new Font("Lucida", Font.PLAIN, 13));
+
+        table.getColumnModel().getColumn(0);
+        table.getColumnModel().getColumn(1);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        JPanel titlePane = new JPanel();
+        titlePane.setLayout(new BorderLayout());
+        titlePane.add(scrollPane);
+        titlePane.setBounds(790, 20, 300, 800);
+        add(titlePane);
+
+        // ----- ----- ----- ----- GAME ANALYZER - GAME CONTROLLER ----- ----- ----- -----
 
         currentMove = new JLabel("Aktuell: -");
-        currentMove.setBounds(30, 615, 120, 20);
+        currentMove.setBounds(30, 805, 120, 20);
         add(currentMove);
 
-        previous = new JButton("Zurück");
-        previous.setBounds(260, 610, 80, 30);
-        previous.addActionListener(e -> previousGame());
-        previous.setEnabled(false);
-        add(previous);
+        previousGame = new JButton("Zurück");
+        previousGame.setBounds(295, 800, 100, 30);
+        previousGame.addActionListener(e -> previousGame());
+        previousGame.setEnabled(false);
+        add(previousGame);
 
-        next = new JButton("Weiter");
-        next.setBounds(350, 610, 80, 30);
-        next.addActionListener(e -> nextGame());
-        getRootPane().setDefaultButton(next);
-        next.setEnabled(false);
-        add(next);
+        nextGame = new JButton("Weiter");
+        nextGame.setBounds(395, 800, 100, 30);
+        nextGame.addActionListener(e -> nextGame());
+        nextGame.setEnabled(false);
+        add(nextGame);
 
-        lineJumper = new JTextField();
-        lineJumper.setBounds(610, 610, 50, 30);
-        lineJumper.setEnabled(false);
-        add(lineJumper);
+        jumperInput = new JTextField();
+        jumperInput.setBounds(640, 800, 50, 30);
+        jumperInput.setEnabled(false);
+        add(jumperInput);
 
         jumperRadio = new JRadioButton("Speichern", false);
-        jumperRadio.setBounds(500, 610, 100, 30);
+        jumperRadio.setBounds(530, 800, 100, 30);
         jumperRadio.addActionListener(e -> {
-            lineJumper.setText("");
+            jumperInput.setText("");
         });
         jumperRadio.setEnabled(false);
         add(jumperRadio);
 
         jumperButton = new JButton("Enter");
-        jumperButton.setBounds(660, 610, 80, 30);
+        jumperButton.setBounds(690, 800, 80, 30);
         jumperButton.addActionListener(e -> jumpMove());
         jumperButton.setEnabled(false);
         add(jumperButton);
@@ -137,34 +227,84 @@ public class GameAnalyzer extends JFrame {
         setVisible(true);
     }
 
+    private void previousGame() {
+        if (counter >= 1) {
+            nextGame.setEnabled(true);
+            counter--;
+            updateGamePanel();
+
+            if (counter == 0) {
+                previousGame.setEnabled(false);
+            }
+        }
+    }
+
+    private void nextGame() {
+        if (counter < gamePanelManager.getGameSize() - 1) {
+            previousGame.setEnabled(true);
+            counter++;
+            updateGamePanel();
+
+            if (counter == gamePanelManager.getGameSize() - 1) {
+                nextGame.setEnabled(false);
+
+                disqualifyMessage();
+            }
+        }
+    }
+
+    private void openVisibleWindow() {
+        new VisibleFieldWindow(this);
+    }
+
     private void loadGame() {
-        FileDialog fd = new FileDialog(GameAnalyzer.this, "Analysedatei öffnen", FileDialog.LOAD);
+        FileDialog fd = new FileDialog(
+                GameAnalyzer.this,
+                "Analysedatei öffnen",
+                FileDialog.LOAD
+        );
         fd.setFilenameFilter((directory, name) -> name.endsWith(".log"));
         fd.setDirectory(lastDirectory);
         fd.setVisible(true);
 
-        lastDirectory = fd.getDirectory();
-
         try {
             String filename = fd.getDirectory() + fd.getFile();
-            gameFileManager = new GameFileManager(filename);
-            gameFileManager.load();
+            gamePanelManager = new GamePanelManager(filename);
+            gamePanelManager.load();
+
+            jumperInput.setEnabled(true);
+            jumperRadio.setEnabled(true);
+            jumperButton.setEnabled(true);
+
+            moveSize.setText("Anzahl Züge: " + (gamePanelManager.getGameSize() - 1));
+
+            ownPlayer.setText("Spielfigur: " + gamePanelManager.getOwnPlayer());
+            bombRadius.setText("Bombenradius: " + gamePanelManager.getBombRadius());
+            amountPlayer.setText("Anzahl Spieler: " + gamePanelManager.getPlayerAmount());
+
+            nextGame.setEnabled(gamePanelManager.getGameSize() != 1);
+            lastDirectory = fd.getDirectory();
             counter = 0;
 
-            amountPlayer.setText("Anzahl Spieler: " + gameFileManager.getPlayerAmount());
-            ownPlayer.setText("Spielfigur: " + gameFileManager.getPlayer());
-            bombRadius.setText("Bombenradius: " + gameFileManager.getBombRadius());
-            moveSize.setText("Anzahl Züge: " + gameFileManager.getMoveSize());
-            jumperButton.setEnabled(true);
-            jumperRadio.setEnabled(true);
-            lineJumper.setEnabled(true);
+            int[] disqualified = gamePanelManager.getDisqualifiedPlayer();
+            playerTableModel.setDisqualified(disqualified);
 
+            gamePanel.disableHighlighting();
             exportItem.setEnabled(true);
 
-            next.setEnabled(gameFileManager.getGameSize() != 1);
-            updateFrame();
+            updateGamePanel();
         }
-        catch (Exception ignored) {
+        catch (IOException ignored) {
+            // this happens when the user has not selected a file
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    GameAnalyzer.this,
+                    "Keine gültige ReversiXT-Analysedatei ausgewählt!",
+                    "Fehlerhafte Datei",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
@@ -172,21 +312,6 @@ public class GameAnalyzer extends JFrame {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Aktuelles Spielfeld exportieren");
         fileChooser.setCurrentDirectory(new File(lastDirectory));
-        fileChooser.setFileFilter(new FileFilter() {
-
-            public String getDescription() {
-                return "ReversiXT Map (*.map)";
-            }
-
-            public boolean accept(File file) {
-                if (file.isDirectory()) {
-                    return true;
-                } else {
-                    String filename = file.getName();
-                    return filename.endsWith(".map");
-                }
-            }
-        });
 
         int userSelection = fileChooser.showSaveDialog(GameAnalyzer.this);
 
@@ -200,9 +325,9 @@ public class GameAnalyzer extends JFrame {
 
                 Path path = Paths.get(fileName);
                 List<String> list = new ArrayList<>();
-                String[] lines = gameFileManager.getMap(counter);
+                String[] currentMap = gamePanelManager.getCurrentMap(counter);
 
-                Collections.addAll(list, lines);
+                Collections.addAll(list, currentMap);
 
                 Files.write(path, list);
             }
@@ -212,79 +337,76 @@ public class GameAnalyzer extends JFrame {
         }
     }
 
-    private void previousGame() {
-        if (counter >= 1) {
-            next.setEnabled(true);
-            counter--;
-            updateFrame();
-
-            if (counter == 0) {
-                previous.setEnabled(false);
-            }
-        }
-    }
-
-    private void nextGame() {
-        if (counter < gameFileManager.getGameSize() - 1) {
-            previous.setEnabled(true);
-            counter++;
-            updateFrame();
-
-            if (counter == gameFileManager.getGameSize() - 1) {
-                next.setEnabled(false);
-            }
-        }
-    }
-
     private void jumpMove() {
-        String input = lineJumper.getText();
+        String input = jumperInput.getText();
         int previousCounter = counter;
         int line;
 
         try {
             line = Integer.parseInt(input);
-            if (line >= 0 && line < gameFileManager.getGameSize()) {
-                counter = line;
-                updateFrame();
 
-                if (counter == gameFileManager.getGameSize() - 1) {
-                    previous.setEnabled(true);
-                    next.setEnabled(false);
+            if (line >= 0 && line < gamePanelManager.getGameSize()) {
+                counter = line;
+                updateGamePanel();
+
+                if (counter == gamePanelManager.getGameSize() - 1) {
+                    previousGame.setEnabled(true);
+                    nextGame.setEnabled(false);
+
+                    disqualifyMessage();
                 } else if (counter == 0) {
-                    previous.setEnabled(false);
-                    next.setEnabled(true);
+                    previousGame.setEnabled(false);
+                    nextGame.setEnabled(true);
                 } else {
-                    previous.setEnabled(true);
-                    next.setEnabled(true);
+                    previousGame.setEnabled(true);
+                    nextGame.setEnabled(true);
                 }
+            } else {
+                int range = gamePanelManager.getGameSize() - 1;
+                JOptionPane.showMessageDialog(
+                        GameAnalyzer.this,
+                        "Sie müssen eine Zahl zwischen 0 und " + range + " eingeben!",
+                        "Fehlerhafte Eingabe",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
         }
-        catch (Exception ignored) {}
+        catch (Exception e) {
+            jumperInput.setText("");
+        }
 
         if (jumperRadio.isSelected()) {
-            lineJumper.setText("" + previousCounter);
+            jumperInput.setText("" + previousCounter);
         } else {
-            lineJumper.setText("");
+            jumperInput.setText("");
         }
     }
 
-    private void updateFrame() {
-        String[] board = gameFileManager.getBoard(counter);
-        defaultListModelBoard.clear();
-        for(String line : board) {
-            defaultListModelBoard.addElement(line);
-        }
+    private void disqualifyMessage() {
+        int[] disqualified = gamePanelManager.getDisqualifiedPlayer();
+        if (disqualified[gamePanelManager.getOwnPlayer() - 1] == counter) {
+            String message = gamePanelManager.getDisqualifyReason();
 
-        String[] player = gameFileManager.getPlayer(counter);
-        defaultListModelPlayer.clear();
-        for(String line : player) {
-            defaultListModelPlayer.addElement(line);
+            JOptionPane.showMessageDialog(
+                    GameAnalyzer.this,
+                    message,
+                    "Client wurde disqualifiziert",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
+    }
+
+    private void updateGamePanel() {
+        fieldPercentage.setText(gamePanelManager.getFieldStatistic(counter));
+
+        List<PlayerPoint> tmpPlayer = gamePanelManager.getPlayer(counter);
+        List<BackgroundPoint> tmpBackground = gamePanelManager.getBackground(counter);
+        gamePanel.updateFrame(tmpBackground, tmpPlayer);
+
+        playerList.clear();
+        playerList.addAll(gamePanelManager.getPlayerInformation(counter));
+        playerTableModel.fireTableDataChanged();
 
         currentMove.setText("Aktuell: " + counter);
-    }
-
-    public static void main(String[] args) {
-        new GameAnalyzer();
     }
 }

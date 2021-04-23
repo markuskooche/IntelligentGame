@@ -26,10 +26,10 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/initialMaps/europa.map");
+        Game game = createGame("maps/question.map");
         System.out.println(game.toString());
 
-        Player player = game.getPlayer(1);
+        Player player = game.getPlayer(3);
 
         System.out.println(player);
         game.getBoard().executeMoveManually(player, true);
