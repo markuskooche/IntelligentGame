@@ -80,6 +80,7 @@ public class Game {
             ourMove[2] = 0;
         }
 
+        board.executeMove(ourMove[0], ourMove[1], p, ourMove[2], true);
         return ourMove;
     }
 

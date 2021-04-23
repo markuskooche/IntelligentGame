@@ -1,6 +1,7 @@
 package server;
 
 import controller.Game;
+import loganalyze.AnalyzeParser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,15 +57,13 @@ public class ServerConnection {
         switch (messageHeader[0]) {
             case 2:
                 game = new Game(createMap(byteMessage));
-                //System.out.println(game);
                 break;
             case 3:
                 ourPlayer = byteMessage[0];
                 game.setOurPlayerNumber(ourPlayer);
                 break;
             case 4:
-               if (!bomb) {
-                    byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+                if (!bomb) { byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
                     int[] executedMove = game.executeOurMove();
 
                     // insert the x coordinate into the byte array
@@ -78,7 +77,8 @@ public class ServerConnection {
                     // insert the special field into the byte array
                     move[9] = (byte) (executedMove[2]);
                     sendMessage(move);
-                   System.out.println("NORM: " + Arrays.toString(move));
+                    AnalyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
+                    System.out.println("05" + game.getPlayer(ourPlayer));
                 } else {
                     char[][] field = game.getBoard().getField();
                     byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -104,7 +104,7 @@ public class ServerConnection {
 
                     sendMessage(bombMove);
                     game.executeBomb(xBomb, yBomb);
-                    System.out.println("BOMB: " + xBomb + " " + yBomb);
+                    AnalyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
                 }
                 break;
             case 6:
@@ -115,15 +115,21 @@ public class ServerConnection {
                 y += byteMessage[3];
 
                 int player = byteMessage[5];
+                int additionalOperation = byteMessage[4];
 
-                if (!bomb) {
-                    int additionalOperation = byteMessage[4];
-
-                    game.executeMove(x, y, player, additionalOperation);
+                if (player != ourPlayer) {
+                    if (!bomb) {
+                        game.executeMove(x, y, player, additionalOperation);
+                        AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                    } else {
+                        game.executeBomb(x, y);
+                        AnalyzeParser.parseMove(x, y, player, 0);
+                    }
                 } else {
-                    game.executeBomb(x, y);
+                    AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                    System.out.println("06" + game.getPlayer(ourPlayer));
+                    System.out.println(game.getBoard());
                 }
-
                 break;
             case 7:
                 if (byteMessage[0] == ourPlayer) {
@@ -131,13 +137,15 @@ public class ServerConnection {
                     System.err.println(game.getBoard().toString());
                     System.exit(1);
                 }
+                AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;
             case 8:
-                System.out.println("TODO: TYPE 8 - BOMBENPHASE");
                 bomb = true;
+                AnalyzeParser.startBombPhase();
                 break;
             case 9:
                 running = false;
+                AnalyzeParser.endGame();
                 System.exit(0);
                 break;
             default:
@@ -149,9 +157,16 @@ public class ServerConnection {
         int length = elements.length;
         char[] message = new char[length];
 
+        List<Byte> printList = new ArrayList<>();
+
         for (int i = 0; i < length; i++) {
             message[i] = (char) elements[i];
+            if (elements[i] != ((byte) 13)) {
+                printList.add(elements[i]);
+            }
         }
+
+        AnalyzeParser.parseBoard(printList);
 
         String string = String.valueOf(message);
 
