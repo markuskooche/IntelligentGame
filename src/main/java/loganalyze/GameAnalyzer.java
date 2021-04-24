@@ -53,7 +53,7 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.3.1");
+        setTitle("GameAnalyzer v0.3.2");
         setSize(1110, 890);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -104,6 +104,10 @@ public class GameAnalyzer extends JFrame {
         menu = new JMenu("Fenster");
         menuBar.add(menu);
 
+        JMenuItem colorItem = new JMenuItem("Farbbedeutung");
+        colorItem.addActionListener(e -> new ColorFieldWindow(this));
+        menu.add(colorItem);
+
         visibleItem = new JMenuItem("Unerreichbar");
         visibleItem.addActionListener(e -> openVisibleWindow());
         visibleItem.setEnabled(false);
@@ -124,7 +128,7 @@ public class GameAnalyzer extends JFrame {
         add(bombRadius);
 
         fieldPercentage = new JLabel("Verteilung: --% ---/----");
-        fieldPercentage.setBounds(410, 10, 170, 20);
+        fieldPercentage.setBounds(410, 10, 180, 20);
         add(fieldPercentage);
 
         moveSize = new JLabel("Anzahl Züge: -");
@@ -279,9 +283,9 @@ public class GameAnalyzer extends JFrame {
             gamePanelManager.load();
 
             List<int[]> transitions = gamePanelManager.getTransitions();
+            gamePanel.setTransitions(transitions);
             gamePanel.hideTransitions();
             if (!transitions.isEmpty()) {
-                gamePanel.setTransitions(transitions);
                 showTransition.setEnabled(true);
             }
 

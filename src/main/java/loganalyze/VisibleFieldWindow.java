@@ -15,7 +15,7 @@ public class VisibleFieldWindow extends JDialog {
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         GameField.GamePanel gamePanel = new GameField.GamePanel();
-        gamePanel.setBounds(10, 10, 751, 751);
+        gamePanel.setBounds(0, 0, 770, 770);
         add(gamePanel);
 
         setVisible(true);

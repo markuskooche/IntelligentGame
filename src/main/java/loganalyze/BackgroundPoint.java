@@ -4,6 +4,11 @@ import java.awt.*;
 
 public class BackgroundPoint {
 
+    public static final Color EXPANSION = new Color(203, 133, 223);
+    public static final Color INVERSION = new Color(139, 177, 223);
+    public static final Color CHOICE = new Color(245, 171, 171);
+    public static final Color BONUS = new Color(153, 223, 133);
+
     public int x;
     public int y;
     public char field;
@@ -20,13 +25,13 @@ public class BackgroundPoint {
         } else if (field == '-') {
             return new Color(35, 35, 35);
         } else if (field == 'c') {
-            return new Color(245, 171, 171);
+            return BackgroundPoint.CHOICE;
         } else if (field == 'i') {
-            return new Color(139, 177, 223);
+            return BackgroundPoint.INVERSION;
         } else if (field == 'b') {
-            return new Color(153, 223, 133);
+            return BackgroundPoint.BONUS;
         } else if (field == 'x') {
-            return new Color(203, 133, 223);
+            return BackgroundPoint.EXPANSION;
         } else {
             return new Color(255, 0,0);
         }
