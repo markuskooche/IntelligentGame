@@ -1,7 +1,6 @@
 package loganalyze;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -25,6 +24,9 @@ public class GameAnalyzer extends JFrame {
     private String lastDirectory= "/Users/markuskooche/Desktop/server/all_logfiles/logfiles_04-23_08/logfiles";
 
     private final JMenuItem exportItem;
+    private final JMenuItem hideTransition;
+    private final JMenuItem showTransition;
+    private final JMenuItem visibleItem;
 
     private final JLabel moveSize;
     private final JLabel ownPlayer;
@@ -51,7 +53,7 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.3.0");
+        setTitle("GameAnalyzer v0.3.1");
         setSize(1110, 890);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -87,12 +89,14 @@ public class GameAnalyzer extends JFrame {
         menu = new JMenu("Bearbeiten");
         menuBar.add(menu);
 
-        JMenuItem showTransition = new JMenuItem("Transition ein");
-        //showTransition.addActionListener(e -> showTransition());
+        showTransition = new JMenuItem("Transition ein");
+        showTransition.addActionListener(e -> showTransition());
+        showTransition.setEnabled(false);
         menu.add(showTransition);
 
-        JMenuItem hideTransition = new JMenuItem("Transition aus");
-        //hideTransition.addActionListener(e -> hideTransition());
+        hideTransition = new JMenuItem("Transition aus");
+        hideTransition.addActionListener(e -> hideTransition());
+        hideTransition.setEnabled(false);
         menu.add(hideTransition);
 
         // ----- ----- ----- ----- GAME ANALYZER - MENU FENSTER ----- ----- ----- -----
@@ -100,8 +104,9 @@ public class GameAnalyzer extends JFrame {
         menu = new JMenu("Fenster");
         menuBar.add(menu);
 
-        JMenuItem visibleItem = new JMenuItem("Unerreichbar");
+        visibleItem = new JMenuItem("Unerreichbar");
         visibleItem.addActionListener(e -> openVisibleWindow());
+        visibleItem.setEnabled(false);
         menu.add(visibleItem);
 
         // ----- ----- ----- ----- GAME ANALYZER - WINDOW ----- ----- ----- -----
@@ -127,13 +132,14 @@ public class GameAnalyzer extends JFrame {
         add(moveSize);
 
         gamePanel = new GameField.GamePanel();
-        gamePanel.setBounds(20, 40, 751, 751);
+        gamePanel.setBounds(10, 30, 770, 770);
 
         gamePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int x = e.getX() / 15;
-                int y = e.getY() / 15;
+                System.out.println("x=" + e.getX() + "  y=" + e.getY());
+                int x = (e.getX() / 15) - 1;
+                int y = (e.getY() / 15) - 1;
                 gamePanel.highlightPlayer(x, y);
             }
         });
@@ -272,6 +278,10 @@ public class GameAnalyzer extends JFrame {
             gamePanelManager = new GamePanelManager(filename);
             gamePanelManager.load();
 
+            List<int[]> transitions = gamePanelManager.getTransitions();
+            gamePanel.setTransitions(transitions);
+            gamePanel.hideTransitions();
+
             jumperInput.setEnabled(true);
             jumperRadio.setEnabled(true);
             jumperButton.setEnabled(true);
@@ -291,6 +301,9 @@ public class GameAnalyzer extends JFrame {
 
             gamePanel.disableHighlighting();
             exportItem.setEnabled(true);
+            visibleItem.setEnabled(true);
+            showTransition.setEnabled(true);
+            hideTransition.setEnabled(false);
 
             updateGamePanel();
         }
@@ -408,5 +421,17 @@ public class GameAnalyzer extends JFrame {
         playerTableModel.fireTableDataChanged();
 
         currentMove.setText("Aktuell: " + counter);
+    }
+
+    private void showTransition() {
+        showTransition.setEnabled(false);
+        hideTransition.setEnabled(true);
+        gamePanel.showTransitions();
+    }
+
+    private void hideTransition() {
+        hideTransition.setEnabled(false);
+        showTransition.setEnabled(true);
+        gamePanel.hideTransitions();
     }
 }

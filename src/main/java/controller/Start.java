@@ -26,7 +26,7 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/question.map");
+        Game game = createGame("maps/fancyMaps/mandelbrot.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(3);

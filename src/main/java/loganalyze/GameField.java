@@ -11,10 +11,14 @@ public class GameField {
 
         private int highlightedPlayer = -1;
 
+        private boolean showTransition = false;
+        private List<int[]> transitions;
+
         private List<BackgroundPoint> backgrounds;
         private List<PlayerPoint> players;
 
         public GamePanel() {
+            transitions = new LinkedList<>();
             backgrounds = new LinkedList<>();
             players = new LinkedList<>();
         }
@@ -24,8 +28,8 @@ public class GameField {
             super.paintComponent(g);
 
             for (BackgroundPoint background : backgrounds) {
-                int cellX = background.x * 15;
-                int cellY = background.y * 15;
+                int cellX = background.x * 15 + 10;
+                int cellY = background.y * 15 + 10;
 
                 if (highlightedPlayer == -1) {
                     g.setColor(background.getColor());
@@ -41,8 +45,8 @@ public class GameField {
             }
 
             for (PlayerPoint player : players) {
-                int cellX = player.x * 15 + 1;
-                int cellY = player.y * 15 + 1;
+                int cellX = player.x * 15 + 11;
+                int cellY = player.y * 15 + 11;
 
                 if (highlightedPlayer == -1) {
                     g.setColor(player.getColor());
@@ -57,14 +61,36 @@ public class GameField {
                 g.fillRoundRect(cellX, cellY, 13, 13, 13, 13);
             }
             g.setColor(Color.BLACK);
-            g.drawRect(0, 0, 750, 750);
+            g.drawRect(10, 10, 750, 750);
 
-            for (int i = 0; i <= 750; i += 15) {
-                g.drawLine(i, 0, i, 750);
+            for (int i = 10; i <= 760; i += 15) {
+                g.drawLine(i, 10, i, 760);
             }
 
-            for (int i = 0; i <= 750; i += 15) {
-                g.drawLine(0, i, 750, i);
+            for (int i = 10; i <= 760; i += 15) {
+                g.drawLine(10, i, 760, i);
+            }
+
+            if (showTransition) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setColor(Color.GREEN);
+                g2d.setStroke(new BasicStroke(2));
+
+                for (int[] transition : transitions) {
+                    int x1 = (transition[0] * 15) + 18;
+                    int y1 = (transition[1] * 15) + 18;
+                    int r1 = transition[2];
+                    int[] end1 = getLineDirection(x1, y1, r1);
+                    g2d.drawLine(x1, y1, end1[0], end1[1]);
+
+                    int x2 = (transition[3] * 15) + 18;
+                    int y2 = (transition[4] * 15) + 18;
+                    int r2 = transition[5];
+                    int[] end2 = getLineDirection(x2, y2, r2);
+                    g2d.drawLine(x2, y2, end2[0], end2[1]);
+
+                    g2d.drawLine(end1[0], end1[1], end2[0], end2[1]);
+                }
             }
         }
 
@@ -108,6 +134,20 @@ public class GameField {
             highlightedPlayer = -1;
         }
 
+        public void setTransitions(List<int[]> transitions) {
+            this.transitions = transitions;
+        }
+
+        public void showTransitions() {
+            showTransition = true;
+            repaint();
+        }
+
+        public void hideTransitions() {
+            showTransition = false;
+            repaint();
+        }
+
         /*
         public void addBackground(int x, int y, char field) {
             backgrounds.add(new BackgroundPoint(x, y, field));
@@ -119,5 +159,28 @@ public class GameField {
             repaint();
         }
          */
+
+        private int[] getLineDirection(int x, int y, int r) {
+            switch (r) {
+                case 0:
+                    return new int[] {x, (y - 15)};
+                case 1:
+                    return new int[] {(x + 15), (y - 15)};
+                case 2:
+                    return new int[] {(x + 15), y};
+                case 3:
+                    return new int[] {(x + 15), (y + 15)};
+                case 4:
+                    return new int[] {x, (y + 15)};
+                case 5:
+                    return new int[] {(x - 15), (y + 15)};
+                case 6:
+                    return new int[] {(x - 15), y};
+                case 7:
+                    return new int[] {(x - 15), (y - 15)};
+                default:
+                    return new int[] {x, y};
+            }
+        }
     }
 }

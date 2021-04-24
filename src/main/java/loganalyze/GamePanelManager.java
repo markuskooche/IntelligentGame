@@ -2,15 +2,13 @@ package loganalyze;
 
 import controller.Game;
 import map.Player;
+import map.Transition;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GamePanelManager {
@@ -63,6 +61,68 @@ public class GamePanelManager {
         calculatePossibleFields(index);
         int percentage = ((allOccupiedFields * 100) / possibleFields);
         return ("Verteilung: " + percentage + "% " + allOccupiedFields + "/" + possibleFields);
+    }
+
+    /*
+    public String[] getTransitions() {
+        Collection<Transition> transitions = board.getAllTransitions().values();
+        String[] returnTransitions = new String[transitions.size() / 2];
+        ArrayList<Transition> list = new ArrayList<>();
+        int counter = 0;
+
+        for (Transition transition : transitions) {
+            int x = transition.getX();
+            int y = transition.getY();
+            int r = transition.getR();
+
+            Transition opposite = board.getTransition(x, y, r);
+
+            if (!list.contains(transition) || !list.contains(opposite)) {
+                returnTransitions[counter] = (transition + " <-> " + opposite);
+                counter++;
+                list.add(transition);
+                list.add(opposite);
+            }
+        }
+
+        return returnTransitions;
+    }
+     */
+
+    public List<int[]> getTransitions() {
+        Collection<Transition> transitions = game.getBoard().getAllTransitions().values();
+        List<int[]> transitionList = new LinkedList<>();
+
+        ArrayList<Transition> tmpList = new ArrayList<>();
+
+        for (Transition transition : transitions) {
+            int x = transition.getX();
+            int y = transition.getY();
+            int r = transition.getR();
+
+            Transition opposite = game.getBoard().getTransition(x, y, r);
+
+            if (!tmpList.contains(transition) || !tmpList.contains(opposite)) {
+                int oppositeX = opposite.getX();
+                int oppositeY = opposite.getY();
+                int oppositeR = opposite.getR();
+
+                int[] newTransition = new int[6];
+                newTransition[0] = x;
+                newTransition[1] = y;
+                newTransition[2] = r;
+                newTransition[3] = oppositeX;
+                newTransition[4] = oppositeY;
+                newTransition[5] = oppositeR;
+
+                transitionList.add(newTransition);
+
+                tmpList.add(transition);
+                tmpList.add(opposite);
+            }
+        }
+
+        return transitionList;
     }
 
     public void load() throws IOException {
