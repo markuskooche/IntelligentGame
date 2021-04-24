@@ -63,32 +63,6 @@ public class GamePanelManager {
         return ("Verteilung: " + percentage + "% " + allOccupiedFields + "/" + possibleFields);
     }
 
-    /*
-    public String[] getTransitions() {
-        Collection<Transition> transitions = board.getAllTransitions().values();
-        String[] returnTransitions = new String[transitions.size() / 2];
-        ArrayList<Transition> list = new ArrayList<>();
-        int counter = 0;
-
-        for (Transition transition : transitions) {
-            int x = transition.getX();
-            int y = transition.getY();
-            int r = transition.getR();
-
-            Transition opposite = board.getTransition(x, y, r);
-
-            if (!list.contains(transition) || !list.contains(opposite)) {
-                returnTransitions[counter] = (transition + " <-> " + opposite);
-                counter++;
-                list.add(transition);
-                list.add(opposite);
-            }
-        }
-
-        return returnTransitions;
-    }
-     */
-
     public List<int[]> getTransitions() {
         Collection<Transition> transitions = game.getBoard().getAllTransitions().values();
         List<int[]> transitionList = new LinkedList<>();

@@ -279,8 +279,11 @@ public class GameAnalyzer extends JFrame {
             gamePanelManager.load();
 
             List<int[]> transitions = gamePanelManager.getTransitions();
-            gamePanel.setTransitions(transitions);
             gamePanel.hideTransitions();
+            if (!transitions.isEmpty()) {
+                gamePanel.setTransitions(transitions);
+                showTransition.setEnabled(true);
+            }
 
             jumperInput.setEnabled(true);
             jumperRadio.setEnabled(true);
@@ -302,7 +305,6 @@ public class GameAnalyzer extends JFrame {
             gamePanel.disableHighlighting();
             exportItem.setEnabled(true);
             visibleItem.setEnabled(true);
-            showTransition.setEnabled(true);
             hideTransition.setEnabled(false);
 
             updateGamePanel();
