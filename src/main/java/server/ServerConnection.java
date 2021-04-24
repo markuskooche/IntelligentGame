@@ -49,7 +49,7 @@ public class ServerConnection {
         inputStream.read(messageHeader, 0, 5);
 
         // create an integer from the byte array
-        int messageLength = getMessageLength(messageHeader);
+        int messageLength = get32Integer(messageHeader, 1);
 
         byte[] byteMessage = new byte[messageLength];
         inputStream.read(byteMessage, 0, messageLength);
@@ -64,6 +64,11 @@ public class ServerConnection {
                 AnalyzeParser.setPlayer(ourPlayer);
                 break;
             case 4:
+                int allowedTime = get32Integer(byteMessage, 0);
+                byte allowedDepth = byteMessage[4];
+
+                System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
+
                 if (!bomb) { byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
                     int[] executedMove = game.executeOurMove();
 
@@ -79,7 +84,6 @@ public class ServerConnection {
                     move[9] = (byte) (executedMove[2]);
                     sendMessage(move);
                     AnalyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
-                    System.out.println("05" + game.getPlayer(ourPlayer));
                 } else {
                     char[][] field = game.getBoard().getField();
                     byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -128,8 +132,6 @@ public class ServerConnection {
                     }
                 } else {
                     AnalyzeParser.parseMove(x, y, player, additionalOperation);
-                    System.out.println("06" + game.getPlayer(ourPlayer));
-                    System.out.println(game.getBoard());
                 }
                 break;
             case 7:
@@ -182,12 +184,12 @@ public class ServerConnection {
         return new LinkedList<>(Arrays.asList(lines));
     }
 
-    private int getMessageLength(byte[] header) {
+    private int get32Integer(byte[] header, int offset) {
         int length = 0;
 
         for (int i = 0; i < 4; i++) {
-            int shift = (4 - 1 - i) * 8;
-            length += (header[i + 1] & 0x000000FF) << shift;
+            int shift = (3 - i) * 8;
+            length += (header[i + offset] & 0x000000FF) << shift;
         }
 
         return length;
