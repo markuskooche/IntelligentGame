@@ -16,6 +16,13 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/*
+Ä, ä     \u00c4, \u00e4
+Ö, ö     \u00d6, \u00f6
+Ü, ü     \u00dc, \u00fc
+ß        \u00df
+ */
+
 public class GameAnalyzer extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Color HEADER_COLOR = new Color(190, 190, 190);
