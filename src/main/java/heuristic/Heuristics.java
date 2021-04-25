@@ -28,6 +28,10 @@ public class Heuristics {
         return mapValue + coinParity + mobility;
     }
 
+    public int getMapValue(Player player) {
+        return mapAnalyzer.calculateScoreForPlayer(player.getNumber());
+    }
+
     public int getCoinParity(Player player) {
         List<int[]> myStones = new ArrayList<>();
         List<List<int[]>> playerStones = new ArrayList<>();

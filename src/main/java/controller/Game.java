@@ -180,6 +180,22 @@ public class Game {
         board.executeBomb(x, y);
     }
 
+    public int getMobility(int player) {
+        return heuristics.getMobility(players[player - 1]);
+    }
+
+    public int getCoinParity(int player) {
+        return heuristics.getCoinParity(players[player - 1]);
+    }
+
+    public int getMapValue(int player) {
+        return heuristics.getMapValue(players[player - 1]);
+    }
+
+    public int getHeuristic(int player) {
+        return heuristics.getEvaluationForPlayer(players[player - 1]);
+    }
+
     /**
      * Returns a list of all players.
      *

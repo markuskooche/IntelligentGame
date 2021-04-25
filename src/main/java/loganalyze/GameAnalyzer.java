@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GameAnalyzer extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -27,6 +27,10 @@ public class GameAnalyzer extends JFrame {
     private final JMenuItem hideTransition;
     private final JMenuItem showTransition;
     private final JMenuItem visibleItem;
+    private final JMenuItem mobilityItem;
+    private final JMenuItem coinParityItem;
+    private final JMenuItem mapValueItem;
+    private final JMenuItem heuristicItem;
 
     private final JLabel moveSize;
     private final JLabel ownPlayer;
@@ -53,7 +57,7 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.3.2");
+        setTitle("GameAnalyzer v0.4.0");
         setSize(1110, 890);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -108,10 +112,84 @@ public class GameAnalyzer extends JFrame {
         colorItem.addActionListener(e -> new ColorFieldWindow(this));
         menu.add(colorItem);
 
+        menu.add(new JSeparator());
+
         visibleItem = new JMenuItem("Unerreichbar");
         visibleItem.addActionListener(e -> openVisibleWindow());
         visibleItem.setEnabled(false);
         menu.add(visibleItem);
+
+        menu.add(new JSeparator());
+        menu.add(new JSeparator());
+
+        JMenuItem loadStatistik = new JMenuItem("Statistik laden");
+        loadStatistik.addActionListener(e -> {
+            FileDialog fd = new FileDialog(
+                    GameAnalyzer.this,
+                    "Statistik laden",
+                    FileDialog.LOAD
+            );
+            fd.setFilenameFilter((directory, name) -> name.endsWith(".txt"));
+            fd.setDirectory(lastDirectory);
+            fd.setVisible(true);
+
+            try {
+                String filename = fd.getDirectory() + fd.getFile();
+                Path path = Paths.get(filename);
+                List<String> file = Files.lines(path).collect(Collectors.toList());
+
+                List<Integer> statisticList = new LinkedList<>();
+
+                for (int i = 1; i < file.size(); i++) {
+                    statisticList.add(Integer.parseInt(file.get(i)));
+                }
+
+                new StatisticWindow(("Importierte " + file.get(0)), statisticList, null, false);
+            }
+            catch (IOException ignored) {
+                // this happens when the user has not selected a file
+            }
+            catch (Exception ex){
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(
+                        GameAnalyzer.this,
+                        "Keine gültige ReversiXT-Statistik ausgewählt!",
+                        "Fehlerhafte Datei",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
+        });
+        menu.add(loadStatistik);
+
+        menu.add(new JSeparator());
+
+        mobilityItem = new JMenuItem("Mobilität");
+        mobilityItem.addActionListener(e -> {
+            new StatisticWindow("Mobilität", gamePanelManager.getMobility(), GameAnalyzer.this, true);
+        });
+        mobilityItem.setEnabled(false);
+        menu.add(mobilityItem);
+
+        coinParityItem = new JMenuItem("Spielfeldbelegung");
+        coinParityItem.addActionListener(e -> {
+            new StatisticWindow("Spielfeldbelegung", gamePanelManager.getCoinParity(), GameAnalyzer.this, true);
+        });
+        coinParityItem.setEnabled(false);
+        menu.add(coinParityItem);
+
+        mapValueItem = new JMenuItem("Spielfeldgewichtung");
+        mapValueItem.addActionListener(e -> {
+            new StatisticWindow("Spielfeldgewichtung", gamePanelManager.getMapValue(), GameAnalyzer.this, true);
+        });
+        mapValueItem.setEnabled(false);
+        menu.add(mapValueItem);
+
+        heuristicItem = new JMenuItem("Gesamtheuristik");
+        heuristicItem.addActionListener(e -> {
+            new StatisticWindow("Gesamtheuristik", gamePanelManager.getHeuristic(), GameAnalyzer.this, true);
+        });
+        heuristicItem.setEnabled(false);
+        menu.add(heuristicItem);
 
         // ----- ----- ----- ----- GAME ANALYZER - WINDOW ----- ----- ----- -----
 
@@ -141,7 +219,6 @@ public class GameAnalyzer extends JFrame {
         gamePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("x=" + e.getX() + "  y=" + e.getY());
                 int x = (e.getX() / 15) - 1;
                 int y = (e.getY() / 15) - 1;
                 gamePanel.highlightPlayer(x, y);
@@ -311,6 +388,11 @@ public class GameAnalyzer extends JFrame {
             visibleItem.setEnabled(true);
             hideTransition.setEnabled(false);
 
+            mobilityItem.setEnabled(true);
+            coinParityItem.setEnabled(true);
+            mapValueItem.setEnabled(true);
+            heuristicItem.setEnabled(true);
+
             updateGamePanel();
         }
         catch (IOException ignored) {
@@ -416,7 +498,7 @@ public class GameAnalyzer extends JFrame {
     }
 
     private void updateGamePanel() {
-        fieldPercentage.setText(gamePanelManager.getFieldStatistic(counter));
+        fieldPercentage.setText(gamePanelManager.getPercentageDistribution(counter));
 
         List<PlayerPoint> tmpPlayer = gamePanelManager.getPlayer(counter);
         List<BackgroundPoint> tmpBackground = gamePanelManager.getBackground(counter);
@@ -439,5 +521,11 @@ public class GameAnalyzer extends JFrame {
         hideTransition.setEnabled(false);
         showTransition.setEnabled(true);
         gamePanel.hideTransitions();
+    }
+
+    public void updateCounter(int playerMove) {
+        counter = gamePanelManager.getRealPlayerMove(playerMove);
+        previousGame();
+        nextGame();
     }
 }

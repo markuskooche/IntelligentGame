@@ -20,11 +20,20 @@ public class GamePanelManager {
     private int[] disqualifiedPlayers;
     String disqualifyReason;
 
+    private int counter;
+
     private int width;
     private int height;
     private int ownPlayer;
     private int playerAmount;
     private final String filename;
+
+    private final ArrayList<Integer> playerMoves;
+
+    private final LinkedList<Integer> playerMobility;
+    private final LinkedList<Integer> playerCoinParity;
+    private final LinkedList<Integer> playerMapValue;
+    private final LinkedList<Integer> playerHeuristic;
 
     private final ArrayList<LinkedList<PlayerPoint>> playerPoints;
     private final ArrayList<LinkedList<BackgroundPoint>> backgroundPoints;
@@ -32,10 +41,18 @@ public class GamePanelManager {
 
     public GamePanelManager(String filename) {
         this.filename = filename;
+        counter = 0;
 
         playerInformation = new ArrayList<>();
         backgroundPoints = new ArrayList<>();
         playerPoints = new ArrayList<>();
+
+        playerMoves = new ArrayList<>();
+
+        playerMobility = new LinkedList<>();
+        playerCoinParity = new LinkedList<>();
+        playerMapValue = new LinkedList<>();
+        playerHeuristic = new LinkedList<>();
     }
 
     public LinkedList<PlayerInformation> getPlayerInformation(int index) {
@@ -50,7 +67,7 @@ public class GamePanelManager {
         return playerPoints.get(index);
     }
 
-    public String getFieldStatistic(int index) {
+    public String getPercentageDistribution(int index) {
         LinkedList<PlayerInformation> players = playerInformation.get(index);
         int allOccupiedFields = 0;
 
@@ -152,6 +169,26 @@ public class GamePanelManager {
         return board;
     }
 
+    public int getRealPlayerMove(int playerMove) {
+        return playerMoves.get(playerMove);
+    }
+
+    public List<Integer> getMobility() {
+        return playerMobility;
+    }
+
+    public List<Integer> getCoinParity() {
+        return playerCoinParity;
+    }
+
+    public List<Integer> getMapValue() {
+        return playerMapValue;
+    }
+
+    public List<Integer> getHeuristic() {
+        return playerHeuristic;
+    }
+
     public int getGameSize() {
         return playerPoints.size();
     }
@@ -178,7 +215,6 @@ public class GamePanelManager {
 
     private void parseFile(List<String> file) {
         int disqualified = -1;
-        int counter = 0;
         for (String line : file) {
             if (line.length() >= 6) {
                 String id = line.substring(0, 7);
@@ -197,10 +233,12 @@ public class GamePanelManager {
                         setDisqualifyReason(line);
                         break;
                     case "XT01-06":
-                        counter += 1;
-                        disqualified = -1;
+                        updateStatistic(disqualified, line);
                         executeMove(line);
                         addPlayerInformation();
+
+                        counter += 1;
+                        disqualified = -1;
                         break;
                     case "XT01-07":
                         disqualifyPlayer(line, counter);
@@ -283,6 +321,10 @@ public class GamePanelManager {
         int x = Integer.parseInt(lineArray[4]);
         int y = Integer.parseInt(lineArray[5]);
         int s = Integer.parseInt(lineArray[7]);
+
+        if (p == ownPlayer) {
+            playerMoves.add(counter);
+        }
 
         if (bombFirstExecuted == -1) {
             game.executeMove(x, y, p, s);
@@ -382,5 +424,17 @@ public class GamePanelManager {
         }
 
         backgroundPoints.add(tmp);
+    }
+
+    private void updateStatistic(int value, String line) {
+        String[] data = line.split("-");
+        int player = Integer.parseInt(data[3]);
+
+        if (value != -1) {
+            playerMobility.add(game.getMobility(player));
+            playerCoinParity.add(game.getCoinParity(player));
+            playerMapValue.add(game.getMapValue(player));
+            playerHeuristic.add(game.getHeuristic(player));
+        }
     }
 }
