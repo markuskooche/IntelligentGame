@@ -5,6 +5,8 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,7 +59,7 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.4.0");
+        setTitle("GameAnalyzer v0.4.1");
         setSize(1110, 890);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -109,13 +111,31 @@ public class GameAnalyzer extends JFrame {
         menuBar.add(menu);
 
         JMenuItem colorItem = new JMenuItem("Farbbedeutung");
-        colorItem.addActionListener(e -> new ColorFieldWindow(this));
+        colorItem.addActionListener(e -> {
+            ColorFieldWindow colorFieldWindow = new ColorFieldWindow(this);
+            colorItem.setEnabled(false);
+            colorFieldWindow.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    colorItem.setEnabled(true);
+                }
+            });
+        });
         menu.add(colorItem);
 
         menu.add(new JSeparator());
 
         visibleItem = new JMenuItem("Unerreichbar");
-        visibleItem.addActionListener(e -> openVisibleWindow());
+        visibleItem.addActionListener(e -> {
+            VisibleFieldWindow window = new VisibleFieldWindow(this);
+            visibleItem.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    visibleItem.setEnabled(true);
+                }
+            });
+        });
         visibleItem.setEnabled(false);
         menu.add(visibleItem);
 
@@ -137,6 +157,7 @@ public class GameAnalyzer extends JFrame {
                 String filename = fd.getDirectory() + fd.getFile();
                 Path path = Paths.get(filename);
                 List<String> file = Files.lines(path).collect(Collectors.toList());
+                lastDirectory = fd.getDirectory();
 
                 List<Integer> statisticList = new LinkedList<>();
 
@@ -165,28 +186,56 @@ public class GameAnalyzer extends JFrame {
 
         mobilityItem = new JMenuItem("Mobilität");
         mobilityItem.addActionListener(e -> {
-            new StatisticWindow("Mobilität", gamePanelManager.getMobility(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Mobilität", gamePanelManager.getMobility(), GameAnalyzer.this, true);
+            mobilityItem.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    mobilityItem.setEnabled(true);
+                }
+            });
         });
         mobilityItem.setEnabled(false);
         menu.add(mobilityItem);
 
         coinParityItem = new JMenuItem("Spielfeldbelegung");
         coinParityItem.addActionListener(e -> {
-            new StatisticWindow("Spielfeldbelegung", gamePanelManager.getCoinParity(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Spielfeldbelegung", gamePanelManager.getCoinParity(), GameAnalyzer.this, true);
+            coinParityItem.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    coinParityItem.setEnabled(true);
+                }
+            });
         });
         coinParityItem.setEnabled(false);
         menu.add(coinParityItem);
 
         mapValueItem = new JMenuItem("Spielfeldgewichtung");
         mapValueItem.addActionListener(e -> {
-            new StatisticWindow("Spielfeldgewichtung", gamePanelManager.getMapValue(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Spielfeldgewichtung", gamePanelManager.getMapValue(), GameAnalyzer.this, true);
+            mapValueItem.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    mapValueItem.setEnabled(true);
+                }
+            });
         });
         mapValueItem.setEnabled(false);
         menu.add(mapValueItem);
 
         heuristicItem = new JMenuItem("Gesamtheuristik");
         heuristicItem.addActionListener(e -> {
-            new StatisticWindow("Gesamtheuristik", gamePanelManager.getHeuristic(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Gesamtheuristik", gamePanelManager.getHeuristic(), GameAnalyzer.this, true);
+            heuristicItem.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    heuristicItem.setEnabled(true);
+                }
+            });
         });
         heuristicItem.setEnabled(false);
         menu.add(heuristicItem);
@@ -338,10 +387,6 @@ public class GameAnalyzer extends JFrame {
                 disqualifyMessage();
             }
         }
-    }
-
-    private void openVisibleWindow() {
-        new VisibleFieldWindow(this);
     }
 
     private void loadGame() {

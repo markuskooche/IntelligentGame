@@ -143,24 +143,40 @@ public class StatisticWindow extends JDialog {
         }
     }
 
-    private final int panelWidth = 1400;
-    private final int panelHeight = 400;
+    private final String title;
     private final StatisticPanel statisticPanel;
 
     public StatisticWindow(String title, List<Integer> scores, GameAnalyzer parent, boolean export) {
+        this.title = title;
+
         setTitle(title);
-        setSize(panelWidth, 470);
+        setMinimumSize(new Dimension(1400, 500));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setResizable(false);
-        setLayout(null);
+        setLayout(new GridLayout(1,0));
+
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+
+        JMenu menu = new JMenu("Datei");
+        menuBar.add(menu);
+
+        JMenuItem exportItem = new JMenuItem("Exportieren");
+        exportItem.addActionListener(e -> exportStatistic());
+        exportItem.setEnabled(export);
+        menu.add(exportItem);
+
+        menu.add(new JSeparator());
+
+        JMenuItem closeApp = new JMenuItem("Beenden");
+        menu.add(closeApp);
+        closeApp.addActionListener(e -> dispose());
 
         statisticPanel = new StatisticPanel(scores);
-        statisticPanel.setBounds(0, 0, panelWidth, panelHeight);
         statisticPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int graphWidth = (panelWidth - (2 * statisticPanel.padding + statisticPanel.labelPadding));
-                int graphHeight = (panelHeight - (2 * statisticPanel.padding + statisticPanel.labelPadding));
+                int graphWidth = (getWidth() - (2 * statisticPanel.padding + statisticPanel.labelPadding));
+                int graphHeight = (getHeight() - (2 * statisticPanel.padding + statisticPanel.labelPadding));
 
                 double pixelDistanceX = ((double) statisticPanel.scores.size()) / graphWidth;
                 double tmpX = (pixelDistanceX * (e.getX() - 40));
@@ -180,40 +196,36 @@ public class StatisticWindow extends JDialog {
         });
         add(statisticPanel);
 
-        JButton exportButton = new JButton("Exportieren");
-        exportButton.setBounds(1260, panelHeight, 120, 30);
-        exportButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Aktuelle Statistik exportieren");
-
-            int userSelection = fileChooser.showSaveDialog(StatisticWindow.this);
-
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                try {
-                    String fileName = fileChooser.getSelectedFile().toString();
-
-                    if (!fileName.endsWith(".txt")) {
-                        fileName += ".txt";
-                    }
-
-                    Path path = Paths.get(fileName);
-                    List<String> list = new ArrayList<>();
-                    list.add(title);
-
-                    for (Integer score : scores) {
-                        list.add(String.valueOf(score));
-                    }
-
-                    Files.write(path, list);
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
-        exportButton.setEnabled(export);
-        add(exportButton);
-
         setVisible(true);
+    }
+
+    private void exportStatistic() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Aktuelle Statistik exportieren");
+
+        int userSelection = fileChooser.showSaveDialog(StatisticWindow.this);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            try {
+                String fileName = fileChooser.getSelectedFile().toString();
+
+                if (!fileName.endsWith(".txt")) {
+                    fileName += ".txt";
+                }
+
+                Path path = Paths.get(fileName);
+                List<String> list = new ArrayList<>();
+                list.add(title);
+
+                for (Integer score : statisticPanel.scores) {
+                    list.add(String.valueOf(score));
+                }
+
+                Files.write(path, list);
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 }

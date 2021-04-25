@@ -7,7 +7,7 @@ public class VisibleFieldWindow extends JDialog {
     public VisibleFieldWindow(JFrame parent) {
         super(parent);
 
-        setModal(true);
+        setModal(false);
         setLayout(null);
         setResizable(false);
         setSize(770, 800);
