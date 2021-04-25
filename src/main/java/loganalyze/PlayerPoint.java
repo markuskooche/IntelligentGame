@@ -36,7 +36,7 @@ public class PlayerPoint {
             case 2:
                 return "BLAU";
             case 3:
-                return "GRÜN";
+                return "GR\u00dcN";
             case 4:
                 return "GELB";
             case 5:

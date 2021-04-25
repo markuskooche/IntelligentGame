@@ -10,7 +10,11 @@ public class VisibleFieldWindow extends JDialog {
         setModal(false);
         setLayout(null);
         setResizable(false);
-        setSize(770, 800);
+        if (OSValidator.isWindows()) {
+            setSize(785, 810);
+        } else {
+            setSize(770, 800);
+        }
         setTitle("Erreichbare Felder");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 

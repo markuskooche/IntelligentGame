@@ -59,8 +59,12 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.4.2");
-        setSize(1110, 900);
+        setTitle("GameAnalyzer v0.4.3");
+        if (OSValidator.isMac()) {
+            setSize(1110, 890);
+        } else {
+            setSize(1110, 900);
+        }
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
         setLayout(null);
@@ -75,7 +79,7 @@ public class GameAnalyzer extends JFrame {
         menu = new JMenu("Datei");
         menuBar.add(menu);
 
-        JMenuItem openItem = new JMenuItem("Öffnen");
+        JMenuItem openItem = new JMenuItem("\u00d6ffnen");
         menu.add(openItem);
         openItem.addActionListener(e -> loadGame());
 
@@ -184,9 +188,9 @@ public class GameAnalyzer extends JFrame {
 
         menu.add(new JSeparator());
 
-        mobilityItem = new JMenuItem("Mobilität");
+        mobilityItem = new JMenuItem("Mobilit\u00e4t");
         mobilityItem.addActionListener(e -> {
-            StatisticWindow window = new StatisticWindow("Mobilität", gamePanelManager.getMobility(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Mobilit\u00e4t", gamePanelManager.getMobility(), GameAnalyzer.this, true);
             mobilityItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -258,7 +262,7 @@ public class GameAnalyzer extends JFrame {
         fieldPercentage.setBounds(410, 10, 200, 20);
         add(fieldPercentage);
 
-        moveSize = new JLabel("Anzahl Züge: -");
+        moveSize = new JLabel("Anzahl Z\u00fcge: -");
         moveSize.setBounds(640, 10, 160, 20);
         add(moveSize);
 
@@ -320,34 +324,38 @@ public class GameAnalyzer extends JFrame {
         JPanel titlePane = new JPanel();
         titlePane.setLayout(new BorderLayout());
         titlePane.add(scrollPane);
-        titlePane.setBounds(790, 20, 300, 820);
+        if (OSValidator.isMac()) {
+            titlePane.setBounds(790, 20, 300, 806);
+        } else {
+            titlePane.setBounds(790, 20, 300, 810);
+        }
         add(titlePane);
 
         // ----- ----- ----- ----- GAME ANALYZER - GAME CONTROLLER ----- ----- ----- -----
 
         currentMove = new JLabel("Aktuell: -");
-        currentMove.setBounds(30, 800, 120, 40);
+        currentMove.setBounds(30, 800, 120, 30);
         add(currentMove);
 
-        previousGame = new JButton("Zurück");
-        previousGame.setBounds(295, 800, 100, 40);
+        previousGame = new JButton("Zur\u00fcck");
+        previousGame.setBounds(295, 800, 100, 30);
         previousGame.addActionListener(e -> previousGame());
         previousGame.setEnabled(false);
         add(previousGame);
 
         nextGame = new JButton("Weiter");
-        nextGame.setBounds(395, 800, 100, 40);
+        nextGame.setBounds(395, 800, 100, 30);
         nextGame.addActionListener(e -> nextGame());
         nextGame.setEnabled(false);
         add(nextGame);
 
         jumperInput = new JTextField();
-        jumperInput.setBounds(640, 800, 50, 40);
+        jumperInput.setBounds(640, 800, 50, 30);
         jumperInput.setEnabled(false);
         add(jumperInput);
 
         jumperRadio = new JRadioButton("Speichern", false);
-        jumperRadio.setBounds(530, 800, 100, 40);
+        jumperRadio.setBounds(530, 800, 100, 30);
         jumperRadio.addActionListener(e -> {
             jumperInput.setText("");
         });
@@ -355,7 +363,7 @@ public class GameAnalyzer extends JFrame {
         add(jumperRadio);
 
         jumperButton = new JButton("Enter");
-        jumperButton.setBounds(690, 800, 80, 40);
+        jumperButton.setBounds(690, 800, 80, 30);
         jumperButton.addActionListener(e -> jumpMove());
         jumperButton.setEnabled(false);
         add(jumperButton);
@@ -392,7 +400,7 @@ public class GameAnalyzer extends JFrame {
     private void loadGame() {
         FileDialog fd = new FileDialog(
                 GameAnalyzer.this,
-                "Analysedatei öffnen",
+                "Analysedatei \u00f6ffnen",
                 FileDialog.LOAD
         );
         fd.setFilenameFilter((directory, name) -> name.endsWith(".log"));
@@ -415,7 +423,7 @@ public class GameAnalyzer extends JFrame {
             jumperRadio.setEnabled(true);
             jumperButton.setEnabled(true);
 
-            moveSize.setText("Anzahl Züge: " + (gamePanelManager.getGameSize() - 1));
+            moveSize.setText("Anzahl Z\u00fcge: " + (gamePanelManager.getGameSize() - 1));
 
             ownPlayer.setText("Spielfigur: " + gamePanelManager.getOwnPlayer());
             bombRadius.setText("Bombenradius: " + gamePanelManager.getBombRadius());
@@ -447,7 +455,7 @@ public class GameAnalyzer extends JFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(
                     GameAnalyzer.this,
-                    "Keine gültige ReversiXT-Analysedatei ausgewählt!",
+                    "Keine g\u00fcltige ReversiXT-Analysedatei ausgew\u00e4hlt!",
                     "Fehlerhafte Datei",
                     JOptionPane.ERROR_MESSAGE
             );

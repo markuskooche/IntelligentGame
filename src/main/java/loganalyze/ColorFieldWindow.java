@@ -11,7 +11,13 @@ public class ColorFieldWindow extends JDialog {
         setModal(false);
         setLayout(null);
         setResizable(false);
-        setSize(200, 250);
+        if (OSValidator.isMac()) {
+            setSize(200, 250);
+        } else if (OSValidator.isWindows()) {
+            setSize(200, 260);
+        } else {
+            setSize(200, 255);
+        }
         setTitle("Farbbedeutung");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
