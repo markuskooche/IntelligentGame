@@ -20,8 +20,8 @@ public class GameAnalyzer extends JFrame {
     private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
     private int counter = 0;
-    //private String lastDirectory= ".";
-    private String lastDirectory= "/Users/markuskooche/Desktop/server/all_logfiles/logfiles_04-23_08/logfiles";
+    private String lastDirectory= ".";
+    //private String lastDirectory= "/Users/markuskooche/Desktop/server/all_logfiles/logfiles_04-23_08/logfiles";
 
     private final JMenuItem exportItem;
     private final JMenuItem hideTransition;
