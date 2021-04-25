@@ -93,10 +93,11 @@ public class StatisticWindow extends JDialog {
                 }
             }
 
-            // create x and y axes
+            // create a border around the diagram
             g2.drawLine(totalPadding, getHeight() - totalPadding, totalPadding, padding);
             g2.drawLine(totalPadding, getHeight() - totalPadding, getWidth() - padding, getHeight() - totalPadding);
-
+            g2.drawLine(totalPadding, padding, getWidth() - padding, padding);
+            g2.drawLine(getWidth() - padding, padding, getWidth() - padding, getHeight() - totalPadding);
 
             Stroke oldStroke = g2.getStroke();
             g2.setColor(lineColor);

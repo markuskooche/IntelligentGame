@@ -59,8 +59,8 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.4.1");
-        setSize(1110, 890);
+        setTitle("GameAnalyzer v0.4.2");
+        setSize(1110, 900);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
         setLayout(null);
@@ -255,11 +255,11 @@ public class GameAnalyzer extends JFrame {
         add(bombRadius);
 
         fieldPercentage = new JLabel("Verteilung: --% ---/----");
-        fieldPercentage.setBounds(410, 10, 180, 20);
+        fieldPercentage.setBounds(410, 10, 200, 20);
         add(fieldPercentage);
 
         moveSize = new JLabel("Anzahl Züge: -");
-        moveSize.setBounds(640, 10, 150, 20);
+        moveSize.setBounds(640, 10, 160, 20);
         add(moveSize);
 
         gamePanel = new GameField.GamePanel();
@@ -320,34 +320,34 @@ public class GameAnalyzer extends JFrame {
         JPanel titlePane = new JPanel();
         titlePane.setLayout(new BorderLayout());
         titlePane.add(scrollPane);
-        titlePane.setBounds(790, 20, 300, 800);
+        titlePane.setBounds(790, 20, 300, 820);
         add(titlePane);
 
         // ----- ----- ----- ----- GAME ANALYZER - GAME CONTROLLER ----- ----- ----- -----
 
         currentMove = new JLabel("Aktuell: -");
-        currentMove.setBounds(30, 805, 120, 20);
+        currentMove.setBounds(30, 800, 120, 40);
         add(currentMove);
 
         previousGame = new JButton("Zurück");
-        previousGame.setBounds(295, 800, 100, 30);
+        previousGame.setBounds(295, 800, 100, 40);
         previousGame.addActionListener(e -> previousGame());
         previousGame.setEnabled(false);
         add(previousGame);
 
         nextGame = new JButton("Weiter");
-        nextGame.setBounds(395, 800, 100, 30);
+        nextGame.setBounds(395, 800, 100, 40);
         nextGame.addActionListener(e -> nextGame());
         nextGame.setEnabled(false);
         add(nextGame);
 
         jumperInput = new JTextField();
-        jumperInput.setBounds(640, 800, 50, 30);
+        jumperInput.setBounds(640, 800, 50, 40);
         jumperInput.setEnabled(false);
         add(jumperInput);
 
         jumperRadio = new JRadioButton("Speichern", false);
-        jumperRadio.setBounds(530, 800, 100, 30);
+        jumperRadio.setBounds(530, 800, 100, 40);
         jumperRadio.addActionListener(e -> {
             jumperInput.setText("");
         });
@@ -355,7 +355,7 @@ public class GameAnalyzer extends JFrame {
         add(jumperRadio);
 
         jumperButton = new JButton("Enter");
-        jumperButton.setBounds(690, 800, 80, 30);
+        jumperButton.setBounds(690, 800, 80, 40);
         jumperButton.addActionListener(e -> jumpMove());
         jumperButton.setEnabled(false);
         add(jumperButton);
