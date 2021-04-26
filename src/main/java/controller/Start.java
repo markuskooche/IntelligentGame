@@ -26,13 +26,15 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/initialMaps/europa.map");
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(1);
 
-        System.out.println(player);
-        game.getBoard().executeMoveManually(player, true);
-        System.out.println(player);
+
+
+//        System.out.println(player);
+//        game.getBoard().executeMoveManually(player, true);
+//        System.out.println(player);
     }
 }

@@ -34,20 +34,15 @@ public class Game {
         createPlayers(initMap);
         createBoard(initMap);
         this.ourPlayerNumber = ourPlayerNumber;
-        mapAnalyzer = new MapAnalyzer(board);
-        heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
-        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
-        System.out.println(mapAnalyzer.toString());
+        heuristics = new Heuristics(board, players);
+        executeOurMove(1);
     }
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board);
-        heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
-        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
+        heuristics = new Heuristics(board, players);
         System.out.println(mapAnalyzer.toString());
     }
 
@@ -55,31 +50,24 @@ public class Game {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
-    public int[] executeOurMove() {
-        Player p = players[ourPlayerNumber - 1];
+    public int[] executeOurMove(int depth) {
+        Player ourPlayer = players[ourPlayerNumber - 1];
         int [] ourMove = new int[3];
-        List<Move> allMoves = board.getLegalMoves(p, true);
+        long time = System.currentTimeMillis();
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth);
+        System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
+        ourMove[0] = move.getX();
+        ourMove[1] = move.getY();
 
-        Random r = new Random();
-        int randomPick = r.nextInt(allMoves.size());
-
-        Move pickedMove = allMoves.get(randomPick);
-        ourMove[0] = pickedMove.getX();
-        ourMove[1] = pickedMove.getY();
-
-        if (pickedMove.isChoice()) {
-            //Choose the exchange partner
-            //Current: choose a random player
+        if (move.isChoice()) {
+            Random r = new Random();
             ourMove[2] = r.nextInt(players.length - 1) + 1;
-
-        } else if (pickedMove.isBonus()) {
-            //Decide witch bonus we take
+        } else if (move.isBonus()) {
             ourMove[2] = 21; //Extra Overridestone
         } else {
-            // Just a normal move
-            ourMove[2] = 0;
+            ourMove[2] = 0; // Just a normal move
         }
-
+        System.out.println("X: " + ourMove[0] + " Y: " + ourMove[1] + " special: " + ourMove[2]);
         return ourMove;
     }
 
