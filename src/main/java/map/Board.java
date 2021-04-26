@@ -43,6 +43,32 @@ public class Board {
         this.width = field[0].length;
     }
 
+    /**
+     * Constructor to create a copy of a existing board
+     * @param toCopyBoard
+     */
+    public Board(Board toCopyBoard) {
+        this.playerAmount = toCopyBoard.getPlayerAmount();
+        this.transitions = toCopyBoard.getAllTransitions();
+        this.bombRadius = toCopyBoard.getBombRadius();
+        this.field = copyField(toCopyBoard.getField());
+
+        this.height = field.length;
+        this.width = field[0].length;
+    }
+
+    private char[][] copyField(char[][] field) {
+        int h  = field.length;
+        int l = field[0].length;
+        char[][] newField = new char[h][l];
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < l; x++) {
+                newField [y][x] = field[y][x];
+            }
+        }
+        return newField;
+    }
+
     private void choiceManually() {
         System.out.print("Please enter two Players you would like to change: ");
         Scanner scanner = new Scanner(System.in);
@@ -431,6 +457,10 @@ public class Board {
      */
     public char[][] getField() {
         return field;
+    }
+
+    public int getPlayerAmount(){
+        return playerAmount;
     }
 
     @Override
