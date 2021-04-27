@@ -26,6 +26,11 @@ hs_err_pid*
 # JavaDoc Files
 /javadoc/
 
+# Log Files
+/logs/*
+!/logs/cleanup.sh
+#!/logs/stored
+
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 

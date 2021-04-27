@@ -121,7 +121,7 @@ public class Heuristics {
 
     private List<BoardMove> executeAllMoves(Player player, Board board, boolean overrideMoves) {
         List<Move> myMoves = board.getLegalMoves(player, overrideMoves);
-        System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
+        //System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
@@ -131,7 +131,7 @@ public class Heuristics {
             newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
             executedMoves.add(new BoardMove(newBoard, m, player));
         }
-        System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
+        //System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
         return executedMoves;
     }
 

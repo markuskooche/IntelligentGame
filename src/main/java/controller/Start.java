@@ -31,10 +31,9 @@ public class Start {
 
         Player player = game.getPlayer(1);
 
-
-
-//        System.out.println(player);
-//        game.getBoard().executeMoveManually(player, true);
-//        System.out.println(player);
+        System.out.println(player);
+        //game.getBoard().executeMoveManually(player, true);
+        game.getBoard().loggingBoard(player);
+        System.out.println(player);
     }
 }
