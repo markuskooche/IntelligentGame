@@ -155,10 +155,10 @@ public class GamePanelManager {
             currentField[y][x] = player;
         }
 
-        for (int i = 0; i < height; i++) {
-            board[i + 4] = "";
-            for (int j = 0; j < height; j++) {
-                board[i + 4] += currentField[i][j] + " ";
+        for (int y = 0; y < height; y++) {
+            board[y + 4] = "";
+            for (int x = 0; x < width; x++) {
+                board[y + 4] += currentField[y][x] + " ";
             }
         }
 
