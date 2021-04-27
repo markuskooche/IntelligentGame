@@ -23,18 +23,25 @@ public class Heuristics {
         int numPlayers = players.length;
         Board tmpBoardStart = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
-        List<BoardMove> executedStartMoves = executeAllMoves(player,tmpBoardStart);
+        List<BoardMove> executedStartMoves = executeAllMoves(player,tmpBoardStart, false);
+        if (executedStartMoves.isEmpty()) {
+            return onlyOverrideStone(tmpBoardStart, player);
+        }
+        if (executedStartMoves.size() == 1) {
+            return executedStartMoves.get(0).getMove();
+        }
 
         mapsAnalyzed = 0;
         int depth = 1;
-        int currPlayer = (player.getNumber() - '0') + 1;
-        int value = 0;
+        int ourPlayer = player.getNumber() - '0';
+        int currPlayer = (ourPlayer % numPlayers) + 1;
+        int value = Integer.MIN_VALUE;
         Move move = new Move();
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
             if (depth != searchDepth) {
-                int tmpValue  =  searchParanoid(currPlayer, currPlayer - 1, boardMove.getBoard(), depth, searchDepth);
-                if (tmpValue > value) {
+                int tmpValue  =  searchParanoid(currPlayer, ourPlayer, boardMove.getBoard(), depth, searchDepth);
+                if (tmpValue >= value) {
                     value = tmpValue;
                     move = boardMove.getMove();
                 }
@@ -49,6 +56,24 @@ public class Heuristics {
         }
         System.out.println("Analyzed Maps: " + mapsAnalyzed);
         System.out.println("XT01-98-AM-" + mapsAnalyzed);
+        System.out.println("OUR PICKED MOVE (PARANOID): " + move);
+        return move;
+    }
+
+    private Move onlyOverrideStone(Board board, Player player) {
+        List<BoardMove> executedStartMoves = executeAllMoves(player,board, true);
+        int value = Integer.MIN_VALUE;
+        Move move = new Move();
+        for (BoardMove boardMove : executedStartMoves) {
+            mapsAnalyzed++;
+            int tmpValue = getEvaluationForPlayer(player, boardMove.getBoard(), boardMove.getMove());
+            if (tmpValue >= value) {
+                value = tmpValue;
+                move = boardMove.getMove();
+            }
+        }
+        System.out.println("POSSIBLE MOVES (OVERRIDE): " + executedStartMoves.size());
+        System.out.println("OUR PICKED MOVE (OVERRIDE): " + move);
         return move;
     }
 
@@ -59,7 +84,7 @@ public class Heuristics {
         int value = 0;
         depth++;
 
-        List<BoardMove> executedMoves = executeAllMoves(player, board);
+        List<BoardMove> executedMoves = executeAllMoves(player, board, false);
         List<Integer> results = new ArrayList<>();
         int tmpValue = 0;
         if (depth != maxDepth) {
@@ -86,6 +111,7 @@ public class Heuristics {
         } else {
             if (results.isEmpty()) {
                 value = Integer.MAX_VALUE;
+                //value = 0;
             } else {
                 value = results.stream().min(Integer::compareTo).get();
             }
@@ -93,17 +119,19 @@ public class Heuristics {
         return value;
     }
 
-    private List<BoardMove> executeAllMoves(Player player, Board board) {
-        List<Move> myMoves = board.getLegalMoves(player, false);
+    private List<BoardMove> executeAllMoves(Player player, Board board, boolean overrideMoves) {
+        List<Move> myMoves = board.getLegalMoves(player, overrideMoves);
+        System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
             int x = m.getX();
             int y = m.getY();
             int additionalInformation = getAdditionalInfo(m, player);
-            newBoard.executeMove(x, y, player, additionalInformation, false);
+            newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
             executedMoves.add(new BoardMove(newBoard, m, player));
         }
+        System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
         return executedMoves;
     }
 
@@ -124,6 +152,14 @@ public class Heuristics {
         int specialField = getSpecialFieldValue(move);
 //        System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility + specialField;
+    }
+
+    public int getEvaluationForPlayerStatistic(Player player, Board board) {
+        int mapValue = getMapValue(player, board);
+        int coinParity = getCoinParity(player, board);
+        int mobility = getMobility(player, board);
+//        System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
+        return mapValue + coinParity + mobility;
     }
 
     public int getSpecialFieldValue(Move move) {

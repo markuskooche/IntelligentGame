@@ -7,10 +7,7 @@ import map.Player;
 import map.Transition;
 import mapanalyze.MapAnalyzer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * The controller.Game class creates a new instance of a game when all important information is passed,
@@ -35,7 +32,7 @@ public class Game {
         createBoard(initMap);
         this.ourPlayerNumber = ourPlayerNumber;
         heuristics = new Heuristics(board, players);
-        executeOurMove(1);
+        //executeOurMove(1);
     }
 
     public Game(List<String> initMap) {
@@ -68,6 +65,7 @@ public class Game {
             ourMove[2] = 0; // Just a normal move
         }
         System.out.println("X: " + ourMove[0] + " Y: " + ourMove[1] + " special: " + ourMove[2]);
+        board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
         return ourMove;
     }
 
@@ -170,6 +168,23 @@ public class Game {
         board.executeBomb(x, y);
     }
 
+    public int getMobility(int player) {
+        return heuristics.getMobility(players[player - 1], board);
+    }
+
+    public int getCoinParity(int player) {
+        return heuristics.getCoinParity(players[player - 1], board);
+    }
+
+    public int getMapValue(int player) {
+        return heuristics.getMapValue(players[player - 1], board);
+    }
+
+    public int getHeuristic(int player) {
+        return heuristics.getEvaluationForPlayerStatistic(players[player - 1], board);
+    }
+
+
     /**
      * Returns a list of all players.
      *
@@ -191,6 +206,31 @@ public class Game {
     public Board getBoard() {
         return board;
     }
+
+    public String[] getTransitions() {
+        Collection<Transition> transitions = board.getAllTransitions().values();
+        String[] returnTransitions = new String[transitions.size() / 2];
+        ArrayList<Transition> list = new ArrayList<>();
+        int counter = 0;
+
+        for (Transition transition : transitions) {
+            int x = transition.getX();
+            int y = transition.getY();
+            int r = transition.getR();
+
+            Transition opposite = board.getTransition(x, y, r);
+
+            if (!list.contains(transition) || !list.contains(opposite)) {
+                returnTransitions[counter] = (transition + " <-> " + opposite);
+                counter++;
+                list.add(transition);
+                list.add(opposite);
+            }
+        }
+
+        return returnTransitions;
+    }
+
 
     @Override
     public String toString() {

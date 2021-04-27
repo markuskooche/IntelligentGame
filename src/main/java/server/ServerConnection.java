@@ -70,7 +70,7 @@ public class ServerConnection {
                 System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
 
                 if (!bomb) { byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                    int[] executedMove = game.executeOurMove();
+                    int[] executedMove = game.executeOurMove(allowedDepth);
 
                     // insert the x coordinate into the byte array
                     move[6] = (byte) (executedMove[0]);

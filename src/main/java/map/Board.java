@@ -166,6 +166,7 @@ public class Board {
                 }
 
                 if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                //if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1 && (overrideMoves || legalMoves.isEmpty())) {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
                         legalOverrideMoves.add(legalOverrideMove);
@@ -175,6 +176,7 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
+        //if (player.hasOverrideStone() && (overrideMoves || legalMoves.isEmpty())) {
             for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalOverrideMoves.add(expansionMove);
@@ -215,6 +217,7 @@ public class Board {
                 }
 
                 if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                //if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1 && (overrideMoves || legalMoves.isEmpty())) {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
                         legalMoves.add(legalOverrideMove);
@@ -224,6 +227,7 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
+        //if (player.hasOverrideStone() && (overrideMoves || legalMoves.isEmpty())) {
             for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalMoves.add(expansionMove);
