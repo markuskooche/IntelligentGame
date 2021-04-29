@@ -44,11 +44,12 @@ public class Game {
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
+        System.out.println(board);
         mapAnalyzer = new MapAnalyzer(board);
         heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
-        System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
-        System.out.println(mapAnalyzer.toString());
+       // System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
+       // System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
+       // System.out.println(mapAnalyzer.toString());
     }
 
     public void setOurPlayerNumber(int ourPlayerNumber) {

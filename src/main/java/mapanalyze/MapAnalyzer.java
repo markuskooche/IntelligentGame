@@ -1,23 +1,24 @@
-package mapanalyze;
-
-import map.Board;
-import map.Direction;
-import map.Transition;
+import javax.print.attribute.standard.Destination;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MapAnalyzer {
 
     private int[][] field;
     private Board board;
     private int[][] reachableField; // bool array
+    private List<int[]> specialFieldList;
 
     public MapAnalyzer(Board b) {
         board = b;
+        createReachableField();
         createField();
+
     }
 
     /**
      * creates a Field that contains only reachable Fields and values every Field by location and location to other Fields
-     *
      */
     public void createField() {
 
@@ -25,14 +26,13 @@ public class MapAnalyzer {
         int width = board.getWidth();
         field = new int[height][width];
 
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
 
                 char currField = board.getField()[i][j];
 
                 if (currField != '-') {
-                    //create ReachableField for the First field that is Writable (The most performant way would by around the middle of the Map
-//                    createReachableField(j, i);
                     int newValue = getLocationValue(j, i);
                     field[i][j] += newValue * 3;
 
@@ -60,13 +60,251 @@ public class MapAnalyzer {
 
     }
 
-    private void createReachableField(int x, int y) {
+    private void createReachableField() {
         int height = board.getHeight();
         int width = board.getWidth();
+
+        specialFieldList = new ArrayList<>();
         reachableField = new int[height][width];
-        traverseMap(x, y);
+
+        traverseMapForEachPlayerStone();
         alterCurrentMap();
     }
+
+    private void followFields(int x, int y, int[] currentDirection){
+
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+
+        //Follow this direction until the End of the board
+        while (true){
+
+        //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
+        int [] currStone = new int[3];
+        currStone[0] = x;
+        currStone[1] = y;
+
+            // end the loop if the end of the board is reached
+            if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight() || board.getField()[y][x] == '-') {
+                int directionValue = Direction.indexOf(currentDirection);
+
+                Transition transition = board.getTransition(x - currentDirection[0], y - currentDirection[1], directionValue);
+
+                // Follow Transactions
+                if (transition != null) {
+                    int[] destination = transition.getDestination(x - currentDirection[0], y - currentDirection[1], directionValue);
+
+                    x = destination[0];
+                    y = destination[1];
+                    currentDirection = Direction.valueOf((destination[2]+4)%8);
+                    continue;
+                }
+                break;
+            }
+            //look for other stones in all directions
+            for (int[] direction : directions) {
+
+                int nextX = x + direction[0];
+                int nextY = y + direction[1];
+                boolean transitionAlreadyTaken = false;
+                currStone[2] = Direction.indexOf(direction);
+
+                //if the function already went along this transaction, prevent it from doing it again
+                for(int[] specialFields : specialFieldList){
+                    if(Arrays.equals(specialFields, currStone)){
+                        transitionAlreadyTaken = true;
+                        break;
+                    }
+                }
+                if(transitionAlreadyTaken){
+                    continue;
+                }
+
+                // avoids IndexOutOfBounds exception                                                     required for intermap transactions
+                if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight() || board.getField()[nextY][nextX] == '-') {
+                    int directionValue = Direction.indexOf(direction);
+
+                    Transition transition = board.getTransition(x, y, directionValue);
+
+                    // Follow Transactions
+                    if (transition != null) {
+                        int oppositeX;
+                        int oppositeY;
+
+                        int[] destination = transition.getDestination(x, y, directionValue);
+                        int oppositeDestValue = (directionValue + 4) % 8;
+
+                        // Ignore the transition directly after the Function went through it
+                        if(oppositeDestValue == Direction.indexOf(currentDirection)){
+                            continue;
+                        }
+/*
+                        if (board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'x' ||
+                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'b' ||
+                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'c' ||
+                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'i' ||
+                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == '0' &&
+                            reachableField[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] != 3) {
+
+ */
+                        int oppositeDest = (destination[2] + 4) % 8;
+
+                        //Saft the current Stone as the start of the transitions
+                        specialFieldList.add(currStone);
+
+                        //Follow the transition
+                        followFields(destination[0], destination[1], Direction.valueOf(oppositeDest));
+
+                        int[] oppositeDirection = new int[2];
+                        oppositeDirection[1] = direction[1]*(-1);
+                        oppositeDirection[0] = direction[0]*(-1);
+
+                        int[] oppositeCurrDirection = new int[2];
+                        oppositeCurrDirection[0] = currentDirection[0]*(-1);
+                        oppositeCurrDirection[1] = currentDirection[1]*(-1);
+
+                        //Go in the other direction
+                        oppositeX = x + direction[0]*(-1);
+                        oppositeY = y + direction[1]*(-1);
+                        oppositeDirection[0] = direction[1]*(-1);
+                        oppositeDirection[1] = direction[0]*(-1);
+
+                        if (oppositeX < 0 || oppositeX >= board.getWidth() || oppositeY < 0 || oppositeY >= board.getHeight() || board.getField()[oppositeY][oppositeX] == '-') {
+
+                            directionValue = Direction.indexOf(oppositeDirection);
+                            transition = board.getTransition(oppositeX, oppositeY, directionValue);
+
+                            if (transition != null) {
+
+                                destination = transition.getDestination(x, y, directionValue);
+
+                                    /*if (board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'x' ||
+                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'b' ||
+                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'c' ||
+                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'i' ||
+                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == '0' &&
+                                                    reachableField[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] != 3) {
+
+
+                                     */
+                                if(oppositeDest == Direction.indexOf(currentDirection) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection)) {
+
+                                    followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
+                                }
+                            }
+                            // }
+                            // }
+                        }
+                    }
+
+                } else {
+
+                    // Follow fields if they are reachable
+                    boolean searchForFours = false;
+
+                    if(reachableField[y][x] != 4){
+                        searchForFours = true;
+                    }
+
+                    char currChar = board.getField()[nextY][nextX];
+                    if ((currChar != '-' &&  currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') || reachableField[nextY][nextX] == 3 || reachableField[nextY][nextX] == 4) {
+
+                        //remains not active until further research
+                       // if((currChar != '-' &&  currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') && reachableField[nextY][nextX] == 4 && !searchForFours){
+                       //     continue;
+                       // }
+
+                        //cancel the current iteration if the Neighboring Field is already finished
+                        if(reachableField[nextY][nextX] == 4 && !searchForFours){
+                            continue;
+                        }
+
+                        int[] oppositeDirection = new int[2];
+                        oppositeDirection[1] = direction[1]*(-1);
+                        oppositeDirection[0] = direction[0]*(-1);
+                        int newY = y + oppositeDirection[1];
+                        int newX = x + oppositeDirection[0];
+
+                        int[] oppositeCurrDirection = new int[2];
+                        oppositeCurrDirection[0] = currentDirection[0]*(-1);
+                        oppositeCurrDirection[1] = currentDirection[1]*(-1);
+
+                        //dont follow fields in the direction the function is heading and backwards / Directions are required for comparison
+                        if(!(Direction.indexOf(currentDirection) == Direction.indexOf(direction) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection))){
+                            //follow the Field in both directions
+                            treeToFour();
+                            reachableField[y][x] = 3;
+                            followFields(newX,newY,oppositeDirection);
+                            treeToFour();
+                            reachableField[y][x] = 3;
+                            followFields(nextX,nextY, direction);
+                            treeToFour();
+                            reachableField[y][x] = 3;
+                        }
+
+                    }
+                }
+
+            }
+
+            //Mark current Field as finished
+            reachableField[y][x] = 4;
+            int i = 0;
+            //Remove the finished field from the blocked List
+            for(int[] specialFields : specialFieldList){
+                if(Arrays.equals(specialFields, currStone)){
+                    specialFieldList.remove(i);
+                    break;
+                }
+                i++;
+            }
+            //Go to the next Field
+             x = x + currentDirection[0];
+             y = y + currentDirection[1];
+
+        }
+    }
+
+    /**
+     * alters all 3's in the reachableField to 4's
+     */
+    private void treeToFour(){
+        int height = board.getHeight();
+        int width = board.getWidth();
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+
+                int currField = reachableField[i][j];
+
+                if (currField == 3) {
+                    reachableField[i][j] = 4;
+                }
+            }
+        }
+    }
+
+
+    private void traverseMapForEachPlayerStone() {
+
+        int height = board.getHeight();
+        int width = board.getWidth();
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                char currField = board.getField()[i][j];
+
+                if(currField == '1' || currField == '2' ||currField == '3' ||currField == '4' ||
+                        currField == '5' ||currField == '6' ||currField == '7' || currField == '8' ||currField == 'x'){
+                    //Skip stones that have already been reached
+                    if(reachableField[i][j]!=4){
+                        traverseMap(j,i);
+                    }
+                }
+
+            }
+        }
+    }
+    
     /**
      * Updates the current board and removes all Fields that are not reachable
      */
@@ -87,26 +325,21 @@ public class MapAnalyzer {
     }
 
     /**
-     * Traverses the Map with depth-first search to find all reachable fields
+     * Looks in all directions of the field and over Transitions to find possible Move-directions
      */
     private void traverseMap(int x, int y) {
-        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int[] currentDirection;
 
-        reachableField[y][x] = 1;
+        //mark field as being worked on
+        reachableField[y][x] = 3;
 
-
-        if( x == 29 && y == 18){
-            System.out.println("test");
-        }
-
-
-        //System.out.println("(" + x + ")(" + y + ") Wurde gelockt");
         for (int[] direction : directions) {
             currentDirection = direction;
+            int[] oppositeDirection = Direction.valueOf((Direction.indexOf(currentDirection) + 4) % 8);
 
-            int nextX = x + currentDirection[1];
-            int nextY = y + currentDirection[0];
+            int nextX = x + currentDirection[0];
+            int nextY = y + currentDirection[1];
 
             // avoids IndexOutOfBounds exception                                                     required for intermap transactions
             if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight() || board.getField()[nextY][nextX] == '-') {
@@ -116,25 +349,33 @@ public class MapAnalyzer {
 
                 // Follow Transactions
                 if (transition != null) {
-                    if (reachableField[transition.getY()][transition.getX()] != 1) {
-                        traverseMap(transition.getX(), transition.getY());
+                    int[] destination = transition.getDestination(x, y, directionValue);
+
+                    //look what the char of the destination field is, to determine whether  a move is possible
+                    char currChar = board.getField()[destination[1]][destination[0]];
+                    if (currChar != '-' && currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') {
+                        followFields(x, y, currentDirection);
+                        //Also look in the opposite direction, because now all fields in this line are reachable
+                        followFields(x, y, oppositeDirection);
                     }
                 }
 
             } else {
                 // Follow fields if they are reachable
                 char currChar = board.getField()[nextY][nextX];
-                if (currChar != '-' && reachableField[nextY][nextX] != 1) {
-                    traverseMap(nextX, nextY);
+                    if (currChar != '-' && currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i' && reachableField[nextY][nextX] != 4){
+                        followFields(x, y, currentDirection);
+                        //Also look in the opposite direction, because now all fields in this line are reachable
+                        followFields(x, y, oppositeDirection);
                 }
             }
 
         }
     }
     /**
-     * Calculates the Map-Score for the given map.Player
+     * Calculates the Map-Score for the given Player
      *
-     * @return int with the value of the map.Player-Score for the given player
+     * @return int with the value of the Player-Score for the given player
      */
     public int calculateScoreForPlayer(char playernumber) {
         int height = board.getHeight();
@@ -160,7 +401,7 @@ public class MapAnalyzer {
      */
     private void createWaves(int x, int y, int range, int startValue) {
 
-        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int exhaustion = 1;
         int omen = -1;
         int currX ;
@@ -182,7 +423,7 @@ public class MapAnalyzer {
                     Transition transition = board.getTransition(oldX, oldY, directionValue);
 
                     if (transition != null) {
-                        followTransaction(transition, direction, range - currRange, startValue, exhaustion);
+                        followTransaction(transition, oldX, oldY, direction, range - currRange, startValue, exhaustion);
                     }
                     break;
 
@@ -211,14 +452,14 @@ public class MapAnalyzer {
 
     }
 
-    private void followTransaction(Transition transition, int[] direction, int range, int startValue, int exhaustion) {
+    private void followTransaction(Transition transition, int x, int y, int[] direction, int range, int startValue, int exhaustion) {
 
-        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int omen = -1;
         int directionValue = Direction.indexOf(direction);
 
         //get the opposite side of the given transaction
-        int[] newPosition = transition.getDestination();
+        int[] newPosition = transition.getDestination(x, y, directionValue);
         int startX = newPosition[0];
         int startY = newPosition[1];
         int[] newDirection = directions[newPosition[2]];
@@ -230,8 +471,6 @@ public class MapAnalyzer {
         int oldY = startY;
 
         while (range > 0) {
-
-            System.out.println("(" + oldX + ")(" + oldY + ") Wurde gelockt");
 
             //Skip the first iteration, because the field the transaction ends in must also be counted
             if (!first) {
@@ -250,7 +489,7 @@ public class MapAnalyzer {
                 if (transition == null) {
                     return;
                 } else {
-                    followTransaction(transition, newDirection, range, startValue, exhaustion);
+                    followTransaction(transition, oldX, oldY, newDirection, range, startValue, exhaustion);
                     break;
                 }
             }else{
@@ -280,10 +519,9 @@ public class MapAnalyzer {
      */
     private int getLocationValue(int x, int y) {
 
-        int[][] directions = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int[] currentDirection;
         int currnumbers = 0;
-        char[][] tmpfield = board.getField();
 
         for (int[] direction : directions) {
             currentDirection = direction;
@@ -302,11 +540,8 @@ public class MapAnalyzer {
                 }
                 currnumbers++;
             } else {
-
-                char currChar = tmpfield[nextY][nextX];
-                if (currChar == '-') {
-                    currnumbers++;
-                }
+                if(board.getField()[nextY][nextX] == '-')
+                currnumbers++;
             }
         }
         return currnumbers;
@@ -318,14 +553,15 @@ public class MapAnalyzer {
 
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {
-                boardString.append(String.format("%4s", field[y][x]));
-               // boardString.append(field[y][x]);
+                boardString.append(field[y][x]);
+                boardString.append(" ");
             }
             boardString.append("\n");
         }
 
         return boardString.toString();
     }
+
 
     public int[][] getField() {
         return field;
