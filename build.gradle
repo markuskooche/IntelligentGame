@@ -2,11 +2,25 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
+group 'Gruppe01'
 version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+}
+
+jar {
+    baseName(archivesBaseName)
+    manifest {
+        attributes "Implementation-Title": archivesBaseName
+        attributes "Implementation-Version": 0.1
+        attributes "Main-Class": "Main"
+    }
+}
+
+jar {
+    destinationDirectory = file("bin")
+    archiveFileName = "${"client01"}.jar"
 }
 
 dependencies {
@@ -18,3 +32,4 @@ dependencies {
 test{
     useJUnitPlatform()
 }
+

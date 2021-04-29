@@ -1,3 +1,4 @@
+import javax.print.attribute.standard.Destination;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +85,19 @@ public class MapAnalyzer {
 
             // end the loop if the end of the board is reached
             if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight() || board.getField()[y][x] == '-') {
-                //TODO Sollte noch transitionen folgen!!
+                int directionValue = Direction.indexOf(currentDirection);
+
+                Transition transition = board.getTransition(x - currentDirection[0], y - currentDirection[1], directionValue);
+
+                // Follow Transactions
+                if (transition != null) {
+                    int[] destination = transition.getDestination(x - currentDirection[0], y - currentDirection[1], directionValue);
+
+                    x = destination[0];
+                    y = destination[1];
+                    currentDirection = Direction.valueOf((destination[2]+4)%8);
+                    continue;
+                }
                 break;
             }
             //look for other stones in all directions
