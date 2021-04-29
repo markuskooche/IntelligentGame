@@ -1,4 +1,9 @@
-import javax.print.attribute.standard.Destination;
+
+package mapanalyze;
+import map.Board;
+import map.Direction;
+import map.Transition;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,7 +19,6 @@ public class MapAnalyzer {
         board = b;
         createReachableField();
         createField();
-
     }
 
     /**
@@ -91,7 +95,7 @@ public class MapAnalyzer {
 
                 // Follow Transactions
                 if (transition != null) {
-                    int[] destination = transition.getDestination(x - currentDirection[0], y - currentDirection[1], directionValue);
+                    int[] destination = transition.getDestination();
 
                     x = destination[0];
                     y = destination[1];
@@ -130,7 +134,7 @@ public class MapAnalyzer {
                         int oppositeX;
                         int oppositeY;
 
-                        int[] destination = transition.getDestination(x, y, directionValue);
+                        int[] destination = transition.getDestination();
                         int oppositeDestValue = (directionValue + 4) % 8;
 
                         // Ignore the transition directly after the Function went through it
@@ -148,7 +152,7 @@ public class MapAnalyzer {
  */
                         int oppositeDest = (destination[2] + 4) % 8;
 
-                        //Saft the current Stone as the start of the transitions
+                        //set the current Stone as the start of the transitions
                         specialFieldList.add(currStone);
 
                         //Follow the transition
@@ -175,7 +179,7 @@ public class MapAnalyzer {
 
                             if (transition != null) {
 
-                                destination = transition.getDestination(x, y, directionValue);
+                                destination = transition.getDestination();
 
                                     /*if (board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'x' ||
                                             board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'b' ||
@@ -349,7 +353,7 @@ public class MapAnalyzer {
 
                 // Follow Transactions
                 if (transition != null) {
-                    int[] destination = transition.getDestination(x, y, directionValue);
+                    int[] destination = transition.getDestination();
 
                     //look what the char of the destination field is, to determine whether  a move is possible
                     char currChar = board.getField()[destination[1]][destination[0]];
@@ -377,7 +381,7 @@ public class MapAnalyzer {
      *
      * @return int with the value of the Player-Score for the given player
      */
-    public int calculateScoreForPlayer(char playernumber) {
+    public int calculateScoreForPlayer(char playerNumber) {
         int height = board.getHeight();
         int width = board.getWidth();
         int playerScore = 0;
@@ -387,7 +391,7 @@ public class MapAnalyzer {
 
                 char currField = board.getField()[i][j];
 
-                if (currField == playernumber) {
+                if (currField == playerNumber) {
                     playerScore += field[i][j];
                 }
             }
@@ -456,10 +460,10 @@ public class MapAnalyzer {
 
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int omen = -1;
-        int directionValue = Direction.indexOf(direction);
+        int directionValue;
 
         //get the opposite side of the given transaction
-        int[] newPosition = transition.getDestination(x, y, directionValue);
+        int[] newPosition = transition.getDestination();
         int startX = newPosition[0];
         int startY = newPosition[1];
         int[] newDirection = directions[newPosition[2]];
@@ -521,7 +525,7 @@ public class MapAnalyzer {
 
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int[] currentDirection;
-        int currnumbers = 0;
+        int currNumbers = 0;
 
         for (int[] direction : directions) {
             currentDirection = direction;
@@ -538,13 +542,13 @@ public class MapAnalyzer {
                 if (transition != null) {
                     continue;
                 }
-                currnumbers++;
+                currNumbers++;
             } else {
                 if(board.getField()[nextY][nextX] == '-')
-                currnumbers++;
+                currNumbers++;
             }
         }
-        return currnumbers;
+        return currNumbers;
     }
 
     @Override
@@ -553,11 +557,11 @@ public class MapAnalyzer {
 
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {
-                boardString.append(field[y][x]);
-                boardString.append(" ");
+                boardString.append(String.format("%4s", field[y][x]));
             }
             boardString.append("\n");
         }
+
 
         return boardString.toString();
     }
