@@ -21,7 +21,7 @@ public class Heuristics {
         numPlayers = players.length;
     }
 
-    public Move getMoveParanoid(Player player, int searchDepth) {
+    public Move getMoveParanoid(Player player, int searchDepth, boolean alphaBeta) {
         int numPlayers = players.length;
         Board tmpBoardStart = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
@@ -40,13 +40,19 @@ public class Heuristics {
         int value = Integer.MIN_VALUE;
         int maxLoop = 0;
         Move move = new Move();
+        int alpha = Integer.MIN_VALUE;
+        int beta = Integer.MAX_VALUE;
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
             if (depth != searchDepth) {
-                int tmpValue  =  searchParanoid(currPlayer, ourPlayer, boardMove.getBoard(), depth, searchDepth, maxLoop);
-                if (tmpValue >= value) {
+                int tmpValue  =  searchParanoid(currPlayer, ourPlayer, boardMove.getBoard(), depth, searchDepth, maxLoop,
+                        alpha, beta, alphaBeta);
+                if (tmpValue > value) {
                     value = tmpValue;
                     move = boardMove.getMove();
+                    if (alphaBeta) {
+                        alpha = tmpValue;
+                    }
                 }
                 depth = 1;
             } else { // Search depth = 1
@@ -80,7 +86,8 @@ public class Heuristics {
         return move;
     }
 
-    private int searchParanoid(int currPlayer, int ourPlayerNum, Board board, int depth, int maxDepth, int maxLoop) {
+    private int searchParanoid(int currPlayer, int ourPlayerNum, Board board, int depth, int maxDepth, int maxLoop,
+                               int alpha ,int beta, boolean alphaBeta) {
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
         int value = 0;
@@ -92,7 +99,8 @@ public class Heuristics {
             int nextPlayer = (currPlayer % numPlayers) + 1;
             if(maxLoop < numPlayers) {
                 maxLoop++;
-                value = searchParanoid(nextPlayer, ourPlayerNum, board, depth - 1, maxDepth, maxLoop);
+                return searchParanoid(nextPlayer, ourPlayerNum, board, depth - 1, maxDepth, maxLoop,
+                        alpha, beta, alphaBeta);
             } else {
                 return 0; //No player has any move (perhaps only override)
             }
@@ -106,15 +114,31 @@ public class Heuristics {
                 value = Integer.MIN_VALUE;
                 for (BoardMove boardMove : executedMoves) {
                     mapsAnalyzed++;
-                    tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop);
+                    tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop,
+                            alpha, beta, alphaBeta);
                     if (tmpValue > value) value = tmpValue;
+
+                    if (alphaBeta) {
+                        if (tmpValue > alpha) alpha = tmpValue;
+                        if (tmpValue > beta) {
+                            return value; //Cut off
+                        }
+                    }
                 }
             } else { //MIN
                 value = Integer.MAX_VALUE;
                 for (BoardMove boardMove : executedMoves) {
                     mapsAnalyzed++;
-                    tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop);
+                    tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop,
+                            alpha, beta, alphaBeta);
                     if (tmpValue < value) value = tmpValue;
+
+                    if (alphaBeta) {
+                        if (tmpValue < beta) beta = tmpValue;
+                        if (tmpValue < alpha) {
+                            return value; // Cut off
+                        }
+                    }
                 }
             }
         } else { // Here is the end of the search tree -> pick value based on MAX / MIN

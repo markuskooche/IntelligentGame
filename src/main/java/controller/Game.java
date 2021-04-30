@@ -51,7 +51,7 @@ public class Game {
         Player ourPlayer = players[ourPlayerNumber - 1];
         int [] ourMove = new int[3];
         long time = System.currentTimeMillis();
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth);
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth, true);
         System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
         ourMove[0] = move.getX();
         ourMove[1] = move.getY();
