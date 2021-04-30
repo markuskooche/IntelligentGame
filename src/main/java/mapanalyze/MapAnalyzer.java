@@ -14,9 +14,11 @@ public class MapAnalyzer {
     private Board board;
     private int[][] reachableField; // bool array
     private List<int[]> specialFieldList;
+    final private int playerNumber;
 
-    public MapAnalyzer(Board b) {
+    public MapAnalyzer(Board b, int pNumber) {
         board = b;
+        playerNumber = pNumber;
         createReachableField();
         createField();
     }
@@ -28,35 +30,42 @@ public class MapAnalyzer {
 
         int height = board.getHeight();
         int width = board.getWidth();
-        field = new int[height][width];
-
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
 
                 char currField = board.getField()[i][j];
 
-                if (currField != '-') {
+                if (currField != '-' && field[i][j] != Integer.MIN_VALUE) {
                     int newValue = getLocationValue(j, i);
-                    field[i][j] += newValue * 3;
-
-                    if (newValue >= 5) {
-                        //Field is Corner
-                        createWaves(j, i, newValue, newValue / 2);
-                    } else {
-                        //Field is no Corner
-                        createWaves(j, i, newValue, newValue);
+                    int multiplier;
+                    if (newValue == 7) {
+                        multiplier = 25;
+                        field[i][j] += newValue * multiplier;
+                        createWaves(j, i, playerNumber, (newValue * multiplier)/4);
+                    } else if (newValue == 6) {
+                        multiplier = 15;
+                        field[i][j] += newValue * multiplier;
+                        createWaves(j, i, playerNumber, (newValue * multiplier)/4);
+                    } else if (newValue == 5) {
+                        multiplier = 10;
+                        field[i][j] += newValue * multiplier;
+                        createWaves(j, i, playerNumber, (newValue * multiplier)/4);
+                    }else {
+                        multiplier = 3;
+                        field[i][j] += newValue * multiplier;
+                        createWaves(j, i, playerNumber, newValue);
                     }
                 }
                 if (currField == 'c') {
-                    field[i][j] += 20;
-                    createWaves(j, i, 50, 20);
+                    field[i][j] += 500;
+                    createWaves(j, i, playerNumber, 500);
                 } else if (currField == 'b') {
-                    field[i][j] += 15;
-                    createWaves(j, i, 50, 15);
+                    field[i][j] += 400;
+                    createWaves(j, i, playerNumber, 400);
                 } else if (currField == 'i') {
-                    field[i][j] += 10;
-                    createWaves(j, i, 50, 10);
+                    field[i][j] += 450;
+                    createWaves(j, i, playerNumber, 450);
                 }
 
             }
@@ -70,6 +79,8 @@ public class MapAnalyzer {
 
         specialFieldList = new ArrayList<>();
         reachableField = new int[height][width];
+
+        field = new int[height][width];
 
         traverseMapForEachPlayerStone();
         alterCurrentMap();
@@ -322,7 +333,8 @@ public class MapAnalyzer {
                 int currField = reachableField[i][j];
 
                 if (currField == 0) {
-                    board.getField()[i][j] = '-';
+                    field[i][j] = Integer.MIN_VALUE;
+                    //board.getField()[i][j] = '-';
                 }
             }
         }
@@ -417,32 +429,37 @@ public class MapAnalyzer {
             // go until the range runs out or there are no more reachable fields
             for (int currRange = 1; currRange <= range; currRange++) {
 
-                currX = x + (direction[1] * currRange);
-                currY = y + (direction[0] * currRange);
+                currX = x + (direction[0] * currRange);
+                currY = y + (direction[1] * currRange);
 
-                if (currX < 0 || currX >= board.getWidth() || currY < 0 || currY >= board.getHeight()) {
+                if (currX < 0 || currX >= board.getWidth() || currY < 0 || currY >= board.getHeight() || board.getField()[currY][currX] == '-') {
 
                     int directionValue = Direction.indexOf(direction);
-
-                    Transition transition = board.getTransition(oldX, oldY, directionValue);
+                    Transition transition;
+                    if(currRange == 1){
+                        transition = board.getTransition(x, y, directionValue);
+                    }else{
+                        transition = board.getTransition(oldX, oldY, directionValue);
+                    }
 
                     if (transition != null) {
-                        followTransaction(transition, oldX, oldY, direction, range - currRange, startValue, exhaustion);
+                        followTransaction(transition,(range - currRange), startValue, exhaustion);
                     }
                     break;
 
                 } else {
                     // remember last reachable Field in case there is a transaction
-                    if (board.getField()[currY][currX] != '-') {
-                    oldX = currX;
-                    oldY = currY;
+                    if (board.getField()[currY][currX] != '-' && field[currY][currX] != Integer.MIN_VALUE) {
+
+                         oldX = currX;
+                         oldY = currY;
 
                         if (((startValue) - exhaustion) > 0) {
 
-                            if (currRange % 2 == 1) {
-                                field[currY][currX] += ((startValue) - exhaustion) * omen;
+                            if (currRange % playerNumber == 0) {
+                                field[currY][currX] += ((startValue) - exhaustion) ;
                             } else {
-                                field[currY][currX] += ((startValue) - exhaustion);
+                                field[currY][currX] += ((startValue) - exhaustion) *(playerNumber - (currRange % playerNumber)) * omen ;
                             }
                         }
                     }else{
@@ -456,7 +473,7 @@ public class MapAnalyzer {
 
     }
 
-    private void followTransaction(Transition transition, int x, int y, int[] direction, int range, int startValue, int exhaustion) {
+    private void followTransaction(Transition transition, int range, int startValue, int exhaustion) {
 
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int omen = -1;
@@ -474,17 +491,17 @@ public class MapAnalyzer {
         int oldX = startX;
         int oldY = startY;
 
-        while (range > 0) {
+        while (range >= 0) {
 
             //Skip the first iteration, because the field the transaction ends in must also be counted
             if (!first) {
-                startX += (newDirection[1]);
-                startY += (newDirection[0]);
+                startX += (newDirection[0]);
+                startY += (newDirection[1]);
             } else {
                 first = false;
             }
 
-            if (startX < 0 || startX >= board.getWidth() || startY < 0 || startY >= board.getHeight()) {
+            if (startX < 0 || startX >= board.getWidth() || startY < 0 || startY >= board.getHeight() || board.getField()[startY][startX] == '-') {
 
                 directionValue = Direction.indexOf(newDirection);
 
@@ -493,21 +510,21 @@ public class MapAnalyzer {
                 if (transition == null) {
                     return;
                 } else {
-                    followTransaction(transition, oldX, oldY, newDirection, range, startValue, exhaustion);
+                    followTransaction(transition, range, startValue, exhaustion);
                     break;
                 }
             }else{
-                if (board.getField()[startY][startX] != '-') {
+                if (board.getField()[startY][startX] != '-' && field[startY][startX] != Integer.MIN_VALUE) {
 
                     oldX = startX;
                     oldY = startY;
 
                     if (((startValue) - exhaustion) > 0) {
 
-                        if (range % 2 == 1) {
-                            field[startY][startX] += ((startValue) - exhaustion) * omen;
+                        if (range % playerNumber == 0) {
+                            field[startY][startX] += ((startValue) - exhaustion) ;
                         } else {
-                            field[startY][startX] += ((startValue) - exhaustion);
+                            field[startY][startX] += ((startValue) - exhaustion) *(playerNumber - (range % playerNumber)) * omen ;
                         }
                     }
                 }
@@ -530,8 +547,8 @@ public class MapAnalyzer {
         for (int[] direction : directions) {
             currentDirection = direction;
 
-            int nextX = x + currentDirection[1];
-            int nextY = y + currentDirection[0];
+            int nextX = x + currentDirection[0];
+            int nextY = y + currentDirection[1];
 
             // avoids IndexOutOfBounds exception
             if (nextX < 0 || nextX >= board.getWidth() || nextY < 0 || nextY >= board.getHeight()) {
@@ -544,8 +561,9 @@ public class MapAnalyzer {
                 }
                 currNumbers++;
             } else {
-                if(board.getField()[nextY][nextX] == '-')
-                currNumbers++;
+                if(board.getField()[nextY][nextX] == '-' || field[nextY][nextX] == Integer.MIN_VALUE){
+                    currNumbers++;
+                }
             }
         }
         return currNumbers;

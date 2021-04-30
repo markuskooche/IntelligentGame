@@ -34,7 +34,7 @@ public class Game {
         createPlayers(initMap);
         createBoard(initMap);
         this.ourPlayerNumber = ourPlayerNumber;
-        mapAnalyzer = new MapAnalyzer(board);
+        mapAnalyzer = new MapAnalyzer(board, players.length);
         heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
         System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
@@ -45,7 +45,7 @@ public class Game {
         createPlayers(initMap);
         createBoard(initMap);
         System.out.println(board);
-        mapAnalyzer = new MapAnalyzer(board);
+        mapAnalyzer = new MapAnalyzer(board, players.length);
         heuristics = new Heuristics(board, players, mapAnalyzer);
        // System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[0]));
        // System.out.println("----Ergebnis: " + heuristics.getEvaluationForPlayer(players[1]));
