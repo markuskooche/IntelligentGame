@@ -13,10 +13,12 @@ public class Heuristics {
     private Board board;
     private Player[] players;
     private int mapsAnalyzed;
+    private int numPlayers;
 
     public Heuristics(Board board, Player[] players) {
         this.board = board;
         this.players = players;
+        numPlayers = players.length;
     }
 
     public Move getMoveParanoid(Player player, int searchDepth) {
@@ -47,7 +49,7 @@ public class Heuristics {
                     move = boardMove.getMove();
                 }
                 depth = 1;
-            } else {
+            } else { // Search depth = 1
                 int tmpValue = getEvaluationForPlayer(player, boardMove.getBoard(), boardMove.getMove());
                 if (tmpValue > value) {
                     value = tmpValue;
@@ -79,44 +81,58 @@ public class Heuristics {
     }
 
     private int searchParanoid(int currPlayer, int ourPlayerNum, Board board, int depth, int maxDepth, int maxLoop) {
-        int numPlayers = players.length;
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
         int value = 0;
         depth++;
         List<BoardMove> executedMoves = executeAllMoves(player, board, false);
 
-
-        List<Integer> results = new ArrayList<>();
-        int tmpValue = 0;
-        if (depth < maxDepth) {
-            int nextPlayer = (currPlayer % numPlayers) + 1;
-            for (BoardMove boardMove : executedMoves) {
-                mapsAnalyzed++;
-                tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop);
-                results.add(tmpValue);
-            }
-        } else {
-            for (BoardMove boardMove : executedMoves) {
-                mapsAnalyzed++;
-                tmpValue = getEvaluationForPlayer(ourPlayer, boardMove.getBoard(), boardMove.getMove());
-                results.add(tmpValue);
-            }
-        }
-
-        if (results.isEmpty()) {
-            // We have no move -> another player should move
+        // No moves for given player -> another player should move
+        if (executedMoves.isEmpty()) {
             int nextPlayer = (currPlayer % numPlayers) + 1;
             if(maxLoop < numPlayers) {
                 maxLoop++;
                 value = searchParanoid(nextPlayer, ourPlayerNum, board, depth - 1, maxDepth, maxLoop);
             } else {
-                value = 0;
+                return 0; //No player has any move (perhaps only override)
             }
-        } else  if (player == ourPlayer) {
-                value = results.stream().max(Integer::compareTo).get();
-        } else {
-            value = results.stream().min(Integer::compareTo).get();
+        }
+
+        int tmpValue = 0;
+        if (depth < maxDepth) {
+            int nextPlayer = (currPlayer % numPlayers) + 1;
+
+            if (player == ourPlayer) { //MAX
+                value = Integer.MIN_VALUE;
+                for (BoardMove boardMove : executedMoves) {
+                    mapsAnalyzed++;
+                    tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop);
+                    if (tmpValue > value) value = tmpValue;
+                }
+            } else { //MIN
+                value = Integer.MAX_VALUE;
+                for (BoardMove boardMove : executedMoves) {
+                    mapsAnalyzed++;
+                    tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop);
+                    if (tmpValue < value) value = tmpValue;
+                }
+            }
+        } else { // Here is the end of the search tree -> pick value based on MAX / MIN
+            if (player == ourPlayer) { //MAX
+                value = Integer.MIN_VALUE;
+                for (BoardMove boardMove : executedMoves) {
+                    mapsAnalyzed++;
+                    tmpValue = getEvaluationForPlayer(ourPlayer, boardMove.getBoard(), boardMove.getMove());
+                    if (tmpValue > value) value = tmpValue;
+                }
+            } else { //MIN
+                value = Integer.MAX_VALUE;
+                for (BoardMove boardMove : executedMoves) {
+                    mapsAnalyzed++;
+                    tmpValue = getEvaluationForPlayer(ourPlayer, boardMove.getBoard(), boardMove.getMove());
+                    if (tmpValue < value) value = tmpValue;
+                }
+            }
         }
         return value;
     }
