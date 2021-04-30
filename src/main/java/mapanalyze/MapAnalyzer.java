@@ -12,7 +12,7 @@ public class MapAnalyzer {
 
     private int[][] field;
     private Board board;
-    private int[][] reachableField; // bool array
+    private int[][] reachableField;
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     final private int playerNumber;
@@ -171,15 +171,7 @@ public class MapAnalyzer {
                         if(oppositeDestValue == Direction.indexOf(currentDirection)){
                             continue;
                         }
-/*
-                        if (board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'x' ||
-                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'b' ||
-                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'c' ||
-                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'i' ||
-                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == '0' &&
-                            reachableField[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] != 3) {
 
- */
                         int oppositeDest = (destination[2] + 4) % 8;
 
                         //set the current Stone as the start of the transitions
@@ -222,15 +214,6 @@ public class MapAnalyzer {
 
                                 destination = transition.getDestination();
 
-                                    /*if (board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'x' ||
-                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'b' ||
-                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'c' ||
-                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == 'i' ||
-                                            board.getField()[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] == '0' &&
-                                                    reachableField[destination[0] + destinationValue[0]][destination[1] + destinationValue[1]] != 3) {
-
-
-                                     */
                                 if(oppositeDest == Direction.indexOf(currentDirection) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection)) {
                                     specialFieldListSidePath.add(currStone);
                                     treeToFour();
@@ -247,8 +230,6 @@ public class MapAnalyzer {
                                     }
                                 }
                             }
-                            // }
-                            // }
                         }
                     }
 
