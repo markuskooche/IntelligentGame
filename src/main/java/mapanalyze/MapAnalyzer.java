@@ -13,7 +13,8 @@ public class MapAnalyzer {
     private int[][] field;
     private Board board;
     private int[][] reachableField; // bool array
-    private List<int[]> specialFieldList;
+    private List<int[]> specialFieldListSidePath;
+    private List<int[]> specialFieldListMainPath;
     final private int playerNumber;
 
     public MapAnalyzer(Board b, int pNumber) {
@@ -77,7 +78,8 @@ public class MapAnalyzer {
         int height = board.getHeight();
         int width = board.getWidth();
 
-        specialFieldList = new ArrayList<>();
+        specialFieldListSidePath = new ArrayList<>();
+        specialFieldListMainPath = new ArrayList<>();
         reachableField = new int[height][width];
 
         field = new int[height][width];
@@ -101,8 +103,24 @@ public class MapAnalyzer {
             // end the loop if the end of the board is reached
             if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight() || board.getField()[y][x] == '-') {
                 int directionValue = Direction.indexOf(currentDirection);
+                int [] tempStone = new int[3];
+                tempStone[0] = x - currentDirection[0];
+                tempStone[1] = y - currentDirection[1];
+                tempStone[2] = directionValue;
 
                 Transition transition = board.getTransition(x - currentDirection[0], y - currentDirection[1], directionValue);
+                boolean transitionAlreadyTaken = false;
+                for(int[] specialFields : specialFieldListMainPath){
+                    if(Arrays.equals(specialFields, tempStone)){
+                        transitionAlreadyTaken = true;
+                        break;
+                    }
+                }
+                if(transitionAlreadyTaken){
+                    break;
+                }else{
+                    specialFieldListMainPath.add(tempStone);
+                }
 
                 // Follow Transactions
                 if (transition != null) {
@@ -111,6 +129,7 @@ public class MapAnalyzer {
                     x = destination[0];
                     y = destination[1];
                     currentDirection = Direction.valueOf((destination[2]+4)%8);
+                    treeToFour();
                     continue;
                 }
                 break;
@@ -124,7 +143,7 @@ public class MapAnalyzer {
                 currStone[2] = Direction.indexOf(direction);
 
                 //if the function already went along this transaction, prevent it from doing it again
-                for(int[] specialFields : specialFieldList){
+                for(int[] specialFields : specialFieldListSidePath){
                     if(Arrays.equals(specialFields, currStone)){
                         transitionAlreadyTaken = true;
                         break;
@@ -164,10 +183,21 @@ public class MapAnalyzer {
                         int oppositeDest = (destination[2] + 4) % 8;
 
                         //set the current Stone as the start of the transitions
-                        specialFieldList.add(currStone);
+                        specialFieldListSidePath.add(currStone);
 
                         //Follow the transition
+                        treeToFour();
                         followFields(destination[0], destination[1], Direction.valueOf(oppositeDest));
+
+                        int i = 0;
+                        //Remove the finished field from the blocked List
+                        for(int[] specialFields : specialFieldListSidePath){
+                            if(Arrays.equals(specialFields, currStone)){
+                                specialFieldListSidePath.remove(i);
+                                break;
+                            }
+                            i++;
+                        }
 
                         int[] oppositeDirection = new int[2];
                         oppositeDirection[1] = direction[1]*(-1);
@@ -202,8 +232,19 @@ public class MapAnalyzer {
 
                                      */
                                 if(oppositeDest == Direction.indexOf(currentDirection) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection)) {
-
+                                    specialFieldListSidePath.add(currStone);
+                                    treeToFour();
                                     followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
+
+                                     i = 0;
+                                    //Remove the finished field from the blocked List
+                                    for(int[] specialFields : specialFieldListSidePath){
+                                        if(Arrays.equals(specialFields, currStone)){
+                                            specialFieldListSidePath.remove(i);
+                                            break;
+                                        }
+                                        i++;
+                                    }
                                 }
                             }
                             // }
@@ -263,15 +304,17 @@ public class MapAnalyzer {
 
             //Mark current Field as finished
             reachableField[y][x] = 4;
+
             int i = 0;
             //Remove the finished field from the blocked List
-            for(int[] specialFields : specialFieldList){
+            for(int[] specialFields : specialFieldListMainPath){
                 if(Arrays.equals(specialFields, currStone)){
-                    specialFieldList.remove(i);
+                    specialFieldListMainPath.remove(i);
                     break;
                 }
                 i++;
             }
+
             //Go to the next Field
              x = x + currentDirection[0];
              y = y + currentDirection[1];
