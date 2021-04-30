@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 public class GamePanelManager {
 
+    private final String group;
+
     private Game game;
     private int possibleFields;
     private int bombFirstExecuted = -1;
@@ -39,8 +41,9 @@ public class GamePanelManager {
     private final ArrayList<LinkedList<BackgroundPoint>> backgroundPoints;
     private final ArrayList<LinkedList<PlayerInformation>> playerInformation;
 
-    public GamePanelManager(String filename) {
+    public GamePanelManager(String filename, String group) {
         this.filename = filename;
+        this.group = "XT" + group + "-";
         counter = 0;
 
         playerInformation = new ArrayList<>();
@@ -116,7 +119,7 @@ public class GamePanelManager {
         return transitionList;
     }
 
-    public void load() throws IOException {
+    public void load() throws IOException, IncorrectGroupException {
         Path path = Paths.get(filename);
         List<String> file = Files.lines(path).collect(Collectors.toList());
         parseFile(file);
@@ -213,42 +216,40 @@ public class GamePanelManager {
         return disqualifyReason;
     }
 
-    private void parseFile(List<String> file) {
+    private void parseFile(List<String> file) throws IncorrectGroupException {
         int disqualified = -1;
         for (String line : file) {
             if (line.length() >= 6) {
                 String id = line.substring(0, 7);
+                String loadGame = line.substring(5, 7);
 
-                switch (id) {
-                    case "XT01-02":
+                if (loadGame.equals("02")) {
+                    if (id.equals(group + "02")) {
                         loadGame(line);
                         addPlayerInformation();
                         calculatePossibleFields(0);
-                        break;
-                    case "XT01-03":
-                        setOwnPlayer(line);
-                        break;
-                    case "XT01-05":
-                        disqualified = counter;
-                        setDisqualifyReason(line);
-                        break;
-                    case "XT01-06":
-                        updateStatistic(disqualified, line);
-                        executeMove(line);
-                        addPlayerInformation();
+                    } else {
+                        int incorrectGroup = Integer.parseInt(id.substring(2, 4));
+                        throw new IncorrectGroupException(incorrectGroup);
+                    }
+                } else if (id.equals(group + "03")) {
+                    setOwnPlayer(line);
+                } else if (id.equals(group + "05")) {
+                    disqualified = counter;
+                    setDisqualifyReason(line);
+                } else if (id.equals(group + "06")) {
+                    updateStatistic(disqualified, line);
+                    executeMove(line);
+                    addPlayerInformation();
 
-                        counter += 1;
-                        disqualified = -1;
-                        break;
-                    case "XT01-07":
-                        disqualifyPlayer(line, counter);
-                        break;
-                    case "XT01-08":
-                        bombFirstExecuted = counter + 1;
-                        break;
-                    default:
-                        System.out.println("NOT READABLE: " + line);
-                        break;
+                    counter += 1;
+                    disqualified = -1;
+                } else if (id.equals(group + "07")) {
+                    disqualifyPlayer(line, counter);
+                } else if (id.equals(group + "08")) {
+                    bombFirstExecuted = counter + 1;
+                } else {
+                    System.out.println("NOT READABLE: " + line);
                 }
             }
         }

@@ -29,8 +29,9 @@ public class GameAnalyzer extends JFrame {
     private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
     private int counter = 0;
-    private String lastDirectory= ".";
-    //private String lastDirectory= "/Users/markuskooche/Desktop/server/all_logfiles/logfiles_04-23_08/logfiles";
+    private final String groupNumber;
+    //private String lastDirectory= ".";
+    private String lastDirectory= "/Users/markuskooche/Documents/IntelliJ - Code/revxt-ss21-g01/logs/stored";
 
     private final JMenuItem exportItem;
     private final JMenuItem hideTransition;
@@ -66,7 +67,22 @@ public class GameAnalyzer extends JFrame {
     public GameAnalyzer() {
         playerList = new ArrayList<>();
 
-        setTitle("GameAnalyzer v0.4.3");
+        String[] groups = {
+                "Gruppe 01", "Gruppe 02", "Gruppe 03", "Gruppe 04", "Gruppe 05",
+                "Gruppe 06", "Gruppe 07", "Gruppe 08", "Gruppe 09", "Gruppe 10"
+        };
+        Object group = JOptionPane.showInputDialog (
+                GameAnalyzer.this,
+                "Bitte wählen Sie Ihre Gruppe:",
+                "Gruppe wählen",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                groups, groups[0]
+        );
+
+        groupNumber = String.valueOf(group).split(" ")[1];
+
+        setTitle("GameAnalyzer v0.4.4  [" + group + "]");
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {
@@ -160,7 +176,7 @@ public class GameAnalyzer extends JFrame {
                     "Statistik laden",
                     FileDialog.LOAD
             );
-            fd.setFilenameFilter((directory, name) -> name.endsWith(".txt"));
+            fd.setFilenameFilter((directory, name) -> name.endsWith(".csv"));
             fd.setDirectory(lastDirectory);
             fd.setVisible(true);
 
@@ -173,10 +189,13 @@ public class GameAnalyzer extends JFrame {
                 List<Integer> statisticList = new LinkedList<>();
 
                 for (int i = 1; i < file.size(); i++) {
-                    statisticList.add(Integer.parseInt(file.get(i)));
+                    String value = file.get(i).split(";")[1];
+                    statisticList.add(Integer.parseInt(value));
                 }
 
-                new StatisticWindow(("Importierte " + file.get(0)), statisticList, null, false);
+                String tmpTitle = file.get(0).split(";")[1];
+                String title = tmpTitle.substring(1, tmpTitle.length() - 1);
+                new StatisticWindow(("Importierte " + title), statisticList, null, false);
             }
             catch (IOException ignored) {
                 // this happens when the user has not selected a file
@@ -363,9 +382,7 @@ public class GameAnalyzer extends JFrame {
 
         jumperRadio = new JRadioButton("Speichern", false);
         jumperRadio.setBounds(530, 800, 100, 30);
-        jumperRadio.addActionListener(e -> {
-            jumperInput.setText("");
-        });
+        jumperRadio.addActionListener(e -> jumperInput.setText(""));
         jumperRadio.setEnabled(false);
         add(jumperRadio);
 
@@ -416,7 +433,7 @@ public class GameAnalyzer extends JFrame {
 
         try {
             String filename = fd.getDirectory() + fd.getFile();
-            gamePanelManager = new GamePanelManager(filename);
+            gamePanelManager = new GamePanelManager(filename, groupNumber);
             gamePanelManager.load();
 
             List<int[]> transitions = gamePanelManager.getTransitions();
@@ -457,6 +474,15 @@ public class GameAnalyzer extends JFrame {
         }
         catch (IOException ignored) {
             // this happens when the user has not selected a file
+        }
+        catch (IncorrectGroupException ig) {
+            ig.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    GameAnalyzer.this,
+                    "Sie haben eine Logdatei der Gruppe " + ig.getIncorrectGroup() + " ausgew\u00e4hlt!",
+                    "Keine Gruppen\u00fcbereinstimmung",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
         catch (Exception ex){
             ex.printStackTrace();

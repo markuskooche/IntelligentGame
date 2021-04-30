@@ -209,17 +209,20 @@ public class StatisticWindow extends JDialog {
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             try {
                 String fileName = fileChooser.getSelectedFile().toString();
+                int lineCounter = 1;
 
-                if (!fileName.endsWith(".txt")) {
-                    fileName += ".txt";
+                if (!fileName.endsWith(".csv")) {
+                    fileName += ".csv";
                 }
 
                 Path path = Paths.get(fileName);
                 List<String> list = new ArrayList<>();
-                list.add(title);
+                list.add("\"Wert\";\"" + title + "\"");
+
 
                 for (Integer score : statisticPanel.scores) {
-                    list.add(String.valueOf(score));
+                    list.add(lineCounter + ";" + score);
+                    lineCounter++;
                 }
 
                 Files.write(path, list);
