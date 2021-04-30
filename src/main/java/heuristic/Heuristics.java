@@ -36,11 +36,12 @@ public class Heuristics {
         int ourPlayer = player.getNumber() - '0';
         int currPlayer = (ourPlayer % numPlayers) + 1;
         int value = Integer.MIN_VALUE;
+        int maxLoop = 0;
         Move move = new Move();
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
             if (depth != searchDepth) {
-                int tmpValue  =  searchParanoid(currPlayer, ourPlayer, boardMove.getBoard(), depth, searchDepth);
+                int tmpValue  =  searchParanoid(currPlayer, ourPlayer, boardMove.getBoard(), depth, searchDepth, maxLoop);
                 if (tmpValue >= value) {
                     value = tmpValue;
                     move = boardMove.getMove();
@@ -56,7 +57,7 @@ public class Heuristics {
         }
         System.out.println("Analyzed Maps: " + mapsAnalyzed);
         System.out.println("XT01-98-AM-" + mapsAnalyzed);
-        System.out.println("OUR PICKED MOVE (PARANOID): " + move);
+//        System.out.println("OUR PICKED MOVE (PARANOID): " + move);
         return move;
     }
 
@@ -72,26 +73,27 @@ public class Heuristics {
                 move = boardMove.getMove();
             }
         }
-        System.out.println("POSSIBLE MOVES (OVERRIDE): " + executedStartMoves.size());
-        System.out.println("OUR PICKED MOVE (OVERRIDE): " + move);
+//        System.out.println("POSSIBLE MOVES (OVERRIDE): " + executedStartMoves.size());
+//        System.out.println("OUR PICKED MOVE (OVERRIDE): " + move);
         return move;
     }
 
-    private int searchParanoid(int currPlayer, int ourPlayerNum, Board board, int depth, int maxDepth) {
+    private int searchParanoid(int currPlayer, int ourPlayerNum, Board board, int depth, int maxDepth, int maxLoop) {
         int numPlayers = players.length;
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
         int value = 0;
         depth++;
-
         List<BoardMove> executedMoves = executeAllMoves(player, board, false);
+
+
         List<Integer> results = new ArrayList<>();
         int tmpValue = 0;
-        if (depth != maxDepth) {
+        if (depth < maxDepth) {
             int nextPlayer = (currPlayer % numPlayers) + 1;
             for (BoardMove boardMove : executedMoves) {
                 mapsAnalyzed++;
-                tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth);
+                tmpValue = searchParanoid(nextPlayer, ourPlayerNum, boardMove.getBoard(), depth, maxDepth, maxLoop);
                 results.add(tmpValue);
             }
         } else {
@@ -102,26 +104,26 @@ public class Heuristics {
             }
         }
 
-        if (player == ourPlayer) {
-            if (results.isEmpty()) {
-                value = Integer.MIN_VALUE;
+        if (results.isEmpty()) {
+            // We have no move -> another player should move
+            int nextPlayer = (currPlayer % numPlayers) + 1;
+            if(maxLoop < numPlayers) {
+                maxLoop++;
+                value = searchParanoid(nextPlayer, ourPlayerNum, board, depth - 1, maxDepth, maxLoop);
             } else {
+                value = 0;
+            }
+        } else  if (player == ourPlayer) {
                 value = results.stream().max(Integer::compareTo).get();
-            }
         } else {
-            if (results.isEmpty()) {
-                value = Integer.MAX_VALUE;
-                //value = 0;
-            } else {
-                value = results.stream().min(Integer::compareTo).get();
-            }
+            value = results.stream().min(Integer::compareTo).get();
         }
         return value;
     }
 
     private List<BoardMove> executeAllMoves(Player player, Board board, boolean overrideMoves) {
         List<Move> myMoves = board.getLegalMoves(player, overrideMoves);
-        System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
+//        System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
@@ -129,9 +131,12 @@ public class Heuristics {
             int y = m.getY();
             int additionalInformation = getAdditionalInfo(m, player);
             newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
+            //executeMove() will decrease if override = true -> but this is only an assumption
+            if(overrideMoves) player.increaseOverrideStone();
+            //-------------------------------------------------
             executedMoves.add(new BoardMove(newBoard, m, player));
         }
-        System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
+//        System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
         return executedMoves;
     }
 

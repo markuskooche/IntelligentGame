@@ -65,7 +65,12 @@ public class Game {
             ourMove[2] = 0; // Just a normal move
         }
         System.out.println("X: " + ourMove[0] + " Y: " + ourMove[1] + " special: " + ourMove[2]);
-        board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
+
+        if (move.isOverride()) {
+            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
+        } else {
+            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], false);
+        }
         return ourMove;
     }
 
