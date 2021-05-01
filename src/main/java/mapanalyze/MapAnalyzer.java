@@ -20,8 +20,10 @@ public class MapAnalyzer {
     public MapAnalyzer(Board b, int pNumber) {
         board = b;
         playerNumber = pNumber;
+        long time = System.currentTimeMillis();
         createReachableField();
         createField();
+        System.out.println("Zeit: " + (System.currentTimeMillis() - time));
     }
 
     /**
@@ -129,7 +131,7 @@ public class MapAnalyzer {
                     x = destination[0];
                     y = destination[1];
                     currentDirection = Direction.valueOf((destination[2]+4)%8);
-                    treeToFour();
+                    threeToFour();
                     continue;
                 }
                 break;
@@ -178,7 +180,7 @@ public class MapAnalyzer {
                         specialFieldListSidePath.add(currStone);
 
                         //Follow the transition
-                        treeToFour();
+                        threeToFour();
                         followFields(destination[0], destination[1], Direction.valueOf(oppositeDest));
 
                         int i = 0;
@@ -216,7 +218,7 @@ public class MapAnalyzer {
 
                                 if(oppositeDest == Direction.indexOf(currentDirection) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection)) {
                                     specialFieldListSidePath.add(currStone);
-                                    treeToFour();
+                                    threeToFour();
                                     followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
 
                                      i = 0;
@@ -268,13 +270,13 @@ public class MapAnalyzer {
                         //dont follow fields in the direction the function is heading and backwards / Directions are required for comparison
                         if(!(Direction.indexOf(currentDirection) == Direction.indexOf(direction) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection))){
                             //follow the Field in both directions
-                            treeToFour();
+                            threeToFour();
                             reachableField[y][x] = 3;
                             followFields(newX,newY,oppositeDirection);
-                            treeToFour();
+                            threeToFour();
                             reachableField[y][x] = 3;
                             followFields(nextX,nextY, direction);
-                            treeToFour();
+                            threeToFour();
                             reachableField[y][x] = 3;
                         }
 
@@ -306,7 +308,7 @@ public class MapAnalyzer {
     /**
      * alters all 3's in the reachableField to 4's
      */
-    private void treeToFour(){
+    private void threeToFour(){
         int height = board.getHeight();
         int width = board.getWidth();
 
