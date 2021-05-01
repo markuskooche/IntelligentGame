@@ -16,27 +16,14 @@ public class MapAnalyzer {
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     final private int playerNumber;
-    private int[][] oldCalculatedField;
 
     public MapAnalyzer(Board b, int pNumber) {
         board = b;
         playerNumber = pNumber;
         long time = System.currentTimeMillis();
         createReachableField();
-        createOldCalculatedField();
         createField();
         //System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
-    }
-
-    private void createOldCalculatedField() {
-        int height = board.getHeight();
-        int width = board.getWidth();
-        oldCalculatedField = new int[height][width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                oldCalculatedField[i][j] = field[i][j];
-            }
-        }
     }
 
     /**
@@ -46,6 +33,12 @@ public class MapAnalyzer {
 
         int height = board.getHeight();
         int width = board.getWidth();
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                field[i][j] = 0;
+            }
+        }
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -450,6 +443,24 @@ public class MapAnalyzer {
         return playerScore;
     }
 
+    public int calculateScoreForPlayer2(char playerNumber, Board tmpBoard) {
+        int height = tmpBoard.getHeight();
+        int width = tmpBoard.getWidth();
+        int playerScore = 0;
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+
+                char currField = tmpBoard.getField()[i][j];
+
+                if (currField == playerNumber) {
+                    playerScore += field[i][j];
+                }
+            }
+        }
+        return playerScore;
+    }
+
     /**
      * Creates a wave in all directions that changes sign every Field and gets smaller.
      *
@@ -638,13 +649,6 @@ public class MapAnalyzer {
 
     public void setBoard(Board board) {
         this.board = board;
-        int height = board.getHeight();
-        int width = board.getWidth();
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                field[i][j] = oldCalculatedField[i][j];
-            }
-        }
         createField();
     }
 

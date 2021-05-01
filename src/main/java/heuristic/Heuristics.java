@@ -6,6 +6,7 @@ import map.Player;
 import mapanalyze.MapAnalyzer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Heuristics {
@@ -122,7 +123,7 @@ public class Heuristics {
 
                     if (alphaBeta) {
                         if (tmpValue > alpha) alpha = tmpValue;
-                        if (tmpValue > beta) {
+                        if (tmpValue >= beta) {
                             return value; //Cut off
                         }
                     }
@@ -137,7 +138,7 @@ public class Heuristics {
 
                     if (alphaBeta) {
                         if (tmpValue < beta) beta = tmpValue;
-                        if (tmpValue < alpha) {
+                        if (tmpValue <= alpha) {
                             return value; // Cut off
                         }
                     }
@@ -193,7 +194,14 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayer(Player player, Board board, Move move) {
-        int mapValue = getMapValue(player, board);
+        int myMapValue = getMapValue(player, board);
+
+        int mapValueAll = 0;
+        for (int i = 0; i < numPlayers; i++) {
+            mapValueAll += getMapValue(players[i], board);
+        }
+        int mapValue = myMapValue / mapValueAll * 100;
+
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
         int specialField = getSpecialFieldValue(move);
@@ -221,9 +229,7 @@ public class Heuristics {
     }
 
     public int getMapValue(Player player, Board tmpBoard) {
-        mapAnalyzer.setBoard(tmpBoard);
-        int result = mapAnalyzer.calculateScoreForPlayer(player.getNumber());
-        mapAnalyzer.setBoard(board);
+        int result = mapAnalyzer.calculateScoreForPlayer2(player.getNumber(), tmpBoard);
         return result;
     }
 
