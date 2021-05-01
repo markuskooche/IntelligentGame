@@ -48,11 +48,11 @@ public class Game {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
-    public int[] executeOurMove(int depth) {
+    public int[] executeOurMove(int depth, boolean alphaBeta) {
         Player ourPlayer = players[ourPlayerNumber - 1];
         int [] ourMove = new int[3];
         long time = System.currentTimeMillis();
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth, true);
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta);
         System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
         ourMove[0] = move.getX();
         ourMove[1] = move.getY();

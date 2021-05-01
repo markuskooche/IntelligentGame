@@ -77,8 +77,7 @@ public class ServerConnection {
 
                 if (!bomb) {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                    int[] executedMove = game.executeOurMove(allowedDepth);
-                    // TODO: int[] executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta);
+                    int[] executedMove = game.executeOurMove(allowedDepth, alphaBeta);
 
                     // insert the x coordinate into the byte array
                     move[6] = (byte) (executedMove[0]);
