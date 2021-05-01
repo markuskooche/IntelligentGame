@@ -210,7 +210,13 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayerStatistic(Player player, Board board) {
-        int mapValue = getMapValue(player, board);
+        int myMapValue = getMapValue(player, board);
+
+        int mapValueAll = 0;
+        for (int i = 0; i < numPlayers; i++) {
+            mapValueAll += getMapValue(players[i], board);
+        }
+        int mapValue = myMapValue / mapValueAll * 100;
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
 //        System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);

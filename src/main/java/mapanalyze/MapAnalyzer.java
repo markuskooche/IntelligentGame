@@ -447,6 +447,20 @@ public class MapAnalyzer {
         int height = tmpBoard.getHeight();
         int width = tmpBoard.getWidth();
         int playerScore = 0;
+        int minFieldValue = Integer.MAX_VALUE;
+
+        //find smalles field value
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(minFieldValue > field[i][j]){
+                    minFieldValue = field[i][j];
+                }
+            }
+        }
+
+        if(minFieldValue < 0){
+            minFieldValue *= (-1);
+        }
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -454,7 +468,7 @@ public class MapAnalyzer {
                 char currField = tmpBoard.getField()[i][j];
 
                 if (currField == playerNumber) {
-                    playerScore += field[i][j];
+                    playerScore += (field[i][j] + minFieldValue);
                 }
             }
         }
