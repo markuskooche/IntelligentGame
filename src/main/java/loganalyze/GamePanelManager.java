@@ -1,6 +1,7 @@
 package loganalyze;
 
 import controller.Game;
+import loganalyze.additionals.IncorrectGroupException;
 import map.Player;
 import map.Transition;
 

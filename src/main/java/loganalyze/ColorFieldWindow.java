@@ -1,5 +1,7 @@
 package loganalyze;
 
+import loganalyze.additionals.OSValidator;
+
 import javax.swing.*;
 import java.awt.*;
 

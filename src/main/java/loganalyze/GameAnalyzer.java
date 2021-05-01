@@ -1,5 +1,8 @@
 package loganalyze;
 
+import loganalyze.additionals.IncorrectGroupException;
+import loganalyze.additionals.OSValidator;
+
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
@@ -82,7 +85,7 @@ public class GameAnalyzer extends JFrame {
 
         groupNumber = String.valueOf(group).split(" ")[1];
 
-        setTitle("GameAnalyzer v0.4.4  [" + group + "]");
+        setTitle("GameAnalyzer v0.4.5  [" + group + "]");
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {

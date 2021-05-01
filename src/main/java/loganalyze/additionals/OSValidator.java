@@ -1,4 +1,4 @@
-package loganalyze;
+package loganalyze.additionals;
 
 public class OSValidator {
 

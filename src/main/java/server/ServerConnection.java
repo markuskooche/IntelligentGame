@@ -1,25 +1,27 @@
 package server;
 
 import controller.Game;
-import loganalyze.AnalyzeParser;
+import loganalyze.additionals.AnalyzeParser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
 
 public class ServerConnection {
 
     private boolean bomb = false;
+    private final boolean alphaBeta;
 
     private Game game;
     private byte ourPlayer;
     private Socket socket;
     private boolean running = true;
 
-    public ServerConnection(String host, int port, int groupNumber) {
+    public ServerConnection(String host, int port, int groupNumber, boolean alphaBeta) {
+        this.alphaBeta = alphaBeta;
+
         try {
             socket = new Socket(InetAddress.getByName(host), port);
             byte group = (byte) groupNumber;
@@ -27,7 +29,10 @@ public class ServerConnection {
 
             sendMessage(message);
             play();
+        } catch (ConnectException ce) {
+            System.out.println("No server is running on " + host + ":" + port + "!");
         } catch (IOException e) {
+            System.err.println("Please add this Exception to ServerConnection IOException Block");
             e.printStackTrace();
         }
     }
@@ -68,10 +73,12 @@ public class ServerConnection {
                 byte allowedDepth = byteMessage[4];
 
                 System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
+                System.out.println("TODO: abp " + alphaBeta);
                 game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
 
                 if (!bomb) { byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
                     int[] executedMove = game.executeOurMove(allowedDepth);
+                    // TODO: int[] executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta);
 
                     // insert the x coordinate into the byte array
                     move[6] = (byte) (executedMove[0]);
