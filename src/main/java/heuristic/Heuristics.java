@@ -176,6 +176,7 @@ public class Heuristics {
             newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
             //executeMove() will decrease if override = true -> but this is only an assumption
             if(overrideMoves) player.increaseOverrideStone();
+            if(m.isBonus()) player.decreaseOverrideStone();
             //-------------------------------------------------
             executedMoves.add(new BoardMove(newBoard, m, player));
         }

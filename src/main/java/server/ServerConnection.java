@@ -73,10 +73,10 @@ public class ServerConnection {
                 byte allowedDepth = byteMessage[4];
 
                 System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
-                System.out.println("TODO: abp " + alphaBeta);
                 game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
 
-                if (!bomb) { byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+                if (!bomb) {
+                    byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
                     int[] executedMove = game.executeOurMove(allowedDepth);
                     // TODO: int[] executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta);
 
@@ -143,12 +143,14 @@ public class ServerConnection {
                 } else {
                     AnalyzeParser.parseMove(x, y, player, additionalOperation);
                 }
+
+                //int nextPlayer = (player % game.getPlayers().length) + 1;
+                //game.getBoard().loggingBoard(game.getPlayer(nextPlayer));
                 break;
             case 7:
                 if (byteMessage[0] == ourPlayer) {
-                    System.err.println("YOU WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
+                    System.err.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
                     System.err.println(game.getBoard().toString());
-                    //System.exit(1);
                 }
                 AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;
@@ -160,7 +162,6 @@ public class ServerConnection {
                 running = false;
                 AnalyzeParser.endGame();
                 game.getBoard().loggingBoard();
-                System.out.println("Beendet");
                 System.exit(0);
                 break;
             default:
