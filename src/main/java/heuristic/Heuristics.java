@@ -14,11 +14,13 @@ public class Heuristics {
     private Player[] players;
     private int mapsAnalyzed;
     private int numPlayers;
+    private MapAnalyzer mapAnalyzer;
 
-    public Heuristics(Board board, Player[] players) {
+    public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer) {
         this.board = board;
         this.players = players;
         numPlayers = players.length;
+        this.mapAnalyzer = mapAnalyzer;
     }
 
     public Move getMoveParanoid(Player player, int searchDepth, boolean alphaBeta) {
@@ -218,9 +220,11 @@ public class Heuristics {
         return value;
     }
 
-    public int getMapValue(Player player, Board board) {
-        MapAnalyzer mAnalyze = new MapAnalyzer(board);
-        return mAnalyze.calculateScoreForPlayer(player.getNumber());
+    public int getMapValue(Player player, Board tmpBoard) {
+        mapAnalyzer.setBoard(tmpBoard);
+        int result = mapAnalyzer.calculateScoreForPlayer(player.getNumber());
+        mapAnalyzer.setBoard(board);
+        return result;
     }
 
     public int getCoinParity(Player player, Board board) {

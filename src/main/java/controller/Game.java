@@ -31,15 +31,16 @@ public class Game {
         createPlayers(initMap);
         createBoard(initMap);
         this.ourPlayerNumber = ourPlayerNumber;
-        heuristics = new Heuristics(board, players);
+        mapAnalyzer = new MapAnalyzer(board, players.length);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
         //executeOurMove(1);
     }
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
-        mapAnalyzer = new MapAnalyzer(board);
-        heuristics = new Heuristics(board, players);
+        mapAnalyzer = new MapAnalyzer(board, players.length);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println(mapAnalyzer.toString());
     }
 
