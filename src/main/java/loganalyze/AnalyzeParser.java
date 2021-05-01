@@ -3,9 +3,9 @@ package loganalyze;
 import java.util.List;
 
 public class AnalyzeParser {
-
+    
     private static final String group = "XT01-";
-
+    
     public static void parseBoard(List<Byte> map) {
         System.out.println(group + "02-" + map);
     }

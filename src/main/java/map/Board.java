@@ -32,7 +32,6 @@ public class Board {
      *
      * @see Transition
      */
-
     @NotNull
     public Board(char[][] field, HashMap<Integer, Transition> transitions, int playerAmount, int bombRadius) {
         this.playerAmount = playerAmount;
@@ -42,6 +41,32 @@ public class Board {
 
         this.height = field.length;
         this.width = field[0].length;
+    }
+
+    /**
+     * Constructor to create a copy of a existing board
+     * @param toCopyBoard
+     */
+    public Board(Board toCopyBoard) {
+        this.playerAmount = toCopyBoard.getPlayerAmount();
+        this.transitions = toCopyBoard.getAllTransitions();
+        this.bombRadius = toCopyBoard.getBombRadius();
+        this.field = copyField(toCopyBoard.getField());
+
+        this.height = field.length;
+        this.width = field[0].length;
+    }
+
+    private char[][] copyField(char[][] field) {
+        int h  = field.length;
+        int l = field[0].length;
+        char[][] newField = new char[h][l];
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < l; x++) {
+                newField [y][x] = field[y][x];
+            }
+        }
+        return newField;
     }
 
     private void choiceManually() {
@@ -136,11 +161,12 @@ public class Board {
                     Move legalMove = checkMove(x, y, player.getNumber(), false);
 
                     if (!legalMove.isEmpty()) {
-                        legalMoves.add(legalMove);
+                            legalMoves.add(legalMove);
                     }
                 }
 
                 if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                //if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1 && (overrideMoves || legalMoves.isEmpty())) {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
                         legalOverrideMoves.add(legalOverrideMove);
@@ -150,6 +176,7 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
+        //if (player.hasOverrideStone() && (overrideMoves || legalMoves.isEmpty())) {
             for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalOverrideMoves.add(expansionMove);
@@ -190,6 +217,7 @@ public class Board {
                 }
 
                 if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                //if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1 && (overrideMoves || legalMoves.isEmpty())) {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
                         legalMoves.add(legalOverrideMove);
@@ -199,6 +227,7 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
+        //if (player.hasOverrideStone() && (overrideMoves || legalMoves.isEmpty())) {
             for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalMoves.add(expansionMove);
@@ -432,6 +461,10 @@ public class Board {
      */
     public char[][] getField() {
         return field;
+    }
+
+    public int getPlayerAmount(){
+        return playerAmount;
     }
 
     @Override
