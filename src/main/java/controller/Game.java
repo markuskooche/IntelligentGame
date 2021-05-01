@@ -31,15 +31,16 @@ public class Game {
         createPlayers(initMap);
         createBoard(initMap);
         this.ourPlayerNumber = ourPlayerNumber;
-        heuristics = new Heuristics(board, players);
+        mapAnalyzer = new MapAnalyzer(board, players.length);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
         //executeOurMove(1);
     }
 
     public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
-        mapAnalyzer = new MapAnalyzer(board);
-        heuristics = new Heuristics(board, players);
+        mapAnalyzer = new MapAnalyzer(board, players.length);
+        heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println(mapAnalyzer.toString());
     }
 
@@ -51,7 +52,7 @@ public class Game {
         Player ourPlayer = players[ourPlayerNumber - 1];
         int [] ourMove = new int[3];
         long time = System.currentTimeMillis();
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth);
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth, true);
         System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
         ourMove[0] = move.getX();
         ourMove[1] = move.getY();
@@ -65,7 +66,12 @@ public class Game {
             ourMove[2] = 0; // Just a normal move
         }
         System.out.println("X: " + ourMove[0] + " Y: " + ourMove[1] + " special: " + ourMove[2]);
-        board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
+
+        if (move.isOverride()) {
+            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
+        } else {
+            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], false);
+        }
         return ourMove;
     }
 
