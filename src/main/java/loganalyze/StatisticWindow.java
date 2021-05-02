@@ -21,7 +21,7 @@ public class StatisticWindow extends JDialog {
         private final List<Integer> scores;
 
         private final int padding = 20;
-        private final int labelPadding = 20;
+        private final int labelPadding = 40;
 
         private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
         private final Color lineColor = new Color(44, 102, 230, 180);

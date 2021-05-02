@@ -20,8 +20,17 @@ public class MapAnalyzer {
     public MapAnalyzer(Board b, int pNumber) {
         board = b;
         playerNumber = pNumber;
-        long time = System.currentTimeMillis();
-        createReachableField();
+
+        try {
+            createReachableField();
+        }
+        catch (StackOverflowError soe) {
+            System.out.println("XT01-COULD_NOT_SETUP_MAP_CORRECTLY");
+            int height = board.getHeight();
+            int width = board.getWidth();
+            field = new int[height][width];
+        }
+
         createField();
         //System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
     }

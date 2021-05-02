@@ -37,6 +37,7 @@ public class GamePanelManager {
     private final LinkedList<Integer> playerCoinParity;
     private final LinkedList<Integer> playerMapValue;
     private final LinkedList<Integer> playerHeuristic;
+    private final LinkedList<Integer> visitedBoards;
 
     private final ArrayList<LinkedList<PlayerPoint>> playerPoints;
     private final ArrayList<LinkedList<BackgroundPoint>> backgroundPoints;
@@ -57,6 +58,7 @@ public class GamePanelManager {
         playerCoinParity = new LinkedList<>();
         playerMapValue = new LinkedList<>();
         playerHeuristic = new LinkedList<>();
+        visitedBoards = new LinkedList<>();
     }
 
     public LinkedList<PlayerInformation> getPlayerInformation(int index) {
@@ -193,6 +195,10 @@ public class GamePanelManager {
         return playerHeuristic;
     }
 
+    public List<Integer> getVisitedBoards() {
+        return visitedBoards;
+    }
+
     public int getGameSize() {
         return playerPoints.size();
     }
@@ -249,6 +255,8 @@ public class GamePanelManager {
                     disqualifyPlayer(line, counter);
                 } else if (id.equals(group + "08")) {
                     bombFirstExecuted = counter + 1;
+                } else if (id.equals(group + "98")) {
+                    addVisitedBoards(line);
                 } else {
                     System.out.println("NOT READABLE: " + line);
                 }
@@ -426,6 +434,11 @@ public class GamePanelManager {
         }
 
         backgroundPoints.add(tmp);
+    }
+
+    private void addVisitedBoards(String line) {
+        String[] elements = line.split("-");
+        visitedBoards.add(Integer.parseInt(elements[3]));
     }
 
     private void updateStatistic(int value, String line) {

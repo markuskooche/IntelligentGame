@@ -44,6 +44,7 @@ public class GameAnalyzer extends JFrame {
     private final JMenuItem coinParityItem;
     private final JMenuItem mapValueItem;
     private final JMenuItem heuristicItem;
+    private final JMenuItem visitedBoardItem;
 
     private final JLabel moveSize;
     private final JLabel ownPlayer;
@@ -273,6 +274,22 @@ public class GameAnalyzer extends JFrame {
         heuristicItem.setEnabled(false);
         menu.add(heuristicItem);
 
+        menu.add(new JSeparator());
+
+        visitedBoardItem = new JMenuItem("Besuchte Spielfelder");
+        visitedBoardItem.addActionListener(e -> {
+            StatisticWindow window = new StatisticWindow("Besuchte Spielfelder", gamePanelManager.getVisitedBoards(), GameAnalyzer.this, true);
+            visitedBoardItem.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    visitedBoardItem.setEnabled(true);
+                }
+            });
+        });
+        visitedBoardItem.setEnabled(false);
+        menu.add(visitedBoardItem);
+
         // ----- ----- ----- ----- GAME ANALYZER - WINDOW ----- ----- ----- -----
 
         amountPlayer = new JLabel("Anzahl Spieler: -");
@@ -472,6 +489,7 @@ public class GameAnalyzer extends JFrame {
             coinParityItem.setEnabled(true);
             mapValueItem.setEnabled(true);
             heuristicItem.setEnabled(true);
+            visitedBoardItem.setEnabled(true);
 
             updateGamePanel();
         }

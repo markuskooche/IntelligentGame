@@ -148,8 +148,8 @@ public class ServerConnection {
                 break;
             case 7:
                 if (byteMessage[0] == ourPlayer) {
-                    System.err.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
-                    System.err.println(game.getBoard().toString());
+                    System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
+                    System.out.println(game.getBoard().toString());
                 }
                 AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;

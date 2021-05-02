@@ -6,7 +6,6 @@ import map.Player;
 import mapanalyze.MapAnalyzer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Heuristics {
@@ -195,32 +194,19 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayer(Player player, Board board, Move move) {
-        int myMapValue = getMapValue(player, board);
-
-        int mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += getMapValue(players[i], board);
-        }
-        int mapValue = myMapValue / mapValueAll * 100;
-
+        int mapValue = getMapValue(player, board);
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
         int specialField = getSpecialFieldValue(move);
-//        System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
+        //System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility + specialField;
     }
 
     public int getEvaluationForPlayerStatistic(Player player, Board board) {
-        int myMapValue = getMapValue(player, board);
-
-        int mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += getMapValue(players[i], board);
-        }
-        int mapValue = myMapValue / mapValueAll * 100;
+        int mapValue = getMapValue(player, board);
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
-//        System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
+        //System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility;
     }
 
@@ -236,8 +222,15 @@ public class Heuristics {
     }
 
     public int getMapValue(Player player, Board tmpBoard) {
-        int result = mapAnalyzer.calculateScoreForPlayer2(player.getNumber(), tmpBoard);
-        return result;
+        long myMapValue = mapAnalyzer.calculateScoreForPlayer2(player.getNumber(), tmpBoard);
+
+        long mapValueAll = 0;
+        for (int i = 0; i < numPlayers; i++) {
+            mapValueAll += mapAnalyzer.calculateScoreForPlayer2(players[i].getNumber(), tmpBoard);
+        }
+
+        double tmpMapValue = ((double) myMapValue) / mapValueAll;
+        return (int) (tmpMapValue * 100);
     }
 
     public int getCoinParity(Player player, Board board) {
