@@ -1,26 +1,53 @@
-fsettings="../.idea/settings.ini"
-executable="java -jar ../bin/client01.jar"
- 
-function init() {
-    [ server_use_clear == "true" ] && clear || echo ""
-    echo "[ VER ] SERVER version 1.0"
-    echo "[ RUN ] waiting..."
+fsettings="../.idea/settings.ini"          #! path from server folder to settings file
+executable="java -jar ../bin/client01.jar" #! path from server folder to temp args file
+
+# list of player types and the corresponding start commands
+function start_client() {
+    case "${PLAYERS%$PNEXT}" in
+    's')
+        echo "[ $i S ] waiting for client..."
+        touch "$fclient"
+        ;;
+    'i')
+        echo "[ $i I ] starting interface"
+        ./client_gl >"${flog}$i" 2>"${ferr}$i" &
+        ;;
+    'o')
+        echo "[ $i O ] starting client"
+        $executable >"${flog}$i" 2>"${ferr}$i" &
+        ;;
+    't')
+        echo "[ $i T ] starting trivial client"
+        ./ai_trivial >"${flog}$i" 2>"${ferr}$i" &
+        ;;
+    esac
 }
 
+# List of all processes that must be terminated after the game if they are still running
 function kill_all() {
     pkill -f 'client_gl'
     pkill -f 'server_gl'
     pkill -f 'server_nogl'
-    pkill -f "$executable"
     pkill -f 'ai_trivial'
+    pkill -f "$executable"
     echo '[ RUN ] processes stopped'
     rm -f "$fclient"
+}
+
+# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021
+
+function init() {
+    [ $server_use_clear == "true" ] && clear || echo ""
+    echo "[ VER ] SERVER version 1.1"
+    echo "[ RUN ] waiting..."
 }
 
 function wait() {
     while true; do
         sleep .1
         if ! awk "/$1/{exit 1}" "${flog}0"; then
+            break
+        elif ! awk "/FAILED:/{exit 1}" "${flog}0"; then
             break
         elif ! [ -f "$fplayer" ]; then
             break
@@ -55,7 +82,7 @@ ferr="${server_log_path}err"
 
 trap "echo ''; echo '[ ERR ] TERMINATED'; kill_all; exit 2" SIGHUP SIGINT SIGTERM
 
-mkdir -p ../logs
+mkdir -p $server_log_path
 init
 
 while true; do
@@ -63,60 +90,49 @@ while true; do
         for i in {0..8}; do
             rm -f "${flog}$i"
             rm -f "${ferr}$i"
-        done 
-        [ server_use_clear == "true" ] && clear || echo ""
+        done
+        [ $server_use_clear == "true" ] && clear || echo ""
         echo "[ RUN ] map recieved"
 
         [ $server_show_map == "true" ] && echo "[ MAP ]"
-        [ $server_show_map == "true" ] && cat "$fmap"
+        [ $server_show_map == "true" ] && head -n 55 "$fmap"
 
         read PLAYERS MODE <"$fplayer"
         echo "[ RUN ] players: $PLAYERS, mode: $MODE"
         args="-C -m $fmap"
         [ "${MODE:0:1}" == "t" ] && args+=" -t ${MODE:1}" || args+=" -d ${MODE:1}"
-        
+
         echo "[ RUN ] starting server"
         cd ${server_log_path}
         ${server_ret_path}server_nogl $args >"${flog}0" 2>"${ferr}0" &
         cd ${server_ret_path}
         wait "Port number is"
-        if awk "/Port number is 7777./{exit 1}" "${flog}0"; then
+        if awk "/FAILED:/{exit 1}" "${flog}0" && awk "/Port number is 7777./{exit 1}" "${flog}0"; then
             echo "[ ERR ] server started on wrong port"
+            kill_all
             exit 1
         fi
         i=1
         while [ ${#PLAYERS} -gt 0 ]; do
+            [ -f "$fplayer" ] && awk "/FAILED:/{exit 1}" "${flog}0" || break
             PNEXT=${PLAYERS#?}
-            case "${PLAYERS%$PNEXT}" in
-            's')
-                echo "[ $i S ] waiting for client..."
-                touch "$fclient"
-                ;;
-            'i')
-                echo "[ $i I ] starting interface"
-                ./client_gl >"${flog}$i" 2>"${ferr}$i" &
-                ;;
-            'o')
-                echo "[ $i O ] starting client"
-                $executable >"${flog}$i" 2>"${ferr}$i" &
-                ;;
-            't')
-                echo "[ $i T ] starting trivial"
-                ./ai_trivial >"${flog}$i" 2>"${ferr}$i" &
-                ;;
-            esac
+            start_client
             wait "Waiting client $i to connect...OK"
             PLAYERS=$PNEXT
             ((i++))
-            [ -f "$fplayer" ] || break
         done
 
-        if [ -f "$fplayer" ]; then
+        if [ -f "$fplayer" ] && awk "/FAILED:/{exit 1}" "${flog}0"; then
             touch "$fclient"
             echo "[ RUN ] game running"
             wait "bye bye."
         fi
-        if [ -f "$fplayer" ]; then
+        if ! awk "/FAILED:/{exit 1}" "${flog}0"; then
+            echo "[ RUN ] server failed"
+            touch "$fclient"
+            cat >>${ferr}0 <<<"FAILED, please check log0"
+            sleep 1
+        elif [ -f "$fplayer" ]; then
             echo "[ RUN ] game finished"
         else
             echo "[ RUN ] game terminated"
@@ -134,5 +150,3 @@ while true; do
     fi
     sleep .5
 done
-
-# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021

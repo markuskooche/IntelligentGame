@@ -1,16 +1,18 @@
-fsettings="./.idea/settings.ini"
+fsettings="./.idea/settings.ini" #! path to settings file
+
+# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021
 
 function init() {
-    echo "[ VER ] CKECK version 1.0"
+    echo "[ VER ] CKECK version 1.1"
 }
 
 function usage() {
     init
     echo "[ ERR ] $1"
     echo "[USAGE] ./check.sh 1"
-    echo "        -> start check on default folder with server mode 1"
+    echo "        -> start check with server mode 1 on default folder"
     echo "[USAGE] ./check.sh 1 2"
-    echo "        -> start check on folder 1 with server mode 2"
+    echo "        -> start check with server mode 1 on folder 2"
     echo "        server mode:"
     echo "          tX: timelimit X seconds"
     echo "          dX: depthlimit X layers"
@@ -38,7 +40,7 @@ function check() {
         ;;
     1)
         echo "[ ERR ] USAGE ERROR"
-        echo "        check logs for more information"
+        echo "        check ${client_log_path}check$(printf "%02d" $counter) for more information"
         exit 1
         ;;
     2)
@@ -50,7 +52,7 @@ function check() {
         echo ""
         echo "[ ERR ] $(printf "%02d" $counter) $1"
         echo "        ERROR OCCURED"
-        echo "        check logs for more information"
+        echo "        check ${client_log_path}check$(printf "%02d" $counter) for more information"
         exit 3
         ;;
     5)
@@ -82,9 +84,9 @@ if [ $# -eq 1 ]; then
     folder=$check_default_folder
     mode=$1
 else
-    echo "[CHECK] folder $1"
-    folder=$1
-    mode=$2
+    echo "[CHECK] folder $2"
+    mode=$1
+    folder=$2
 fi
 [ -d $folder ] || usage "folder doesn't exist"
 
@@ -97,5 +99,3 @@ for file in $folder*; do
 done
 
 echo "[CHECK] folder checked"
-
-# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021

@@ -1,17 +1,32 @@
-fsettings="./.idea/settings.ini"
-fargs="./.idea/args"
+fsettings="./.idea/settings.ini"           #! path to settings file
+fargs="./.idea/args"                       #! path to temp args file
+executable="java -jar ../bin/client01.jar" #! command to start your client executable
+buildtask="gradle build"                   #! command to generate your client executable
 
-function make_cl() {
-    make gradle build
-}
-function start_cl() {
-    java -jar ./bin/client01.jar -i "$client_ip" -p "$client_port" $additional_args
-}
-types_allowed="[s|i|o|t]"
+types_allowed="[s|i|o|t]" # allowed player types for server
+
+# default settings file
+default_settings="
+client_log_path      = ./logs/
+client_ip            = 127.0.0.1
+client_port          = 7777
+client_use_clear     = true
+client_show_map      = true
+
+server_log_path      = ../logs/
+server_ret_path      = ../server/
+server_use_clear     = true
+server_show_map      = false
+server_delete_txts   = true
+
+check_default_folder =./maps/boeseMaps/
+"
+
+# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021
 
 function init() {
     [ client_use_clear == "true" ] && clear
-    echo "[ VER ] CLIENT version 1.0"
+    echo "[ VER ] CLIENT version 1.1"
 }
 
 function usage() {
@@ -22,8 +37,8 @@ function usage() {
     echo "        2:  player type order (1-8):"
     echo "              s: self: this client"
     echo "              o: other: server launched client"
+    echo "              t: server launched trivial client"
     echo "              i: interface: interface to play yourself"
-    echo "              t: trivial: server launched trivial client"
     echo "        3:  server mode:"
     echo "              tX: timelimit X seconds"
     echo "              dX: depthlimit X layers"
@@ -52,21 +67,7 @@ function wait_removed() {
 if ! [ -f "$fsettings" ]; then
     echo "[ ERR ] no settings file at $fsettings"
     echo "        creating with default values"
-    cat >$fsettings <<EOF
-client_log_path      = ./logs/
-client_ip            = 0.0.0.0
-client_port          = 7777
-client_use_clear     = true
-client_show_map      = true
-
-server_log_path      = ../logs/
-server_ret_path      = ../server/
-server_use_clear     = true
-server_show_map      = true
-server_delete_txts   = true
-
-check_default_folder =./maps/evilMaps/
-EOF
+    cat >$fsettings <<<$default_settings
     exit 1
 fi
 
@@ -91,7 +92,7 @@ else
     client_port="7777"
 fi
 
-mkdir -p logs
+mkdir -p $client_log_path
 
 if [ "$1" == "STOP" ]; then
     if [ -f "$fclient" ] || [ -f "$fplayer" ]; then
@@ -151,15 +152,14 @@ if [ -f "$fargs" ] && [ $# -eq 0 ] || [ $# -eq 3 ] || [ $# -eq 4 ] || [ "$1" == 
     fi
 
     echo "[BUILD] building test"
-    make_cl
+    $buildtask
     if [ $? -ne 0 ]; then
         echo "[BUILD] test build failed"
         exit 1
     fi
     echo "[BUILD] test build success"
 
-    [ "$client_show_map" == "true" ] && echo "[ MAP ]" || echo "[ MAP ] playercount: $PLAYERCOUNT"
-    [ "$client_show_map" == "true" ] && cat "$arg_map"
+    [ "$client_show_map" == "true" ] && echo "[ MAP ]" && head -n 55 "$arg_map" && echo "" || echo "[ MAP ] playercount: $PLAYERCOUNT"
 
     if [ -f "$fclient" ] || [ -f "$fplayer" ]; then
         rm -f "$fplayer"
@@ -180,7 +180,7 @@ if [ -f "$fargs" ] && [ $# -eq 0 ] || [ $# -eq 3 ] || [ $# -eq 4 ] || [ "$1" == 
             exit 0
         else
             echo "[ CLI ] starting ip $client_ip port $client_port"
-            start_cl
+            $executable -i "$client_ip" -p "$client_port" $additional_args
         fi
         echo "[ CLI ] finished"
     else
@@ -189,8 +189,8 @@ if [ -f "$fargs" ] && [ $# -eq 0 ] || [ $# -eq 3 ] || [ $# -eq 4 ] || [ "$1" == 
         echo "[ RUN ] game finished"
     fi
 
-    reg_te="Terminal state reached.$"
-    reg_fi="Final state reached.$"
+    reg_te="Terminal state reached"
+    reg_fi="Final state reached"
     reg_pl="^Player [1-8]"
     end=0
     while IFS= read -r line; do
@@ -222,8 +222,14 @@ if [ -f "$fargs" ] && [ $# -eq 0 ] || [ $# -eq 3 ] || [ $# -eq 4 ] || [ "$1" == 
         if [ -f "${ferr}$i" ]; then
             read msg <${ferr}$i
             if [ "$msg" != "" ]; then
-                echo "[ ERR ] ID $i stopped with error code"
                 iserr=1
+                if [ $i -eq 0 ]; then
+                    iserr=0
+                    echo "[ ERR ] SERVER stopped with error code"
+                else
+                    echo "[ ERR ] ID $i stopped with error code"
+                fi
+                    echo "        check ${ferr}$i for more information"
             fi
         fi
     done
@@ -242,5 +248,3 @@ rm -f "$fplayer"
 if [ "$arg_debug" == "DEBUG" ]; then
     exit 1
 fi
-
-# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021

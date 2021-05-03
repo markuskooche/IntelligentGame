@@ -1,7 +1,9 @@
-fsettings="./.idea/settings.ini"
+fsettings="./.idea/settings.ini" #! path to settings file
+
+# © JOHANNES SCHMID, REBEKKA SEIDENSCHWAND, PETER PAULUS @ G3 2021
 
 function init() {
-    echo "[ VER ] COMPARE version 1.0"
+    echo "[ VER ] COMPARE version 1.1"
 }
 
 function usage() {
@@ -43,11 +45,11 @@ if [ $# -eq 4 ]; then
             echo "${line:$map_linestart}"
         fi
     done <"${flog}$4"
-elif [ $# -eq 1 ]; then
+elif [ $# -eq 2 ]; then
     [ -f $1 ] || usage "path $1 doesn't exist"
     read PLAYERCOUNT <$1
     PLAYERCOUNT=$(sed 's/\r$//g' <<<$PLAYERCOUNT)
-    ./run.sh $1 $(printf 'o%.0s' $(seq 1 $PLAYERCOUNT)) && ./compare.sh
+    ./run.sh $1 $(printf 'o%.0s' $(seq 1 $PLAYERCOUNT)) $2 && ./compare.sh
     exit $?
 else
     init
@@ -106,6 +108,7 @@ else
             fi
             ((linenum++))
         done 3<${fmap}0 4<$fmap$pl
+
         if [ $err_count_line -ne 0 ]; then
             ((err_count++))
             ((err_count_all++))
@@ -128,5 +131,3 @@ else
         exit 5
     fi
 fi
-
-# © MARKUS KOCH, IWAN ECKERT, BENEDIKT HALBRITTER @ G1 2021
