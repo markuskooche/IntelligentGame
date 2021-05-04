@@ -182,6 +182,10 @@ public class GamePanelManager {
         return board;
     }
 
+    public boolean isReachableFinished() {
+        return game.isReachableFinished();
+    }
+
     public LinkedList<BackgroundPoint> getReachableField() {
         LinkedList<BackgroundPoint> reachable = new LinkedList<>();
         
@@ -425,8 +429,7 @@ public class GamePanelManager {
             int bomb = player.getBomb();
 
             int occupied = calculateOccupiedFields(number);
-            // TODO: dynamic move count
-            tmp.add(new PlayerInformation(number, bomb, override, occupied , 1));
+            tmp.add(new PlayerInformation(number, bomb, override, occupied));
         }
 
         playerInformation.add(tmp);

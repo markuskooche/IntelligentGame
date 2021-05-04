@@ -144,7 +144,6 @@ public class StatisticWindow extends JDialog {
                 listPoints.add(new Point(x1, y1));
             }
 
-            //Stroke oldStroke = g2.getStroke();
             g2.setColor(lineColor);
             g2.setStroke(GRAPH_STROKE);
             for (int i = 0; i < listPoints.size() - 1; i++) {
@@ -176,6 +175,12 @@ public class StatisticWindow extends JDialog {
                 minScore = Math.min(minScore, score);
             }
 
+            if (!compare.isEmpty()) {
+                for (Integer score : compare) {
+                    minScore = Math.min(minScore, score);
+                }
+            }
+
             return minScore;
         }
 
@@ -184,6 +189,12 @@ public class StatisticWindow extends JDialog {
 
             for (Integer score : scores) {
                 maxScore = Math.max(maxScore, score);
+            }
+
+            if (!compare.isEmpty()) {
+                for (Integer score : compare) {
+                    maxScore = Math.max(maxScore, score);
+                }
             }
 
             return maxScore;
@@ -301,7 +312,6 @@ public class StatisticWindow extends JDialog {
 
         try {
             String filename = fd.getDirectory() + fd.getFile();
-            System.out.println(filename);
 
             Path path = Paths.get(filename);
             List<String> file = Files.lines(path).collect(Collectors.toList());

@@ -87,7 +87,7 @@ public class GameAnalyzer extends JFrame {
 
         groupNumber = String.valueOf(group).split(" ")[1];
 
-        setTitle("GameAnalyzer v0.6.0  [" + group + "]");
+        setTitle("GameAnalyzer v0.6.1  [" + group + "]");
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {
@@ -157,9 +157,12 @@ public class GameAnalyzer extends JFrame {
 
         menu.add(new JSeparator());
 
-        visibleItem = new JMenuItem("Unerreichbar");
+        visibleItem = new JMenuItem("Erreichbare Felder");
         visibleItem.addActionListener(e -> {
-            VisibleFieldWindow window = new VisibleFieldWindow(this, gamePanelManager.getReachableField());
+            LinkedList<BackgroundPoint> reachableField = gamePanelManager.getReachableField();
+            boolean reachableFinished = gamePanelManager.isReachableFinished();
+
+            VisibleFieldWindow window = new VisibleFieldWindow(this, reachableField, reachableFinished);
             visibleItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
