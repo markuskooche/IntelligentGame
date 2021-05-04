@@ -33,6 +33,7 @@ public class Game {
         this.ourPlayerNumber = ourPlayerNumber;
         mapAnalyzer = new MapAnalyzer(board, players.length);
         heuristics = new Heuristics(board, players, mapAnalyzer);
+        System.out.println(mapAnalyzer.toString());
         //executeOurMove(1);
     }
 
