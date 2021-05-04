@@ -26,7 +26,7 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/fancyMaps/unicorn.map");
+        Game game = createGame("maps/oldMaps/2_player/2014_comp_1_2p.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(1);

@@ -15,6 +15,7 @@ public class MapAnalyzer {
     private int[][] reachableField;
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
+    private List<int[]> followFieldsPath;
     final private int playerNumber;
 
     public MapAnalyzer(Board b, int pNumber) {
@@ -22,9 +23,10 @@ public class MapAnalyzer {
         playerNumber = pNumber;
 
         try {
+        long time = System.currentTimeMillis();
             createReachableField();
-        }
-        catch (StackOverflowError soe) {
+        System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
+        } catch (StackOverflowError soe) {
             System.out.println("XT01-COULD_NOT_SETUP_MAP_CORRECTLY");
             int height = board.getHeight();
             int width = board.getWidth();
@@ -32,7 +34,6 @@ public class MapAnalyzer {
         }
 
         createField();
-        //System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
     }
 
     /**
@@ -97,6 +98,7 @@ public class MapAnalyzer {
 
         specialFieldListSidePath = new ArrayList<>();
         specialFieldListMainPath = new ArrayList<>();
+        followFieldsPath = new ArrayList<>();
         reachableField = new int[height][width];
 
         field = new int[height][width];
@@ -105,9 +107,80 @@ public class MapAnalyzer {
         alterCurrentMap();
     }
 
+    private void changeFields(int x, int y, int[] currentDirection){
+
+        //Follow this direction until the End of the board
+        while (true) {
+
+            int[] currStone = new int[3];
+            currStone[0] = x;
+            currStone[1] = y;
+            currStone[2] = Direction.indexOf(currentDirection);
+
+            // end the loop if the end of the board is reached
+            if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight() || board.getField()[y][x] == '-') {
+                int directionValue = Direction.indexOf(currentDirection);
+                int[] tempStone = new int[3];
+                tempStone[0] = x - currentDirection[0];
+                tempStone[1] = y - currentDirection[1];
+                tempStone[2] = directionValue;
+
+                Transition transition = board.getTransition(x - currentDirection[0], y - currentDirection[1], directionValue);
+                boolean transitionAlreadyTaken = false;
+                for (int[] specialFields : followFieldsPath) {
+                    if (Arrays.equals(specialFields, tempStone)) {
+                        transitionAlreadyTaken = true;
+                        break;
+                    }
+                }
+                if (transitionAlreadyTaken) {
+                    break;
+                } else {
+                    followFieldsPath.add(tempStone);
+                }
+
+                // Follow Transactions
+                if (transition != null) {
+                    int[] destination = transition.getDestination();
+
+                    x = destination[0];
+                    y = destination[1];
+                    currentDirection = Direction.valueOf((destination[2] + 4) % 8);
+                    continue;
+                }
+                break;
+            }
+
+
+            //Mark current Field as finished
+            if(reachableField[y][x] != 4) {
+                reachableField[y][x] = 1;
+            }
+/*
+            int i = 0;
+            //Remove the finished field from the blocked List
+            for(int[] specialFields : followFieldsPath){
+                if(Arrays.equals(specialFields, currStone)){
+                    followFieldsPath.remove(i);
+                    break;
+                }
+                i++;
+            }
+
+ */
+            //Go to the next Field
+            x = x + currentDirection[0];
+            y = y + currentDirection[1];
+
+        }
+    }
+
     private void followFields(int x, int y, int[] currentDirection){
 
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+
+        changeFields(x,y,currentDirection);
+        followFieldsPath.clear();
 
         //Follow this direction until the End of the board
         while (true){
@@ -133,14 +206,16 @@ public class MapAnalyzer {
                         break;
                     }
                 }
-                if(transitionAlreadyTaken){
-                    break;
-                }else{
-                    specialFieldListMainPath.add(tempStone);
-                }
+
 
                 // Follow Transactions
                 if (transition != null) {
+                    if(transitionAlreadyTaken){
+                        break;
+                    }else{
+                        specialFieldListMainPath.add(tempStone);
+                    }
+
                     int[] destination = transition.getDestination();
 
                     x = destination[0];
@@ -260,15 +335,21 @@ public class MapAnalyzer {
                     }
 
                     char currChar = board.getField()[nextY][nextX];
-                    if ((currChar != '-' &&  currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') || reachableField[nextY][nextX] == 3 || reachableField[nextY][nextX] == 4) {
+                    if ((currChar != '-' &&  currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') || reachableField[nextY][nextX] == 3 || reachableField[nextY][nextX] == 4 || reachableField[nextY][nextX] == 1) {
+
+                        //changeFields(x,y,direction);
 
                         //remains not active until further research
-                       // if((currChar != '-' &&  currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') && reachableField[nextY][nextX] == 4 && !searchForFours){
-                       //     continue;
-                       // }
+                        //if((currChar != '-' &&  currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i') && reachableField[nextY][nextX] == 4 && !searchForFours){
+                        //    continue;
+                        //}
 
                         //cancel the current iteration if the Neighboring Field is already finished
                         if(reachableField[nextY][nextX] == 4 && !searchForFours){
+                            continue;
+                        }
+
+                        if(reachableField[nextY][nextX] == 1){
                             continue;
                         }
 
@@ -287,10 +368,10 @@ public class MapAnalyzer {
                             //follow the Field in both directions
                             threeToFour();
                             reachableField[y][x] = 3;
-                            followFields(newX,newY,oppositeDirection);
+                            followFields(nextX,nextY, direction);
                             threeToFour();
                             reachableField[y][x] = 3;
-                            followFields(nextX,nextY, direction);
+                            followFields(newX,newY,oppositeDirection);
                             threeToFour();
                             reachableField[y][x] = 3;
                         }
@@ -648,7 +729,11 @@ public class MapAnalyzer {
 
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {
-                boardString.append(String.format("%4s", field[y][x]));
+                if(reachableField[y][x] == 0){
+                    boardString.append(" -");
+                    continue;
+                }
+                boardString.append(String.format("%2s", reachableField[y][x]));
             }
             boardString.append("\n");
         }
