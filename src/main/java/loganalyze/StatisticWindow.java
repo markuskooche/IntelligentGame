@@ -213,7 +213,9 @@ public class StatisticWindow extends JDialog {
 
     private final String title;
     private final StatisticPanel statisticPanel;
+
     private final JMenuItem compareItem;
+    private final JMenuItem compareStatistics;
 
     public StatisticWindow(String title, List<Integer> scores, GameAnalyzer parent, boolean export) {
         this.title = title;
@@ -226,7 +228,9 @@ public class StatisticWindow extends JDialog {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu menu = new JMenu("Datei");
+        JMenu menu;
+
+        menu = new JMenu("Datei");
         menuBar.add(menu);
 
         JMenuItem exportItem = new JMenuItem("Exportieren");
@@ -269,6 +273,14 @@ public class StatisticWindow extends JDialog {
         });
         add(statisticPanel);
 
+        menu = new JMenu("Fenster");
+        menuBar.add(menu);
+
+        compareStatistics = new JMenuItem("Statistik anzeigen");
+        compareStatistics.addActionListener(e -> new CompareWindow(statisticPanel.scores, statisticPanel.compare));
+        compareStatistics.setEnabled(false);
+        menu.add(compareStatistics);
+
         setVisible(true);
     }
 
@@ -290,7 +302,6 @@ public class StatisticWindow extends JDialog {
                 Path path = Paths.get(fileName);
                 List<String> list = new ArrayList<>();
                 list.add("\"Wert\";\"" + title + "\"");
-
 
                 for (Integer score : statisticPanel.scores) {
                     list.add(lineCounter + ";" + score);
@@ -324,7 +335,16 @@ public class StatisticWindow extends JDialog {
             String tmpTitle = file.get(0).split(";")[1];
             String importedTitle = tmpTitle.substring(1, tmpTitle.length() - 1);
 
-            if (!title.equals(importedTitle)) {
+            String windowTitle;
+            if (title.startsWith("Importierte")) {
+                windowTitle = title.substring(12);
+            } else {
+                windowTitle = title;
+            }
+
+            System.out.println("Title: " + windowTitle);
+
+            if (!windowTitle.equals(importedTitle)) {
                 throw new IncorrectStatisticException(importedTitle);
             }
 
@@ -336,6 +356,10 @@ public class StatisticWindow extends JDialog {
 
             statisticPanel.compareStatistic(compareList);
             compareItem.setEnabled(false);
+
+            if (title.contains("Besuchte Spielfelder")) {
+                compareStatistics.setEnabled(true);
+            }
         }
         catch (IncorrectStatisticException ise) {
             String message = "Sie können '" + ise.getStatisticName() + "' nicht mit '" + title + "' vergleichen.";
