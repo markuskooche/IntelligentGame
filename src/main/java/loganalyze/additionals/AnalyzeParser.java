@@ -3,11 +3,27 @@ package loganalyze.additionals;
 import java.util.List;
 
 public class AnalyzeParser {
-    
+
     private static final String group = "XT01-";
+
+    public static void printGameInformation(boolean alphaBeta) {
+        if (alphaBeta) {
+            System.out.println(group + "ALPHA-BETA-ON");
+        } else {
+            System.out.println(group + "ALPHA-BETA-OFF");
+        }
+    }
+
+    public static void printCurrentTime(int player) {
+        System.out.println("XT01-PL-0" + player + "-" + System.currentTimeMillis());
+    }
     
     public static void parseBoard(List<Byte> map) {
         System.out.println(group + "02-" + map);
+    }
+
+    public static void mapAnalyzerError() {
+        System.out.println(group + "COULD_NOT_SETUP_MAP_CORRECTLY");
     }
 
     public static void setPlayer(int number) {

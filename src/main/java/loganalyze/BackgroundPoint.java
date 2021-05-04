@@ -9,6 +9,9 @@ public class BackgroundPoint {
     public static final Color CHOICE = new Color(245, 171, 171);
     public static final Color BONUS = new Color(153, 223, 133);
 
+    public static final Color NOT_REACHABLE = new Color(248, 99, 99);
+    public static final Color REACHABLE = new Color(119, 247, 119);
+
     public int x;
     public int y;
     public char field;
@@ -32,6 +35,10 @@ public class BackgroundPoint {
             return BackgroundPoint.BONUS;
         } else if (field == 'x') {
             return BackgroundPoint.EXPANSION;
+        } else if (field == 'R') {
+            return BackgroundPoint.REACHABLE;
+        } else if (field == 'N') {
+            return BackgroundPoint.NOT_REACHABLE;
         } else {
             return new Color(255, 0,0);
         }

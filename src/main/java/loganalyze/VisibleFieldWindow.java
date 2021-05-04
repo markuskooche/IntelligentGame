@@ -3,10 +3,11 @@ package loganalyze;
 import loganalyze.additionals.OSValidator;
 
 import javax.swing.*;
+import java.util.LinkedList;
 
 public class VisibleFieldWindow extends JDialog {
 
-    public VisibleFieldWindow(JFrame parent) {
+    public VisibleFieldWindow(JFrame parent, LinkedList<BackgroundPoint> reachable) {
         super(parent);
 
         setModal(false);
@@ -23,6 +24,8 @@ public class VisibleFieldWindow extends JDialog {
         GameField.GamePanel gamePanel = new GameField.GamePanel();
         gamePanel.setBounds(0, 0, 770, 770);
         add(gamePanel);
+
+        gamePanel.updateFrame(reachable, new LinkedList<>());
 
         setVisible(true);
     }

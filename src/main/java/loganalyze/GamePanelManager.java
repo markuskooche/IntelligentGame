@@ -31,6 +31,8 @@ public class GamePanelManager {
     private int playerAmount;
     private final String filename;
 
+    private int[] currentPlayerTurn;
+    private final ArrayList<Integer> playerTurn;
     private final ArrayList<Integer> playerMoves;
 
     private final LinkedList<Integer> playerMobility;
@@ -52,6 +54,7 @@ public class GamePanelManager {
         backgroundPoints = new ArrayList<>();
         playerPoints = new ArrayList<>();
 
+        playerTurn = new ArrayList<>();
         playerMoves = new ArrayList<>();
 
         playerMobility = new LinkedList<>();
@@ -71,6 +74,10 @@ public class GamePanelManager {
 
     public LinkedList<PlayerPoint> getPlayer(int index) {
         return playerPoints.get(index);
+    }
+
+    public int getCurrentPlayerTurn(int index) {
+        return playerTurn.get(index);
     }
 
     public String getPercentageDistribution(int index) {
@@ -175,6 +182,47 @@ public class GamePanelManager {
         return board;
     }
 
+    public LinkedList<BackgroundPoint> getReachableField() {
+        LinkedList<BackgroundPoint> reachable = new LinkedList<>();
+        
+        int[][] field = game.getReachableField();
+        
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int piece = field[y][x];
+                if (piece == 4) {
+                    reachable.add(new BackgroundPoint(x, y, 'R'));
+                } else if (piece == 0) {
+                    if (game.getBoard().getField()[y][x] == '-') {
+                        reachable.add(new BackgroundPoint(x, y, '-'));
+                    } else {
+                        reachable.add(new BackgroundPoint(x, y, 'N'));
+                    }
+                }
+            }
+        }
+
+        if (height < 50) {
+            for (int x = 0; x < width; x++) {
+                reachable.add(new BackgroundPoint(x, height, ' '));
+            }
+            if (width < 50) {
+                reachable.add(new BackgroundPoint(width, height, ' '));
+            }
+        }
+
+        if (width < 50) {
+            for (int y = 0; y < height; y++) {
+                reachable.add(new BackgroundPoint(width, y, ' '));
+            }
+            if (height < 50) {
+                reachable.add(new BackgroundPoint(width, height, ' '));
+            }
+        }
+
+        return reachable;
+    }
+
     public int getRealPlayerMove(int playerMove) {
         return playerMoves.get(playerMove);
     }
@@ -235,6 +283,7 @@ public class GamePanelManager {
                         loadGame(line);
                         addPlayerInformation();
                         calculatePossibleFields(0);
+                        playerTurn.add(0);
                     } else {
                         int incorrectGroup = Integer.parseInt(id.substring(2, 4));
                         throw new IncorrectGroupException(incorrectGroup);
@@ -280,6 +329,9 @@ public class GamePanelManager {
         height = game.getBoard().getHeight();
         width = game.getBoard().getWidth();
         playerAmount = game.getPlayers().length;
+
+        currentPlayerTurn = new int[playerAmount];
+        Arrays.fill(currentPlayerTurn, 1);
 
         disqualifiedPlayers = new int[playerAmount];
         Arrays.fill(disqualifiedPlayers, -1);
@@ -332,6 +384,8 @@ public class GamePanelManager {
         int y = Integer.parseInt(lineArray[5]);
         int s = Integer.parseInt(lineArray[7]);
 
+        playerTurn.add(currentPlayerTurn[p - 1]++);
+
         if (p == ownPlayer) {
             playerMoves.add(counter);
         }
@@ -371,7 +425,8 @@ public class GamePanelManager {
             int bomb = player.getBomb();
 
             int occupied = calculateOccupiedFields(number);
-            tmp.add(new PlayerInformation(number, bomb, override, occupied));
+            // TODO: dynamic move count
+            tmp.add(new PlayerInformation(number, bomb, override, occupied , 1));
         }
 
         playerInformation.add(tmp);

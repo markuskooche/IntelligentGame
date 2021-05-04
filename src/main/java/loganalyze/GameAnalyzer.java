@@ -53,6 +53,7 @@ public class GameAnalyzer extends JFrame {
     private final JLabel fieldPercentage;
 
     private final JLabel currentMove;
+    private final JLabel playerMove;
 
     private final JButton nextGame;
     private final JButton previousGame;
@@ -86,7 +87,7 @@ public class GameAnalyzer extends JFrame {
 
         groupNumber = String.valueOf(group).split(" ")[1];
 
-        setTitle("GameAnalyzer v0.4.6  [" + group + "]");
+        setTitle("GameAnalyzer v0.5.0  [" + group + "]");
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {
@@ -158,7 +159,7 @@ public class GameAnalyzer extends JFrame {
 
         visibleItem = new JMenuItem("Unerreichbar");
         visibleItem.addActionListener(e -> {
-            VisibleFieldWindow window = new VisibleFieldWindow(this);
+            VisibleFieldWindow window = new VisibleFieldWindow(this, gamePanelManager.getReachableField());
             visibleItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -382,6 +383,10 @@ public class GameAnalyzer extends JFrame {
         currentMove = new JLabel("Aktuell: -");
         currentMove.setBounds(30, 800, 120, 30);
         add(currentMove);
+
+        playerMove = new JLabel("Zug: -");
+        playerMove.setBounds(160, 800, 120, 30);
+        add(playerMove);
 
         previousGame = new JButton("Zur\u00fcck");
         previousGame.setBounds(295, 800, 100, 30);
@@ -616,6 +621,7 @@ public class GameAnalyzer extends JFrame {
         playerTableModel.fireTableDataChanged();
 
         currentMove.setText("Aktuell: " + counter);
+        playerMove.setText("Zug: " + gamePanelManager.getCurrentPlayerTurn(counter));
     }
 
     private void showTransition() {
