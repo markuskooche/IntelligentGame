@@ -92,8 +92,8 @@ public class StatisticWindow extends JDialog {
             }
 
             // create hatch marks and grid lines for x axis
-            for (int i = 0; i < scores.size(); i++) {
-                if (scores.size() > 1) {
+            for (int i = 0; i < statisticWidth(); i++) {
+                if (statisticWidth() > 1) {
                     int x = i * (getWidth() - padding * 2 - labelPadding) / (scores.size() - 1) + totalPadding;
                     int y0 = getHeight() - padding - labelPadding;
                     int y1 = y0 - pointDistance;
@@ -116,6 +116,7 @@ public class StatisticWindow extends JDialog {
             g2.drawLine(totalPadding, padding, getWidth() - padding, padding);
             g2.drawLine(getWidth() - padding, padding, getWidth() - padding, getHeight() - totalPadding);
 
+            // draws a statistic and if available also the comparison statistic
             double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (scores.size() - 1);
             double yScale = ((double) getHeight() - 2 * padding - labelPadding) / getDistance();
             Stroke stroke = g2.getStroke();
@@ -198,6 +199,10 @@ public class StatisticWindow extends JDialog {
             }
 
             return maxScore;
+        }
+
+        private int statisticWidth() {
+            return Math.max(scores.size(), compare.size());
         }
 
         public void compareStatistic(List<Integer> compare) {
