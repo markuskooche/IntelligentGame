@@ -1,14 +1,19 @@
 package loganalyze;
 
+import loganalyze.additionals.IncorrectStatisticException;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StatisticWindow extends JDialog {
 
@@ -19,36 +24,29 @@ public class StatisticWindow extends JDialog {
         // LINK: https://stackoverflow.com/a/8693635
 
         private final List<Integer> scores;
+        private List<Integer> compare;
+
+        private Graphics2D g2;
 
         private final int padding = 20;
-        private final int labelPadding = 40;
+        private final int labelPadding = 30;
+        private final int pointDistance = 4;
+        private final int totalPadding = padding + labelPadding;
 
         private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
-        private final Color lineColor = new Color(44, 102, 230, 180);
-        private final Color pointColor = new Color(100, 100, 100, 180);
+
         private final Color gridColor = new Color(200, 200, 200, 200);
 
         private StatisticPanel(List<Integer> scores) {
             this.scores = scores;
+            this.compare = new LinkedList<>();
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g;
+            g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int totalPadding = padding + labelPadding;
-
-            double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (scores.size() - 1);
-            double yScale = ((double) getHeight() - 2 * padding - labelPadding) / getDistance();
-
-            List<Point> graphPoints = new ArrayList<>();
-            for (int i = 0; i < scores.size(); i++) {
-                int x1 = (int) (i * xScale + totalPadding);
-                int y1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
-                graphPoints.add(new Point(x1, y1));
-            }
 
             // draw white background
             g2.setColor(Color.WHITE);
@@ -56,7 +54,6 @@ public class StatisticWindow extends JDialog {
             g2.setColor(Color.BLACK);
 
             // create hatch marks and grid lines for y axis
-            int pointDistance = 4;
             int yAxisLabeling = 10;
             for (int i = 0; i < yAxisLabeling + 1; i++) {
                 int x0 = padding + labelPadding;
@@ -66,7 +63,27 @@ public class StatisticWindow extends JDialog {
                     g2.setColor(gridColor);
                     g2.drawLine(totalPadding + 1 + pointDistance, y, getWidth() - padding, y);
                     g2.setColor(Color.BLACK);
-                    String yLabel = "" + ((int) (getMinScore() + (getDistance() * ((i * 1.0) / yAxisLabeling))));
+
+                    int yLabelNumber = (int) (getMinScore() + (getDistance() * ((i * 1.0) / yAxisLabeling)));
+                    String yLabel;
+                    if (yLabelNumber >= 1000000) {
+                        if ((yLabelNumber / 1000000) < 10) {
+                            double labelNumber = ((double) yLabelNumber) / 1000000;
+                            yLabel = "" + String.format("%.1f", labelNumber) + "M";
+                        } else {
+                            yLabel = "" + (yLabelNumber / 1000000) + "M";
+                        }
+                    } else if (yLabelNumber >= 1000) {
+                        if ((yLabelNumber / 1000) < 10) {
+                            double labelNumber = ((double) yLabelNumber) / 1000;
+                            yLabel = "" + String.format("%.1f", labelNumber) + "K";
+                        } else {
+                            yLabel = "" + (yLabelNumber / 1000) + "K";
+                        }
+                    } else {
+                        yLabel = "" + yLabelNumber;
+                    }
+
                     FontMetrics metrics = g2.getFontMetrics();
                     int labelWidth = metrics.stringWidth(yLabel);
                     g2.drawString(yLabel, x0 - labelWidth - 5, y + (metrics.getHeight() / 2) - 3);
@@ -99,22 +116,51 @@ public class StatisticWindow extends JDialog {
             g2.drawLine(totalPadding, padding, getWidth() - padding, padding);
             g2.drawLine(getWidth() - padding, padding, getWidth() - padding, getHeight() - totalPadding);
 
-            Stroke oldStroke = g2.getStroke();
+            double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (scores.size() - 1);
+            double yScale = ((double) getHeight() - 2 * padding - labelPadding) / getDistance();
+            Stroke stroke = g2.getStroke();
+
+            drawStatistic(stroke, xScale, yScale, scores, false);
+
+            if (!compare.isEmpty()) {
+                drawStatistic(stroke, xScale, yScale, compare, true);
+            }
+        }
+
+        private void drawStatistic(Stroke stroke, double xScale, double yScale, List<Integer> list, boolean second) {
+            Color pointColor = new Color(100, 100, 100, 180);
+            Color lineColor;
+
+            if (second) {
+                lineColor = new Color(230, 102, 44, 180);
+            } else {
+                lineColor = new Color(44, 102, 230, 180);
+            }
+
+            List<Point> listPoints = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                int x1 = (int) (i * xScale + totalPadding);
+                int y1 = (int) ((getMaxScore() - list.get(i)) * yScale + padding);
+                listPoints.add(new Point(x1, y1));
+            }
+
+            //Stroke oldStroke = g2.getStroke();
             g2.setColor(lineColor);
             g2.setStroke(GRAPH_STROKE);
-            for (int i = 0; i < graphPoints.size() - 1; i++) {
-                int x1 = graphPoints.get(i).x;
-                int y1 = graphPoints.get(i).y;
-                int x2 = graphPoints.get(i + 1).x;
-                int y2 = graphPoints.get(i + 1).y;
+            for (int i = 0; i < listPoints.size() - 1; i++) {
+                int x1 = listPoints.get(i).x;
+                int y1 = listPoints.get(i).y;
+                int x2 = listPoints.get(i + 1).x;
+                int y2 = listPoints.get(i + 1).y;
                 g2.drawLine(x1, y1, x2, y2);
             }
 
-            g2.setStroke(oldStroke);
+
+            g2.setStroke(stroke);
             g2.setColor(pointColor);
-            for (Point graphPoint : graphPoints) {
-                int x = graphPoint.x - pointDistance / 2;
-                int y = graphPoint.y - pointDistance / 2;
+            for (Point point : listPoints) {
+                int x = point.x - pointDistance / 2;
+                int y = point.y - pointDistance / 2;
                 g2.fillOval(x, y, pointDistance, pointDistance);
             }
         }
@@ -142,10 +188,16 @@ public class StatisticWindow extends JDialog {
 
             return maxScore;
         }
+
+        public void compareStatistic(List<Integer> compare) {
+            this.compare = compare;
+            repaint();
+        }
     }
 
     private final String title;
     private final StatisticPanel statisticPanel;
+    private final JMenuItem compareItem;
 
     public StatisticWindow(String title, List<Integer> scores, GameAnalyzer parent, boolean export) {
         this.title = title;
@@ -165,6 +217,10 @@ public class StatisticWindow extends JDialog {
         exportItem.addActionListener(e -> exportStatistic());
         exportItem.setEnabled(export);
         menu.add(exportItem);
+
+        compareItem = new JMenuItem("Vergleichen");
+        compareItem.addActionListener(e -> compareStatistic());
+        menu.add(compareItem);
 
         menu.add(new JSeparator());
 
@@ -230,6 +286,62 @@ public class StatisticWindow extends JDialog {
             catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+    }
+
+    private void compareStatistic() {
+        FileDialog fd = new FileDialog(
+                StatisticWindow.this,
+                "Statistik vergleichen",
+                FileDialog.LOAD
+        );
+
+        fd.setFilenameFilter((directory, name) -> name.endsWith(".csv"));
+        fd.setVisible(true);
+
+        try {
+            String filename = fd.getDirectory() + fd.getFile();
+            System.out.println(filename);
+
+            Path path = Paths.get(filename);
+            List<String> file = Files.lines(path).collect(Collectors.toList());
+
+            String tmpTitle = file.get(0).split(";")[1];
+            String importedTitle = tmpTitle.substring(1, tmpTitle.length() - 1);
+
+            if (!title.equals(importedTitle)) {
+                throw new IncorrectStatisticException(importedTitle);
+            }
+
+            List<Integer> compareList = new LinkedList<>();
+            for (int i = 1; i < file.size(); i++) {
+                String value = file.get(i).split(";")[1];
+                compareList.add(Integer.parseInt(value));
+            }
+
+            statisticPanel.compareStatistic(compareList);
+            compareItem.setEnabled(false);
+        }
+        catch (IncorrectStatisticException ise) {
+            String message = "Sie können '" + ise.getStatisticName() + "' nicht mit '" + title + "' vergleichen.";
+            JOptionPane.showMessageDialog(
+                    StatisticWindow.this,
+                    message,
+                    "Unterschiedliche Statistiken",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+        catch (IOException ignored) {
+            // this happens when the user has not selected a file
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    StatisticWindow.this,
+                    "Keine gültige ReversiXT-Statistik ausgewählt!",
+                    "Fehlerhafte Datei",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 }

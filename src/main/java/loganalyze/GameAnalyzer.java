@@ -87,7 +87,7 @@ public class GameAnalyzer extends JFrame {
 
         groupNumber = String.valueOf(group).split(" ")[1];
 
-        setTitle("GameAnalyzer v0.5.0  [" + group + "]");
+        setTitle("GameAnalyzer v0.6.0  [" + group + "]");
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {
