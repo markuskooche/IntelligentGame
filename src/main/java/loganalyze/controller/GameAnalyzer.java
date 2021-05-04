@@ -1,7 +1,14 @@
-package loganalyze;
+package loganalyze.controller;
 
-import loganalyze.additionals.IncorrectGroupException;
-import loganalyze.additionals.OSValidator;
+import loganalyze.tablemodel.PlayerInformation;
+import loganalyze.tablemodel.PlayerTableModel;
+import loganalyze.additional.IncorrectGroupException;
+import loganalyze.additional.OSValidator;
+import loganalyze.colorize.BackgroundPoint;
+import loganalyze.colorize.PlayerPoint;
+import loganalyze.windows.StatisticWindow;
+import loganalyze.windows.ColorFieldWindow;
+import loganalyze.windows.VisibleFieldWindow;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -33,8 +40,8 @@ public class GameAnalyzer extends JFrame {
 
     private int counter = 0;
     private final String groupNumber;
-    //private String lastDirectory= ".";
-    private String lastDirectory= "/Users/markuskooche/Documents/IntelliJ - Code/revxt-ss21-g01/logs/stored";
+    private String lastDirectory= ".";
+    //private String lastDirectory= "/Users/markuskooche/Documents/IntelliJ - Code/revxt-ss21-g01/logs/stored";
 
     private final JMenuItem exportItem;
     private final JMenuItem hideTransition;
@@ -87,7 +94,7 @@ public class GameAnalyzer extends JFrame {
 
         groupNumber = String.valueOf(group).split(" ")[1];
 
-        setTitle("GameAnalyzer v0.6.3  [" + group + "]");
+        setTitle("GameAnalyzer v0.6.4  [" + group + "]");
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {

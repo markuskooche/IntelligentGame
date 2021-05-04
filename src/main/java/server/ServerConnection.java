@@ -1,7 +1,7 @@
 package server;
 
 import controller.Game;
-import loganalyze.additionals.AnalyzeParser;
+import loganalyze.additional.AnalyzeParser;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,6 +1,7 @@
-package loganalyze;
+package loganalyze.windows;
 
-import loganalyze.additionals.IncorrectStatisticException;
+import loganalyze.controller.GameAnalyzer;
+import loganalyze.additional.IncorrectStatisticException;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,4 +1,4 @@
-package loganalyze;
+package loganalyze.tablemodel;
 
 public class PlayerInformation {
 

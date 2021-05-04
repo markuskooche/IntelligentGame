@@ -1,9 +1,8 @@
-package loganalyze;
+package loganalyze.windows;
 
 import javax.swing.*;
 import java.awt.*;
 import java.math.BigInteger;
-import java.text.DecimalFormat;
 import java.util.List;
 
 public class CompareWindow extends JDialog {
@@ -66,19 +65,6 @@ public class CompareWindow extends JDialog {
         }
 
         return maxValue;
-    }
-
-    private String highestDifference(List<Integer> a, List<Integer> b) {
-        int maxA = getMaximum(a);
-        int maxB = getMaximum(b);
-
-        if (maxA > maxB) {
-            int percentage = ((int) ((double) maxA) / maxB) * 100;
-            return percentage + "%";
-        }
-
-        int percentage = ((int) ((double) maxB) / maxA) * 100;
-        return percentage + "%";
     }
 
     private String normalDifference(List<Integer> a, List<Integer> b) {

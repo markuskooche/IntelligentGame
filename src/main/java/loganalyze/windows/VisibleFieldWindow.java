@@ -1,6 +1,8 @@
-package loganalyze;
+package loganalyze.windows;
 
-import loganalyze.additionals.OSValidator;
+import loganalyze.controller.GameField;
+import loganalyze.additional.OSValidator;
+import loganalyze.colorize.BackgroundPoint;
 
 import javax.swing.*;
 import java.util.LinkedList;

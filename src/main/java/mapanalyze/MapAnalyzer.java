@@ -1,6 +1,6 @@
 
 package mapanalyze;
-import loganalyze.additionals.AnalyzeParser;
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
 import map.Transition;

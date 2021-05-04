@@ -1,7 +1,10 @@
-package loganalyze;
+package loganalyze.controller;
 
 import controller.Game;
-import loganalyze.additionals.IncorrectGroupException;
+import loganalyze.tablemodel.PlayerInformation;
+import loganalyze.additional.IncorrectGroupException;
+import loganalyze.colorize.BackgroundPoint;
+import loganalyze.colorize.PlayerPoint;
 import map.Player;
 import map.Transition;
 

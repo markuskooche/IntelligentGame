@@ -1,4 +1,4 @@
-package loganalyze;
+package loganalyze.colorize;
 
 import java.awt.*;
 
