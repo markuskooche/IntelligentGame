@@ -21,6 +21,7 @@ public class ServerConnection {
 
     public ServerConnection(String host, int port, int groupNumber, boolean alphaBeta) {
         this.alphaBeta = alphaBeta;
+        AnalyzeParser.printGameInformation(alphaBeta);
 
         try {
             socket = new Socket(InetAddress.getByName(host), port);
@@ -30,7 +31,7 @@ public class ServerConnection {
             sendMessage(message);
             play();
         } catch (ConnectException ce) {
-            System.out.println("No server is running on " + host + ":" + port + "!");
+            System.err.println("No server is running on " + host + ":" + port + "!");
         } catch (IOException e) {
             System.err.println("Please add this Exception to ServerConnection IOException Block");
             e.printStackTrace();
@@ -128,6 +129,8 @@ public class ServerConnection {
 
                 int player = byteMessage[5];
                 int additionalOperation = byteMessage[4];
+
+                AnalyzeParser.printCurrentTime(player);
 
                 if (player != ourPlayer) {
                     game.getBoard().loggingBoard(game.getPlayer(player));

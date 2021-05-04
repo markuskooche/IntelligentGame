@@ -1,5 +1,6 @@
 
 package mapanalyze;
+import loganalyze.additionals.AnalyzeParser;
 import map.Board;
 import map.Direction;
 import map.Transition;
@@ -25,14 +26,13 @@ public class MapAnalyzer {
             createReachableField();
         }
         catch (StackOverflowError soe) {
-            System.out.println("XT01-COULD_NOT_SETUP_MAP_CORRECTLY");
+            AnalyzeParser.mapAnalyzerError();
             int height = board.getHeight();
             int width = board.getWidth();
             field = new int[height][width];
         }
 
         createField();
-        //System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
     }
 
     /**

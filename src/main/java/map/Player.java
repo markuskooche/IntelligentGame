@@ -11,6 +11,8 @@ package map;
  */
 public class Player {
 
+    private boolean disqualified = false;
+
     private int bomb;
     private int overrideStone;
     private final char number;
@@ -99,6 +101,14 @@ public class Player {
      */
     public void decreaseOverrideStone() {
         overrideStone = overrideStone - 1;
+    }
+
+    public void setDisqualified() {
+        disqualified = true;
+    }
+
+    public boolean isDisqualified() {
+        return disqualified;
     }
 
     @Override

@@ -213,6 +213,10 @@ public class Game {
         return board;
     }
 
+    public int[][] getReachableField() {
+        return mapAnalyzer.getReachableField();
+    }
+
     public String[] getTransitions() {
         Collection<Transition> transitions = board.getAllTransitions().values();
         String[] returnTransitions = new String[transitions.size() / 2];

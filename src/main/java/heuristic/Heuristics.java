@@ -97,6 +97,7 @@ public class Heuristics {
         List<BoardMove> executedMoves = executeAllMoves(player, board, false);
 
         // No moves for given player -> another player should move
+        // TODO: überspringe disqualifizierte spieler im suchbaum!!!
         if (executedMoves.isEmpty()) {
             int nextPlayer = (currPlayer % numPlayers) + 1;
             if(maxLoop < numPlayers) {
@@ -144,6 +145,7 @@ public class Heuristics {
                 }
             }
         } else { // Here is the end of the search tree -> pick value based on MAX / MIN
+            // TODO: code verdopplung entfernen (siehe if else)
             if (player == ourPlayer) { //MAX
                 value = Integer.MIN_VALUE;
                 for (BoardMove boardMove : executedMoves) {
