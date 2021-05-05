@@ -77,8 +77,10 @@ public class Game {
     }
 
     private void createPlayers(List<String> initMap) {
-        int playerAmount = Integer.parseInt(initMap.get(0));
-        int overrideStone = Integer.parseInt(initMap.get(1));
+        String playerAmountString = initMap.get(0).replaceAll(" ", "");
+        int playerAmount = Integer.parseInt(playerAmountString);
+        String overrideStoneString = initMap.get(1).replaceAll(" ", "");
+        int overrideStone = Integer.parseInt(overrideStoneString);
 
         String[] bombInfo = initMap.get(2).split(" ");
         int bombAmount = Integer.parseInt(bombInfo[0]);

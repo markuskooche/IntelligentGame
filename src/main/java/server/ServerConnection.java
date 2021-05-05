@@ -190,6 +190,7 @@ public class ServerConnection {
         String string = String.valueOf(message);
 
         String[] lines;
+        // TODO: Könnte eventuell nicht funktionieren wenn Leerzeichen folgen. (BITE TESTEN)
         if (elements[1] == (byte) 13) {
             lines = string.split("\r\n");
         } else {
