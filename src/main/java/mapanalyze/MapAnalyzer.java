@@ -1,5 +1,6 @@
 
 package mapanalyze;
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
 import map.Transition;
@@ -9,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MapAnalyzer {
+
+    private boolean reachableFinished;
 
     private int[][] field;
     private Board board;
@@ -22,18 +25,21 @@ public class MapAnalyzer {
         board = b;
         playerNumber = pNumber;
 
-        //try {
-        long time = System.currentTimeMillis();
+        try {
+            long time = System.currentTimeMillis();
             createReachableField();
-        System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
-       /* } catch (StackOverflowError soe) {
-            System.out.println("XT01-COULD_NOT_SETUP_MAP_CORRECTLY");
+            System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
+            reachableFinished = true;
+        } catch (StackOverflowError soe) {
+            AnalyzeParser.mapAnalyzerError();
+            reachableFinished = false;
+
             int height = board.getHeight();
             int width = board.getWidth();
+
             field = new int[height][width];
         }
 
-        */
 
         createField();
     }
@@ -759,6 +765,10 @@ public class MapAnalyzer {
 
     public int[][] getReachableField() {
         return reachableField;
+    }
+
+    public boolean isReachableFinished() {
+        return reachableFinished;
     }
 
     public void setReachableField(int[][] reachableField) {
