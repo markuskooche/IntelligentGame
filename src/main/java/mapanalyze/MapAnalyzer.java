@@ -256,7 +256,7 @@ public class MapAnalyzer {
                             continue;
                         }
                         //Ignore the transition, if the destination is 1
-                        if(reachableField[destination[0]][destination[1]] == 1){
+                        if(reachableField[destination[1]][destination[0]] == 1){
                             continue;
                         }
 
@@ -267,7 +267,7 @@ public class MapAnalyzer {
                             searchForFours = true;
                         }
 
-                        if(reachableField[destination[0]][destination[1]] == 4 && !searchForFours){
+                        if(reachableField[destination[1]][destination[0]] == 4 && !searchForFours){
                             continue;
                         }
 
