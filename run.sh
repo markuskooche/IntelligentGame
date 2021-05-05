@@ -1,6 +1,6 @@
 fsettings="./.idea/settings.ini"           #! path to settings file
 fargs="./.idea/args"                       #! path to temp args file
-executable="java -jar ../bin/client01.jar" #! command to start your client executable
+executable="java -jar ./bin/client01.jar"  #! command to start your client executable
 buildtask="gradle build"                   #! command to generate your client executable
 
 types_allowed="[s|i|o|t]" # allowed player types for server

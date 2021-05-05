@@ -102,7 +102,7 @@ public class StatisticWindow extends JDialog {
                         g2.setColor(gridColor);
                         g2.drawLine(x, getHeight() - totalPadding - 1 - pointDistance, x, padding);
                         g2.setColor(Color.BLACK);
-                        String xLabel = i + "";
+                        String xLabel = (i + 1) + "";
                         FontMetrics metrics = g2.getFontMetrics();
                         int labelWidth = metrics.stringWidth(xLabel);
                         g2.drawString(xLabel, x - labelWidth / 2, y0 + metrics.getHeight() + 3);
@@ -265,10 +265,11 @@ public class StatisticWindow extends JDialog {
                 double pixelDistanceY = ((double) distance) / graphHeight;
                 int y = statisticPanel.getMaxScore() - ((int) (pixelDistanceY * (e.getY() - 20)));
 
-                System.out.println("[" + x + "]: " + statisticPanel.scores.get(x) + "  " + y);
-
                 if (export) {
-                    parent.updateCounter(x);
+                    if (x >= 0 && x < statisticPanel.scores.size()) {
+                        System.out.println("[" + x + "]: " + statisticPanel.scores.get(x) + "  " + y);
+                        parent.updateCounter(x - 1);
+                    }
                 }
             }
         });
