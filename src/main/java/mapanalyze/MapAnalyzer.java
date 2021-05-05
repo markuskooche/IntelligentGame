@@ -1,6 +1,5 @@
 
 package mapanalyze;
-import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
 import map.Transition;
@@ -10,8 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MapAnalyzer {
-
-    private boolean reachableFinished;
 
     private int[][] field;
     private Board board;
@@ -25,20 +22,18 @@ public class MapAnalyzer {
         board = b;
         playerNumber = pNumber;
 
-        try {
-            long time = System.currentTimeMillis();
+        //try {
+        long time = System.currentTimeMillis();
             createReachableField();
-            System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
-            reachableFinished = true;
-        } catch (StackOverflowError soe) {
-            AnalyzeParser.mapAnalyzerError();
-            reachableFinished = false;
-
+        System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
+       /* } catch (StackOverflowError soe) {
+            System.out.println("XT01-COULD_NOT_SETUP_MAP_CORRECTLY");
             int height = board.getHeight();
             int width = board.getWidth();
-
             field = new int[height][width];
         }
+
+        */
 
         createField();
     }
@@ -163,18 +158,8 @@ public class MapAnalyzer {
             if(reachableField[y][x] != 4) {
                 reachableField[y][x] = 1;
             }
-/*
-            int i = 0;
-            //Remove the finished field from the blocked List
-            for(int[] specialFields : followFieldsPath){
-                if(Arrays.equals(specialFields, currStone)){
-                    followFieldsPath.remove(i);
-                    break;
-                }
-                i++;
-            }
 
- */
+
             //Go to the next Field
             x = x + currentDirection[0];
             y = y + currentDirection[1];
@@ -268,6 +253,21 @@ public class MapAnalyzer {
 
                         // Ignore the transition directly after the Function went through it
                         if(oppositeDestValue == Direction.indexOf(currentDirection)){
+                            continue;
+                        }
+                        //Ignore the transition, if the destination is 1
+                        if(reachableField[destination[0]][destination[1]] == 1){
+                            continue;
+                        }
+
+                        // Follow fields if they are reachable
+                        boolean searchForFours = false;
+
+                        if(reachableField[y][x] != 4){
+                            searchForFours = true;
+                        }
+
+                        if(reachableField[destination[0]][destination[1]] == 4 && !searchForFours){
                             continue;
                         }
 
@@ -390,16 +390,6 @@ public class MapAnalyzer {
 
             //Mark current Field as finished
             reachableField[y][x] = 4;
-
-            int i = 0;
-            //Remove the finished field from the blocked List
-            for(int[] specialFields : specialFieldListMainPath){
-                if(Arrays.equals(specialFields, currStone)){
-                    specialFieldListMainPath.remove(i);
-                    break;
-                }
-                i++;
-            }
 
             //Go to the next Field
              x = x + currentDirection[0];
@@ -769,10 +759,6 @@ public class MapAnalyzer {
 
     public int[][] getReachableField() {
         return reachableField;
-    }
-
-    public boolean isReachableFinished() {
-        return reachableFinished;
     }
 
     public void setReachableField(int[][] reachableField) {
