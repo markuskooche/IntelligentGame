@@ -117,6 +117,10 @@ public class MapAnalyzer {
 
     private void changeFields(int x, int y, int[] currentDirection){
 
+        //Skip the field itself
+        x = x + currentDirection[0];
+        y = y + currentDirection[1];
+
         //Follow this direction until the End of the board
         while (true) {
 
@@ -161,7 +165,7 @@ public class MapAnalyzer {
 
 
             //Mark current Field as finished
-            if(reachableField[y][x] != 4) {
+            if(reachableField[y][x] != 4 && reachableField[y][x] != 3) {
                 reachableField[y][x] = 1;
             }
 
@@ -180,8 +184,11 @@ public class MapAnalyzer {
         changeFields(x,y,currentDirection);
         followFieldsPath.clear();
 
+        System.out.println("X: " + x + " Y: " + y);
+
         //Follow this direction until the End of the board
         while (true){
+
 
         //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
         int [] currStone = new int[3];
@@ -224,6 +231,7 @@ public class MapAnalyzer {
                 }
                 break;
             }
+
             //look for other stones in all directions
             for (int[] direction : directions) {
 
