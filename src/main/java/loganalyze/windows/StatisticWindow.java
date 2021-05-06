@@ -1,6 +1,7 @@
-package loganalyze;
+package loganalyze.windows;
 
-import loganalyze.additionals.IncorrectStatisticException;
+import loganalyze.controller.GameAnalyzer;
+import loganalyze.additional.IncorrectStatisticException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -92,8 +93,8 @@ public class StatisticWindow extends JDialog {
             }
 
             // create hatch marks and grid lines for x axis
-            for (int i = 0; i < scores.size(); i++) {
-                if (scores.size() > 1) {
+            for (int i = 0; i < statisticWidth(); i++) {
+                if (statisticWidth() > 1) {
                     int x = i * (getWidth() - padding * 2 - labelPadding) / (scores.size() - 1) + totalPadding;
                     int y0 = getHeight() - padding - labelPadding;
                     int y1 = y0 - pointDistance;
@@ -101,7 +102,7 @@ public class StatisticWindow extends JDialog {
                         g2.setColor(gridColor);
                         g2.drawLine(x, getHeight() - totalPadding - 1 - pointDistance, x, padding);
                         g2.setColor(Color.BLACK);
-                        String xLabel = i + "";
+                        String xLabel = (i + 1) + "";
                         FontMetrics metrics = g2.getFontMetrics();
                         int labelWidth = metrics.stringWidth(xLabel);
                         g2.drawString(xLabel, x - labelWidth / 2, y0 + metrics.getHeight() + 3);
@@ -116,6 +117,7 @@ public class StatisticWindow extends JDialog {
             g2.drawLine(totalPadding, padding, getWidth() - padding, padding);
             g2.drawLine(getWidth() - padding, padding, getWidth() - padding, getHeight() - totalPadding);
 
+            // draws a statistic and if available also the comparison statistic
             double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (scores.size() - 1);
             double yScale = ((double) getHeight() - 2 * padding - labelPadding) / getDistance();
             Stroke stroke = g2.getStroke();
@@ -144,7 +146,6 @@ public class StatisticWindow extends JDialog {
                 listPoints.add(new Point(x1, y1));
             }
 
-            //Stroke oldStroke = g2.getStroke();
             g2.setColor(lineColor);
             g2.setStroke(GRAPH_STROKE);
             for (int i = 0; i < listPoints.size() - 1; i++) {
@@ -176,6 +177,12 @@ public class StatisticWindow extends JDialog {
                 minScore = Math.min(minScore, score);
             }
 
+            if (!compare.isEmpty()) {
+                for (Integer score : compare) {
+                    minScore = Math.min(minScore, score);
+                }
+            }
+
             return minScore;
         }
 
@@ -186,7 +193,17 @@ public class StatisticWindow extends JDialog {
                 maxScore = Math.max(maxScore, score);
             }
 
+            if (!compare.isEmpty()) {
+                for (Integer score : compare) {
+                    maxScore = Math.max(maxScore, score);
+                }
+            }
+
             return maxScore;
+        }
+
+        private int statisticWidth() {
+            return Math.max(scores.size(), compare.size());
         }
 
         public void compareStatistic(List<Integer> compare) {
@@ -197,7 +214,9 @@ public class StatisticWindow extends JDialog {
 
     private final String title;
     private final StatisticPanel statisticPanel;
+
     private final JMenuItem compareItem;
+    private final JMenuItem compareStatistics;
 
     public StatisticWindow(String title, List<Integer> scores, GameAnalyzer parent, boolean export) {
         this.title = title;
@@ -210,7 +229,9 @@ public class StatisticWindow extends JDialog {
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 
-        JMenu menu = new JMenu("Datei");
+        JMenu menu;
+
+        menu = new JMenu("Datei");
         menuBar.add(menu);
 
         JMenuItem exportItem = new JMenuItem("Exportieren");
@@ -244,14 +265,23 @@ public class StatisticWindow extends JDialog {
                 double pixelDistanceY = ((double) distance) / graphHeight;
                 int y = statisticPanel.getMaxScore() - ((int) (pixelDistanceY * (e.getY() - 20)));
 
-                System.out.println("[" + x + "]: " + statisticPanel.scores.get(x) + "  " + y);
-
                 if (export) {
-                    parent.updateCounter(x);
+                    if (x > 0 && x < statisticPanel.scores.size()) {
+                        System.out.println("[" + x + "]: " + statisticPanel.scores.get(x) + "  " + y);
+                        parent.updateCounter(x - 1);
+                    }
                 }
             }
         });
         add(statisticPanel);
+
+        menu = new JMenu("Fenster");
+        menuBar.add(menu);
+
+        compareStatistics = new JMenuItem("Statistik anzeigen");
+        compareStatistics.addActionListener(e -> new CompareWindow(statisticPanel.scores, statisticPanel.compare));
+        compareStatistics.setEnabled(false);
+        menu.add(compareStatistics);
 
         setVisible(true);
     }
@@ -274,7 +304,6 @@ public class StatisticWindow extends JDialog {
                 Path path = Paths.get(fileName);
                 List<String> list = new ArrayList<>();
                 list.add("\"Wert\";\"" + title + "\"");
-
 
                 for (Integer score : statisticPanel.scores) {
                     list.add(lineCounter + ";" + score);
@@ -301,7 +330,6 @@ public class StatisticWindow extends JDialog {
 
         try {
             String filename = fd.getDirectory() + fd.getFile();
-            System.out.println(filename);
 
             Path path = Paths.get(filename);
             List<String> file = Files.lines(path).collect(Collectors.toList());
@@ -309,7 +337,16 @@ public class StatisticWindow extends JDialog {
             String tmpTitle = file.get(0).split(";")[1];
             String importedTitle = tmpTitle.substring(1, tmpTitle.length() - 1);
 
-            if (!title.equals(importedTitle)) {
+            String windowTitle;
+            if (title.startsWith("Importierte")) {
+                windowTitle = title.substring(12);
+            } else {
+                windowTitle = title;
+            }
+
+            System.out.println("Title: " + windowTitle);
+
+            if (!windowTitle.equals(importedTitle)) {
                 throw new IncorrectStatisticException(importedTitle);
             }
 
@@ -321,6 +358,10 @@ public class StatisticWindow extends JDialog {
 
             statisticPanel.compareStatistic(compareList);
             compareItem.setEnabled(false);
+
+            if (title.contains("Besuchte Spielfelder")) {
+                compareStatistics.setEnabled(true);
+            }
         }
         catch (IncorrectStatisticException ise) {
             String message = "Sie können '" + ise.getStatisticName() + "' nicht mit '" + title + "' vergleichen.";

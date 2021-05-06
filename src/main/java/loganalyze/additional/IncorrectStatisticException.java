@@ -1,4 +1,4 @@
-package loganalyze.additionals;
+package loganalyze.additional;
 
 public class IncorrectStatisticException extends Exception {
 

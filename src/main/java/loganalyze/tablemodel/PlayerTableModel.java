@@ -1,22 +1,9 @@
-package loganalyze;
+package loganalyze.tablemodel;
+
+import loganalyze.colorize.PlayerPoint;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
-
-/*
-------------------------------------------------------
-WAS IST WIRKLICH WICHTIG FÜR EINEN SPIELER ???
- ->> Welche Zahl hat der Spieler?
-     > Welche Farbe hat der Spieler?
-     > Anzahl an Überschreibsteinen
-     > Anzahl an Bomben
-     > Wurde er disqualifiziert?
-
-        > Wie ist seine aktuelle Mobilität
-        > Wie ist seine aktuelle CoinParity
-        > Wie ist seine aktuelle PositionQuality
-------------------------------------------------------
- */
 
 public class PlayerTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;

@@ -1,4 +1,7 @@
-package loganalyze;
+package loganalyze.controller;
+
+import loganalyze.colorize.BackgroundPoint;
+import loganalyze.colorize.PlayerPoint;
 
 import javax.swing.*;
 import java.awt.*;
@@ -147,18 +150,6 @@ public class GameField {
             showTransition = false;
             repaint();
         }
-
-        /*
-        public void addBackground(int x, int y, char field) {
-            backgrounds.add(new BackgroundPoint(x, y, field));
-            repaint();
-        }
-
-        public void addPlayer(int x, int y, int player) {
-            players.add(new PlayerPoint(x, y, player));
-            repaint();
-        }
-         */
 
         private int[] getLineDirection(int x, int y, int r) {
             switch (r) {

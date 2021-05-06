@@ -1,5 +1,6 @@
 
 package mapanalyze;
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
 import map.Transition;
@@ -9,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MapAnalyzer {
+
+    private boolean reachableFinished;
 
     private int[][] field;
     private Board board;
@@ -22,18 +25,20 @@ public class MapAnalyzer {
         board = b;
         playerNumber = pNumber;
 
-        //try {
-        long time = System.currentTimeMillis();
+        try {
+            long time = System.currentTimeMillis();
             createReachableField();
-        System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
-       /* } catch (StackOverflowError soe) {
-            System.out.println("XT01-COULD_NOT_SETUP_MAP_CORRECTLY");
+            System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
+            reachableFinished = true;
+        } catch (StackOverflowError soe) {
+            AnalyzeParser.mapAnalyzerError();
+            reachableFinished = false;
+
             int height = board.getHeight();
             int width = board.getWidth();
+
             field = new int[height][width];
         }
-
-        */
 
         createField();
     }
@@ -184,10 +189,10 @@ public class MapAnalyzer {
         while (true){
 
 
-        //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
-        int [] currStone = new int[3];
-        currStone[0] = x;
-        currStone[1] = y;
+            //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
+            int [] currStone = new int[3];
+            currStone[0] = x;
+            currStone[1] = y;
 
             // end the loop if the end of the board is reached
             if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight() || board.getField()[y][x] == '-') {
@@ -326,7 +331,7 @@ public class MapAnalyzer {
                                     threeToFour();
                                     followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
 
-                                     i = 0;
+                                    i = 0;
                                     //Remove the finished field from the blocked List
                                     for(int[] specialFields : specialFieldListSidePath){
                                         if(Arrays.equals(specialFields, currStone)){
@@ -400,8 +405,8 @@ public class MapAnalyzer {
             reachableField[y][x] = 4;
 
             //Go to the next Field
-             x = x + currentDirection[0];
-             y = y + currentDirection[1];
+            x = x + currentDirection[0];
+            y = y + currentDirection[1];
 
         }
     }
@@ -446,7 +451,7 @@ public class MapAnalyzer {
             }
         }
     }
-    
+
     /**
      * Updates the current board and removes all Fields that are not reachable
      */
@@ -506,10 +511,10 @@ public class MapAnalyzer {
             } else {
                 // Follow fields if they are reachable
                 char currChar = board.getField()[nextY][nextX];
-                    if (currChar != '-' && currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i' && reachableField[nextY][nextX] != 4){
-                        followFields(x, y, currentDirection);
-                        //Also look in the opposite direction, because now all fields in this line are reachable
-                        followFields(x, y, oppositeDirection);
+                if (currChar != '-' && currChar != '0' && currChar != 'b' && currChar != 'c'&& currChar != 'i' && reachableField[nextY][nextX] != 4){
+                    followFields(x, y, currentDirection);
+                    //Also look in the opposite direction, because now all fields in this line are reachable
+                    followFields(x, y, oppositeDirection);
                 }
             }
 
@@ -610,8 +615,8 @@ public class MapAnalyzer {
                     // remember last reachable Field in case there is a transaction
                     if (board.getField()[currY][currX] != '-' && field[currY][currX] != Integer.MIN_VALUE) {
 
-                         oldX = currX;
-                         oldY = currY;
+                        oldX = currX;
+                        oldY = currY;
 
                         if (((startValue) - exhaustion) > 0) {
 
@@ -767,6 +772,10 @@ public class MapAnalyzer {
 
     public int[][] getReachableField() {
         return reachableField;
+    }
+
+    public boolean isReachableFinished() {
+        return reachableFinished;
     }
 
     public void setReachableField(int[][] reachableField) {
