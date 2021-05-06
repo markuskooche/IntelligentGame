@@ -171,10 +171,11 @@ public class ServerConnection {
         }
     }
 
-    private List<String> createMap(byte[] elements) {
+    public static List<String> createMap(byte[] elements) {
         int length = elements.length;
         char[] message = new char[length];
 
+        // TODO: Das kann man alles weglassen da nun diese Methode zum parsen verwendet wird. (BITTE UMBAUEN)
         List<Byte> printList = new ArrayList<>();
 
         for (int i = 0; i < length; i++) {
@@ -184,13 +185,12 @@ public class ServerConnection {
             }
         }
 
-
         AnalyzeParser.parseBoard(printList);
 
         String string = String.valueOf(message);
 
         String[] lines;
-        // TODO: Könnte eventuell nicht funktionieren wenn Leerzeichen folgen. (BITE TESTEN)
+        // TODO: Könnte eventuell nicht funktionieren wenn Leerzeichen folgen. (BITTE TESTEN)
         if (elements[1] == (byte) 13) {
             lines = string.split("\r\n");
         } else {

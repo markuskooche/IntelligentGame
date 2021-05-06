@@ -7,6 +7,7 @@ import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
 import map.Player;
 import map.Transition;
+import server.ServerConnection;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -325,13 +326,10 @@ public class GamePanelManager {
     private void loadGame(String line) {
         String tmp = line.substring(9, (line.length() - 1));
         String[] lineArray = tmp.split(", ");
-        char[] data = getGameState(lineArray);
+        byte[] mapStream = getGameState(lineArray);
 
-        String string = String.valueOf(data);
-        String[] lines = string.split("\n");
-
-        List<String> map = new LinkedList<>(Arrays.asList(lines));
-        game = new Game(map);
+        List<String> gameList = ServerConnection.createMap(mapStream);
+        game = new Game(gameList);
 
         height = game.getBoard().getHeight();
         width = game.getBoard().getWidth();
@@ -362,12 +360,12 @@ public class GamePanelManager {
         return occupiedFields;
     }
 
-    private char[] getGameState(String[] map) {
-        char[] data = new char[map.length];
+    private byte[] getGameState(String[] map) {
+        byte[] data = new byte[map.length];
         int counter = 0;
 
         for (String number : map) {
-            char info = (char) Byte.parseByte(number);
+            byte info = Byte.parseByte(number);
             data[counter++] = info;
         }
 
