@@ -266,7 +266,7 @@ public class StatisticWindow extends JDialog {
                 int y = statisticPanel.getMaxScore() - ((int) (pixelDistanceY * (e.getY() - 20)));
 
                 if (export) {
-                    if (x >= 0 && x < statisticPanel.scores.size()) {
+                    if (x > 0 && x < statisticPanel.scores.size()) {
                         System.out.println("[" + x + "]: " + statisticPanel.scores.get(x) + "  " + y);
                         parent.updateCounter(x - 1);
                     }
