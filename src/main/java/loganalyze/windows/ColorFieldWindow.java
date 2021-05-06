@@ -1,6 +1,7 @@
-package loganalyze;
+package loganalyze.windows;
 
-import loganalyze.additionals.OSValidator;
+import loganalyze.additional.OSValidator;
+import loganalyze.colorize.BackgroundPoint;
 
 import javax.swing.*;
 import java.awt.*;
