@@ -30,18 +30,6 @@ public class Game {
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
-    /*
-    public Game(List<String> initMap, int ourPlayerNumber) {
-        createPlayers(initMap);
-        createBoard(initMap);
-        this.ourPlayerNumber = ourPlayerNumber;
-        mapAnalyzer = new MapAnalyzer(board, players.length);
-        heuristics = new Heuristics(board, players, mapAnalyzer);
-        // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
-        // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
-        //executeOurMove(1);
-    }*/
-
     public Game(List<String> initMap, AnalyzeParser analyzeParser) {
         Game.analyzeParser = analyzeParser;
 
