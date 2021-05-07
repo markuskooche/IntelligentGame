@@ -3,6 +3,7 @@ import loganalyze.additional.AnalyzeParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import server.ServerConnection;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +22,8 @@ public class TestExecuteMove {
         Path path = Paths.get(filename);
 
         try {
-            List<String> file = Files.lines(path).collect(Collectors.toList());
+            byte[] bytes = Files.readAllBytes(path);
+            List<String> file = ServerConnection.createMap(bytes);
             AnalyzeParser analyzeParser =  new AnalyzeParser(1,false);
             game = new Game(file, analyzeParser);
 

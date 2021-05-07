@@ -2,13 +2,13 @@ import controller.Game;
 import loganalyze.additional.AnalyzeParser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import server.ServerConnection;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -19,7 +19,8 @@ public class TestReachableField {
         Path path = Paths.get(filename);
 
         try {
-            List<String> file = Files.lines(path).collect(Collectors.toList());
+            byte[] bytes = Files.readAllBytes(path);
+            List<String> file = ServerConnection.createMap(bytes);
             AnalyzeParser analyzeParser =  new AnalyzeParser(1,false);
             game = new Game(file, analyzeParser);
 
