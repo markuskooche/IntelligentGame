@@ -3,13 +3,7 @@ import server.ServerConnection;
 public class Main {
 
     public static void main(String[] args) {
-        String host = "127.0.0.1";
-        int port = 7777;
-
-        boolean consoleOutput = true;
-        boolean reduceOutput = true;
-        boolean moveSorting = true;
-        boolean alphaBeta = true;
+        ServerConnection server = new ServerConnection();
 
         // parameter transfers are intercepted here and processed accordingly
         for (int i = 0; i < args.length; i=i+2) {
@@ -30,25 +24,27 @@ public class Main {
                     System.exit(0);
                     break;
                 case "-i":
-                    host = args[i+1];
+                    String host = args[i+1];
                     if (!host.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
                         System.err.println("ERROR: The entered IP is not valid!");
                         System.exit(1);
                     }
+                    server.setHost(host);
                     break;
                 case "-p":
-                    port = Integer.parseInt(args[i+1]);
+                    int port = Integer.parseInt(args[i+1]);
                     if (port < 1 || port > 65535) {
                         System.err.println("ERROR: The entered PORT is not valid!");
                         System.exit(1);
                     }
+                    server.setPort(port);
                     break;
                 case "-a":
                     String alphaBetaEntry = args[i+1];
                     if (alphaBetaEntry.equals("0")) {
-                        alphaBeta = false;
+                        server.setAlphaBeta(false);
                     } else if (alphaBetaEntry.equals("1")) {
-                        alphaBeta = true;
+                        server.setAlphaBeta(true);
                     } else {
                         System.err.println("ERROR: Please set alpha beta pruning to 0 or 1!");
                         System.exit(1);
@@ -57,9 +53,9 @@ public class Main {
                 case "-n":
                     String sortingEntry = args[i+1];
                     if (sortingEntry.equals("0")) {
-                        moveSorting = false;
+                        server.setMoveSorting(false);
                     } else if (sortingEntry.equals("1")) {
-                        moveSorting = true;
+                        server.setMoveSorting(true);
                     } else {
                         System.err.println("ERROR: Please set move sorting to 0 or 1!");
                         System.exit(1);
@@ -68,9 +64,9 @@ public class Main {
                 case "-q":
                     String consoleEntry = args[i+1];
                     if (consoleEntry.equals("0")) {
-                        consoleOutput = false;
+                        server.setConsoleOutput(false);
                     } else if (consoleEntry.equals("1")) {
-                        consoleOutput = true;
+                        server.setConsoleOutput(true);
                     } else {
                         System.err.println("ERROR: Please set console output to 0 or 1!");
                         System.exit(1);
@@ -79,9 +75,9 @@ public class Main {
                 case "-r":
                     String reduceEntry = args[i+1];
                     if (reduceEntry.equals("0")) {
-                        reduceOutput = false;
+                        server.setReduceOutput(false);
                     } else if (reduceEntry.equals("1")) {
-                        reduceOutput = true;
+                        server.setReduceOutput(true);
                     } else {
                         System.err.println("ERROR: Please set console reduce to 0 or 1!");
                         System.exit(1);
@@ -92,6 +88,6 @@ public class Main {
             }
         }
 
-        new ServerConnection(host, port, alphaBeta, moveSorting, consoleOutput, reduceOutput);
+        server.start();
     }
 }

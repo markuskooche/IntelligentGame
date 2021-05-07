@@ -13,23 +13,25 @@ import java.util.*;
 public class ServerConnection {
 
     private static final byte group = 1;
+    private AnalyzeParser analyzeParser;
 
-    private boolean bomb = false;
-    private final boolean alphaBeta;
-    private final boolean moveSorting;
+    private String host = "127.0.0.1";
+    private int port = 7777;
 
-    private final AnalyzeParser analyzeParser;
+    private boolean alphaBeta = true;
+    private boolean moveSorting = true;
+
+    private boolean consoleOutput = true;
+    private boolean reduceOutput = true;
 
     private Game game;
     private byte ourPlayer;
     private Socket socket;
     private boolean running = true;
+    private boolean bomb = false;
 
-    public ServerConnection(String host, int port, boolean alphaBeta, boolean sorting, boolean output, boolean reduce) {
-        this.alphaBeta = alphaBeta;
-        this.moveSorting = sorting;
-
-        this.analyzeParser = new AnalyzeParser(group, output, reduce);
+    public void start() {
+        this.analyzeParser = new AnalyzeParser(group, consoleOutput, reduceOutput);
         analyzeParser.printGameInformation(alphaBeta);
 
         try {
@@ -37,18 +39,15 @@ public class ServerConnection {
             byte[] message = new byte[] {1, 0, 0, 0, 1, group};
 
             sendMessage(message);
-            play();
+
+            while (running) {
+                receiveMessage();
+            }
         } catch (ConnectException ce) {
             System.err.println("No server is running on " + host + ":" + port + "!");
         } catch (IOException e) {
             System.err.println("Please add this Exception to ServerConnection IOException Block");
             e.printStackTrace();
-        }
-    }
-
-    private void play() throws IOException {
-        while (running) {
-            receiveMessage();
         }
     }
 
@@ -444,5 +443,29 @@ public class ServerConnection {
         }
 
         return length;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setAlphaBeta(boolean alphaBeta) {
+        this.alphaBeta = alphaBeta;
+    }
+
+    public void setMoveSorting(boolean moveSorting) {
+        this.moveSorting = moveSorting;
+    }
+
+    public void setConsoleOutput(boolean consoleOutput) {
+        this.consoleOutput = consoleOutput;
+    }
+
+    public void setReduceOutput(boolean reduceOutput) {
+        this.reduceOutput = reduceOutput;
     }
 }
