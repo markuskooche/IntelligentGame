@@ -63,6 +63,7 @@ public class ServerConnection {
         switch (messageHeader[0]) {
             case 2:
                 game = new Game(createMap(byteMessage));
+                AnalyzeParser.parseBoard(byteMessage);
                 break;
             case 3:
                 ourPlayer = byteMessage[0];
@@ -173,31 +174,174 @@ public class ServerConnection {
 
     public static List<String> createMap(byte[] elements) {
         int length = elements.length;
-        char[] message = new char[length];
+        List<Byte> mapPieces = new ArrayList<>();
+        int currentInformation = 0;
+        int addedPieces = 0;
+        int infoCounter = 0;
 
-        // TODO: Das kann man alles weglassen da nun diese Methode zum parsen verwendet wird. (BITTE UMBAUEN)
-        List<Byte> printList = new ArrayList<>();
+        int height = 0;
+        int width = 0;
 
-        for (int i = 0; i < length; i++) {
-            message[i] = (char) elements[i];
-            if (elements[i] != ((byte) 13)) {
-                printList.add(elements[i]);
+        int currentHeight = 0;
+        int currentWidth = 0;
+
+        byte b = ((byte) 'b');
+        byte c = ((byte) 'c');
+        byte i = ((byte) 'i');
+        byte x = ((byte) 'x');
+
+        for (int j = 0; j < length; j++) {
+            byte currentPiece = elements[j];
+
+            //
+            if (currentPiece == ((byte) '\n')) {
+                if (currentInformation == 1 && infoCounter == 0) {
+                    mapPieces.add(currentPiece);
+                    infoCounter++;
+                } else if (currentInformation == 2 && infoCounter == 1) {
+                    mapPieces.add(currentPiece);
+                    infoCounter++;
+                } else if (currentInformation == 3 && infoCounter == 2) {
+                    mapPieces.add(currentPiece);
+                    infoCounter++;
+                    /*
+                    if (addedPieces == 2) {
+                        mapPieces.add(currentPiece);
+                        addedPieces = 0;
+                        infoCounter++;
+                    }
+                    */
+                } else if (currentInformation == 4 && infoCounter == 3) {
+                    if (addedPieces == 2) {
+                        mapPieces.add(currentPiece);
+                        addedPieces = 0;
+                        infoCounter++;
+                    }
+                } else if (currentInformation == 4 && infoCounter == 4) {
+                    if (currentWidth == width) {
+                        mapPieces.add(currentPiece);
+                        currentWidth = 0;
+                        currentHeight++;
+                    }
+
+                    if (currentHeight == height) {
+                        currentInformation++;
+                        infoCounter++;
+                    }
+                } else if (currentInformation == 5 && infoCounter == 5) {
+                    if (addedPieces == 6) {
+                        mapPieces.add(currentPiece);
+                        addedPieces = 0;
+                    }
+                }
+            } else if (currentPiece >= 48 && currentPiece <= 57) {
+                mapPieces.add(currentPiece);
+
+                if (currentInformation == 0) {
+                    currentInformation++;
+                } else if (currentInformation == 1 && infoCounter == 1) {
+                    if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                        currentInformation++;
+                    }
+                } else if (currentInformation == 2 && infoCounter == 2) {
+                    if (addedPieces == 0) {
+                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                            mapPieces.add(((byte) ' '));
+                            addedPieces++;
+                        }
+                    } else if (addedPieces == 1) {
+                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                            currentInformation++;
+                            addedPieces = 0;
+                        }
+                    }
+                } else if (currentInformation == 3 && infoCounter == 3) {
+                    if (addedPieces == 0) {
+                        height = (10 * height) + (currentPiece - ((byte) '0'));
+
+                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                            mapPieces.add(((byte) ' '));
+                            addedPieces++;
+                        }
+                    } else {
+                        width = (10 * width) + (currentPiece - ((byte) '0'));
+
+                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                            currentInformation++;
+                            addedPieces++;
+                        }
+                    }
+                } else if (currentInformation == 4 && infoCounter == 4) {
+                    if (currentHeight < height) {
+                        if (currentWidth < width) {
+                            mapPieces.add(((byte) ' '));
+                            currentWidth++;
+                        }
+                    }
+                } else if (currentInformation == 5 && infoCounter == 5) {
+                    if (addedPieces < 6) {
+                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                            mapPieces.add(((byte) ' '));
+                            addedPieces++;
+                        }
+                    }
+                }
+            } else if (currentPiece == b || currentPiece == c || currentPiece == i || currentPiece == x) {
+                if (currentInformation == 4 && infoCounter == 4) {
+                    mapPieces.add(currentPiece);
+                    if (currentHeight < height) {
+                        if (currentWidth < (width - 1)) {
+                            mapPieces.add(((byte) ' '));
+                            currentWidth++;
+                        } else if (currentWidth < width) {
+                            currentWidth++;
+                        }
+                    }
+                }
+            } else if (currentPiece == ((byte) '<')) {
+                if (currentInformation == 5 && infoCounter == 5) {
+                    mapPieces.add(currentPiece);
+                }
+            } else if (currentPiece == ((byte) '-')) {
+                if (currentInformation == 4 && infoCounter == 4) {
+                    mapPieces.add(currentPiece);
+                    if (currentHeight < height) {
+                        if (currentWidth < (width - 1)) {
+                            mapPieces.add(((byte) ' '));
+                            currentWidth++;
+                        } else if (currentWidth < width) {
+                            currentWidth++;
+                        }
+                    }
+                } else if (currentInformation == 5 && infoCounter == 5) {
+                    mapPieces.add(currentPiece);
+                }
+            } else if (currentPiece == ((byte) '>')) {
+                mapPieces.add(currentPiece);
+                mapPieces.add(((byte) ' '));
             }
         }
 
-        AnalyzeParser.parseBoard(printList);
+        int preparedLength = mapPieces.size();
+        char[] preparedMapData = new char[preparedLength];
 
-        String string = String.valueOf(message);
-
-        String[] lines;
-        // TODO: Könnte eventuell nicht funktionieren wenn Leerzeichen folgen. (BITTE TESTEN)
-        if (elements[1] == (byte) 13) {
-            lines = string.split("\r\n");
-        } else {
-            lines = string.split("\n");
+        for (int j = 0; j < preparedLength; j++) {
+            byte currentByte = mapPieces.get(j);
+            preparedMapData[j] = ((char) currentByte);
         }
 
-        return new LinkedList<>(Arrays.asList(lines));
+        String preparedMapString = String.valueOf(preparedMapData);
+        String[] preparedMap = preparedMapString.split("\n");
+
+        return new LinkedList<>(Arrays.asList(preparedMap));
+    }
+
+    private boolean isNumeric(byte a) {
+        return (a >= 48 && a <= 57);
+    }
+
+    private boolean isNotNumeric(int a) {
+        return (a < 48 || a > 57);
     }
 
     private int get32Integer(byte[] header, int offset) {

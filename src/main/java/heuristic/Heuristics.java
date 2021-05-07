@@ -205,11 +205,7 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayerStatistic(Player player, Board board) {
-        int mapValue = getMapValue(player, board);
-        int coinParity = getCoinParity(player, board);
-        int mobility = getMobility(player, board);
-        //System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
-        return mapValue + coinParity + mobility;
+        return getEvaluationForPlayer(player, board, new Move());
     }
 
     public int getSpecialFieldValue(Move move) {

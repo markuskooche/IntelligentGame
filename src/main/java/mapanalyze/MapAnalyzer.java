@@ -115,6 +115,11 @@ public class MapAnalyzer {
     }
 
     private void changeFields(int x, int y, int[] currentDirection){
+        if (!(x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight())) {
+            if (board.getField()[y][x] == '-') {
+                return;
+            }
+        }
 
         //Skip the field itself
         x = x + currentDirection[0];

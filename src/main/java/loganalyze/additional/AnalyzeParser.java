@@ -1,6 +1,6 @@
 package loganalyze.additional;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class AnalyzeParser {
 
@@ -18,8 +18,8 @@ public class AnalyzeParser {
         System.out.println("XT01-PL-0" + player + "-" + System.currentTimeMillis());
     }
     
-    public static void parseBoard(List<Byte> map) {
-        System.out.println(group + "02-" + map);
+    public static void parseBoard(byte[] map) {
+        System.out.println(group + "02-" + Arrays.toString(map));
     }
 
     public static void mapAnalyzerError() {
