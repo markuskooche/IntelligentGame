@@ -32,8 +32,8 @@ hs_err_pid*
 #!/logs/stored
 
 # Server Executables
-/server/
-!/logs/*.sh
+/server/*
+/server/*.sh
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
