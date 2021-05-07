@@ -16,6 +16,7 @@ public class ServerConnection {
 
     private boolean bomb = false;
     private final boolean alphaBeta;
+    private final boolean moveSorting;
 
     private final AnalyzeParser analyzeParser;
 
@@ -24,8 +25,9 @@ public class ServerConnection {
     private Socket socket;
     private boolean running = true;
 
-    public ServerConnection(String host, int port, boolean alphaBeta, boolean output) {
+    public ServerConnection(String host, int port, boolean alphaBeta, boolean sorting, boolean output) {
         this.alphaBeta = alphaBeta;
+        this.moveSorting = sorting;
 
         this.analyzeParser = new AnalyzeParser(group, output);
         analyzeParser.printGameInformation(alphaBeta);
@@ -94,8 +96,10 @@ public class ServerConnection {
 
 
                     if (allowedTime == 0) {
+                        // TODO: [Markus] add moveSorting
                         executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta);
                     } else {
+                        // TODO: [Markus] add moveSorting
                         // TODO: [Markus] executedMove = game.executeOurMoveTime(allowedTime, alphaBeta);
                         executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta); // delete me
                     }

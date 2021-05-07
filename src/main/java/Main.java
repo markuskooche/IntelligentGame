@@ -7,6 +7,7 @@ public class Main {
         int port = 7777;
 
         boolean consoleOutput = false;
+        boolean moveSorting = true;
         boolean alphaBeta = true;
 
         // parameter transfers are intercepted here and processed accordingly
@@ -15,8 +16,10 @@ public class Main {
                 case "-h":
                     System.out.println("-i <IP>         change to a specific ip");
                     System.out.println("-p <PORT>       change to a specific port");
-                    System.out.println("-a <0 / 1>      set alpha beta pruning");
-                    System.out.println("                0 = OFF   |   1 = ON");
+                    System.out.println("-a <0 / 1>      enable/disable set alpha beta pruning");
+                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
+                    System.out.println("-n <0 / 1>      enable/disable move sorting");
+                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
                     System.out.println("-q <0 / 1>      enable/disable console output");
                     System.out.println("                0 = DISABLE   |   1 = ENABLE");
                     System.exit(0);
@@ -46,6 +49,17 @@ public class Main {
                         System.exit(1);
                     }
                     break;
+                case "-n":
+                    String sortingEntry = args[i+1];
+                    if (sortingEntry.equals("0")) {
+                        moveSorting = false;
+                    } else if (sortingEntry.equals("1")) {
+                        moveSorting = true;
+                    } else {
+                        System.err.println("ERROR: Please set move sorting to 0 or 1!");
+                        System.exit(1);
+                    }
+                    break;
                 case "-q":
                     String consoleEntry = args[i+1];
                     if (consoleEntry.equals("0")) {
@@ -62,6 +76,6 @@ public class Main {
             }
         }
 
-        new ServerConnection(host, port, alphaBeta, consoleOutput);
+        new ServerConnection(host, port, alphaBeta, moveSorting, consoleOutput);
     }
 }
