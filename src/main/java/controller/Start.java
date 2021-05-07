@@ -26,12 +26,13 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/oldMaps/4_player/2014_comp_2_4p.map");
+        Game game = createGame("maps/fancyMaps/qr.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(1);
 
         System.out.println(player);
+        System.out.println(game.getMapValue(1));
         game.getBoard().executeMoveManually(player, true);
         System.out.println(player);
     }
