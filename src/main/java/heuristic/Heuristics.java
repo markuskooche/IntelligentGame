@@ -1,5 +1,6 @@
 package heuristic;
 
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
 import map.Player;
@@ -10,13 +11,16 @@ import java.util.List;
 
 public class Heuristics {
 
+    private static AnalyzeParser analyzeParser;
+
     private Board board;
     private Player[] players;
     private int mapsAnalyzed;
     private int numPlayers;
     private MapAnalyzer mapAnalyzer;
 
-    public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer) {
+    public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
+        Heuristics.analyzeParser = analyzeParser;
         this.board = board;
         this.players = players;
         numPlayers = players.length;
@@ -65,9 +69,9 @@ public class Heuristics {
                 }
             }
         }
-        System.out.println("Analyzed Maps: " + mapsAnalyzed);
-        System.out.println("XT01-98-AM-" + mapsAnalyzed);
-//        System.out.println("OUR PICKED MOVE (PARANOID): " + move);
+        // TODO: [IWAN] System.out.println("Analyzed Maps: " + mapsAnalyzed);
+        // TODO: [IWAN] System.out.println("XT01-98-AM-" + mapsAnalyzed);
+        // TODO: [IWAN] System.out.println("OUR PICKED MOVE (PARANOID): " + move);
         return move;
     }
 
@@ -83,8 +87,8 @@ public class Heuristics {
                 move = boardMove.getMove();
             }
         }
-//        System.out.println("POSSIBLE MOVES (OVERRIDE): " + executedStartMoves.size());
-//        System.out.println("OUR PICKED MOVE (OVERRIDE): " + move);
+        // TODO: [IWAN] System.out.println("POSSIBLE MOVES (OVERRIDE): " + executedStartMoves.size());
+        // TODO: [IWAN] System.out.println("OUR PICKED MOVE (OVERRIDE): " + move);
         return move;
     }
 
@@ -167,7 +171,7 @@ public class Heuristics {
 
     private List<BoardMove> executeAllMoves(Player player, Board board, boolean overrideMoves) {
         List<Move> myMoves = board.getLegalMoves(player, overrideMoves);
-//        System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
+        // TODO: [IWAN] System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
@@ -181,7 +185,7 @@ public class Heuristics {
             //-------------------------------------------------
             executedMoves.add(new BoardMove(newBoard, m, player));
         }
-//        System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
+        // TODO: [IWAN] System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
         return executedMoves;
     }
 
@@ -200,7 +204,7 @@ public class Heuristics {
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
         int specialField = getSpecialFieldValue(move);
-        //System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
+        // TODO: [IWAN] System.out.println("map.Player " + player.getNumber() + " |MapValue: " + mapValue + " CoinParity: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility + specialField;
     }
 

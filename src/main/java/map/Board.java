@@ -259,7 +259,7 @@ public class Board {
         int additionalOperation = scanner.nextInt();
 
         executeMove(x, y, player, additionalOperation, overrideMoves);
-        System.out.println("\n" + toString());
+        System.out.println("\n" + this);
     }
 
     /**
@@ -465,46 +465,6 @@ public class Board {
 
     public int getPlayerAmount(){
         return playerAmount;
-    }
-
-    public void loggingBoard() {
-        System.out.println("[MAP]");
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                System.out.print(field[y][x] + " ");
-            }
-            System.out.println();
-        }
-
-        System.out.println("[END]");
-    }
-
-    public void loggingBoard(Player player) {
-        System.out.println("[MAP]");
-        List<Move> legalMoves = getLegalMoves(player, true);
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                System.out.print(field[y][x]);
-
-                boolean isMove = false;
-                for (Move legalMove : legalMoves) {
-                    if (legalMove.isMove(new int[] {x, y})) {
-                        System.out.print("'");
-                        isMove = true;
-                        break;
-                    }
-                }
-
-                if (!isMove){
-                    System.out.print(" ");
-                }
-            }
-            System.out.println();
-        }
-
-        System.out.println("[END]");
     }
 
     @Override

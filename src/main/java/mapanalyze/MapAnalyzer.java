@@ -11,6 +11,7 @@ import java.util.List;
 
 public class MapAnalyzer {
 
+    private static AnalyzeParser analyzeParser;
     private boolean reachableFinished;
 
     private int[][] field;
@@ -22,17 +23,19 @@ public class MapAnalyzer {
     private List<int[]> followFieldsPath;
     private int playerNumber;
 
-    public MapAnalyzer(Board b, int pNumber) {
+    public MapAnalyzer(Board b, int pNumber, AnalyzeParser analyzeParser) {
+        MapAnalyzer.analyzeParser = analyzeParser;
+
         board = b;
         playerNumber = pNumber;
 
         try {
             long time = System.currentTimeMillis();
             createReachableField();
-            System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
+            // TODO: [Benedikt] System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
             reachableFinished = true;
         } catch (StackOverflowError soe) {
-            AnalyzeParser.mapAnalyzerError();
+            analyzeParser.mapAnalyzerError();
             reachableFinished = false;
 
             int height = board.getHeight();
@@ -192,7 +195,7 @@ public class MapAnalyzer {
         changeFields(x,y,currentDirection);
         followFieldsPath.clear();
 
-       // System.out.println("X: " + x + " Y: " + y);
+        // TODO: [Benedikt] System.out.println("X: " + x + " Y: " + y);
 
         //Follow this direction until the End of the board
         while (true){

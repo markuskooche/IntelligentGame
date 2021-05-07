@@ -1,5 +1,6 @@
 package controller;
 
+import loganalyze.additional.AnalyzeParser;
 import map.Player;
 
 import java.io.IOException;
@@ -17,7 +18,8 @@ public class Start {
 
         try {
             List<String> file = Files.lines(path).collect(Collectors.toList());
-            game = new Game(file, 1);
+            AnalyzeParser analyzeParser =  new AnalyzeParser(1,true);
+            game = new Game(file, analyzeParser);
         } catch (IOException e) {
             e.printStackTrace();
         }

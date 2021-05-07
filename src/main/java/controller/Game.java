@@ -1,6 +1,7 @@
 package controller;
 
 import heuristic.Heuristics;
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
 import map.Player;
@@ -21,30 +22,35 @@ import java.util.*;
  */
 public class Game {
 
+    private static AnalyzeParser analyzeParser;
+
     private Player[] players;
     private Board board;
     private Heuristics heuristics;
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
+    /*
     public Game(List<String> initMap, int ourPlayerNumber) {
         createPlayers(initMap);
         createBoard(initMap);
         this.ourPlayerNumber = ourPlayerNumber;
         mapAnalyzer = new MapAnalyzer(board, players.length);
         heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println(mapAnalyzer.toString());
-        System.out.println(mapAnalyzer.getBoardValues());
+        // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
+        // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
         //executeOurMove(1);
-    }
+    }*/
 
-    public Game(List<String> initMap) {
+    public Game(List<String> initMap, AnalyzeParser analyzeParser) {
+        Game.analyzeParser = analyzeParser;
+
         createPlayers(initMap);
         createBoard(initMap);
-        mapAnalyzer = new MapAnalyzer(board, players.length);
-        heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println(mapAnalyzer.toString());
-        System.out.println(mapAnalyzer.getBoardValues());
+        mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
+        heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
+        // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
+        // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public void setOurPlayerNumber(int ourPlayerNumber) {

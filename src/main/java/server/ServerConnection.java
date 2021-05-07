@@ -12,21 +12,26 @@ import java.util.*;
 
 public class ServerConnection {
 
+    private static final byte group = 1;
+
     private boolean bomb = false;
     private final boolean alphaBeta;
+
+    private final AnalyzeParser analyzeParser;
 
     private Game game;
     private byte ourPlayer;
     private Socket socket;
     private boolean running = true;
 
-    public ServerConnection(String host, int port, int groupNumber, boolean alphaBeta) {
+    public ServerConnection(String host, int port, boolean alphaBeta, boolean output) {
         this.alphaBeta = alphaBeta;
-        AnalyzeParser.printGameInformation(alphaBeta);
+
+        this.analyzeParser = new AnalyzeParser(group, output);
+        analyzeParser.printGameInformation(alphaBeta);
 
         try {
             socket = new Socket(InetAddress.getByName(host), port);
-            byte group = (byte) groupNumber;
             byte[] message = new byte[] {1, 0, 0, 0, 1, group};
 
             sendMessage(message);
@@ -64,22 +69,24 @@ public class ServerConnection {
         switch (messageHeader[0]) {
             // receive the map
             case 2:
-                AnalyzeParser.parseBoard(byteMessage);
-                game = new Game(createMap(byteMessage));
+                analyzeParser.parseBoard(byteMessage);
+                game = new Game(createMap(byteMessage), analyzeParser);
                 break;
             // receive your player number
             case 3:
                 ourPlayer = byteMessage[0];
                 game.setOurPlayerNumber(ourPlayer);
-                AnalyzeParser.setPlayer(ourPlayer);
+                analyzeParser.setPlayer(ourPlayer);
                 break;
             // receive a move request and sending a move
             case 4:
                 int allowedTime = get32Integer(byteMessage, 0);
                 byte allowedDepth = byteMessage[4];
 
-                System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
-                game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
+                if (analyzeParser.isPrintable()) {
+                    Player printPlayer = game.getPlayer(ourPlayer);
+                    analyzeParser.loggingBoard(game.getBoard(), printPlayer);
+                }
 
                 if (!bomb) {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -96,7 +103,7 @@ public class ServerConnection {
                     // insert the special field into the byte array
                     move[9] = (byte) (executedMove[2]);
                     sendMessage(move);
-                    AnalyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
+                    analyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
                 } else {
                     char[][] field = game.getBoard().getField();
                     byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -122,7 +129,7 @@ public class ServerConnection {
 
                     sendMessage(bombMove);
                     game.executeBomb(xBomb, yBomb);
-                    AnalyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
+                    analyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
                 }
                 break;
             // receive a move of a player (also from itself)
@@ -136,20 +143,23 @@ public class ServerConnection {
                 int player = byteMessage[5];
                 int additionalOperation = byteMessage[4];
 
-                AnalyzeParser.printCurrentTime(player);
+                analyzeParser.printCurrentTime(player);
 
                 if (player != ourPlayer) {
-                    game.getBoard().loggingBoard(game.getPlayer(player));
+                    if (analyzeParser.isPrintable()) {
+                        Player printPlayer = game.getPlayer(player);
+                        analyzeParser.loggingBoard(game.getBoard(), printPlayer);
+                    }
 
                     if (!bomb) {
                         game.executeMove(x, y, player, additionalOperation);
-                        AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                        analyzeParser.parseMove(x, y, player, additionalOperation);
                     } else {
                         game.executeBomb(x, y);
-                        AnalyzeParser.parseMove(x, y, player, 0);
+                        analyzeParser.parseMove(x, y, player, 0);
                     }
                 } else {
-                    AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                    analyzeParser.parseMove(x, y, player, additionalOperation);
                 }
                 break;
             // receive a disqualified player
@@ -158,21 +168,24 @@ public class ServerConnection {
                 disqualifiedPlayer.setDisqualified();
 
                 if (byteMessage[0] == ourPlayer) {
-                    System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
-                    System.out.println(game.getBoard().toString());
+                    analyzeParser.disqualifiedSelf(ourPlayer, game.getBoard());
+                } else {
+                    analyzeParser.disqualifyPlayer(byteMessage[0]);
                 }
-                AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;
             // receive that phase 2 has started
             case 8:
                 bomb = true;
-                AnalyzeParser.startBombPhase();
+                analyzeParser.startBombPhase();
                 break;
             // receive that the game has finished
             case 9:
                 running = false;
-                AnalyzeParser.endGame();
-                game.getBoard().loggingBoard();
+                analyzeParser.endGame();
+                if (analyzeParser.isPrintable()) {
+                    char[][] field = game.getBoard().getField();
+                    analyzeParser.loggingBoard(field);
+                }
                 System.exit(0);
                 break;
             default:
