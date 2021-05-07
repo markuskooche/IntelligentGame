@@ -2,6 +2,7 @@ package server;
 
 import controller.Game;
 import loganalyze.additional.AnalyzeParser;
+import map.Player;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,15 +62,18 @@ public class ServerConnection {
         inputStream.read(byteMessage, 0, messageLength);
 
         switch (messageHeader[0]) {
+            // receive the map
             case 2:
                 game = new Game(createMap(byteMessage));
                 AnalyzeParser.parseBoard(byteMessage);
                 break;
+            // receive your player number
             case 3:
                 ourPlayer = byteMessage[0];
                 game.setOurPlayerNumber(ourPlayer);
                 AnalyzeParser.setPlayer(ourPlayer);
                 break;
+            // receive a move request and sending a move
             case 4:
                 int allowedTime = get32Integer(byteMessage, 0);
                 byte allowedDepth = byteMessage[4];
@@ -121,6 +125,7 @@ public class ServerConnection {
                     AnalyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
                 }
                 break;
+            // receive a move of a player (also from itself)
             case 6:
                 int x = byteMessage[0] << 8;
                 x += byteMessage[1];
@@ -146,21 +151,24 @@ public class ServerConnection {
                 } else {
                     AnalyzeParser.parseMove(x, y, player, additionalOperation);
                 }
-
-                //int nextPlayer = (player % game.getPlayers().length) + 1;
-                //game.getBoard().loggingBoard(game.getPlayer(nextPlayer));
                 break;
+            // receive a disqualified player
             case 7:
+                Player disqualifiedPlayer = game.getPlayer(byteMessage[0]);
+                disqualifiedPlayer.setDisqualified();
+
                 if (byteMessage[0] == ourPlayer) {
                     System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
                     System.out.println(game.getBoard().toString());
                 }
                 AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;
+            // receive that phase 2 has started
             case 8:
                 bomb = true;
                 AnalyzeParser.startBombPhase();
                 break;
+            // receive that the game has finished
             case 9:
                 running = false;
                 AnalyzeParser.endGame();
@@ -173,15 +181,16 @@ public class ServerConnection {
     }
 
     public static List<String> createMap(byte[] elements) {
-        int length = elements.length;
         List<Byte> mapPieces = new ArrayList<>();
-        int currentInformation = 0;
-        int addedPieces = 0;
+        int length = elements.length;
+
         int infoCounter = 0;
+        int currInfo = 0;
+
+        int addedPieces = 0;
 
         int height = 0;
         int width = 0;
-
         int currentHeight = 0;
         int currentWidth = 0;
 
@@ -193,155 +202,182 @@ public class ServerConnection {
         for (int j = 0; j < length; j++) {
             byte currentPiece = elements[j];
 
-            //
+            // check if it is a newline and if so if it needs to be added
             if (currentPiece == ((byte) '\n')) {
-                if (currentInformation == 1 && infoCounter == 0) {
+                // (when the number of players was read) or (when the number of overridestones has been read)
+                if ((currInfo == 1 && infoCounter == 0) || (currInfo == 2 && infoCounter == 1)) {
                     mapPieces.add(currentPiece);
                     infoCounter++;
-                } else if (currentInformation == 2 && infoCounter == 1) {
+                }
+                // (when the number of bombs and the radius has been read) or (when height and width was read)
+                else if (((currInfo == 3 && infoCounter == 2) || (currInfo == 4 && infoCounter == 3)) && addedPieces == 2) {
                     mapPieces.add(currentPiece);
+                    addedPieces = 0;
                     infoCounter++;
-                } else if (currentInformation == 3 && infoCounter == 2) {
-                    mapPieces.add(currentPiece);
-                    infoCounter++;
-                    /*
-                    if (addedPieces == 2) {
-                        mapPieces.add(currentPiece);
-                        addedPieces = 0;
-                        infoCounter++;
-                    }
-                    */
-                } else if (currentInformation == 4 && infoCounter == 3) {
-                    if (addedPieces == 2) {
-                        mapPieces.add(currentPiece);
-                        addedPieces = 0;
-                        infoCounter++;
-                    }
-                } else if (currentInformation == 4 && infoCounter == 4) {
+                }
+                // if one line of the actual field was read in
+                else if (currInfo == 4 && infoCounter == 4) {
+                    // checks if it has really reached the end of a line
                     if (currentWidth == width) {
                         mapPieces.add(currentPiece);
                         currentWidth = 0;
                         currentHeight++;
-                    }
 
-                    if (currentHeight == height) {
-                        currentInformation++;
-                        infoCounter++;
-                    }
-                } else if (currentInformation == 5 && infoCounter == 5) {
-                    if (addedPieces == 6) {
-                        mapPieces.add(currentPiece);
-                        addedPieces = 0;
+                        // checks if it has reached the end of the map
+                        if (currentHeight == height) {
+                            currInfo++;
+                            infoCounter++;
+                        }
                     }
                 }
-            } else if (currentPiece >= 48 && currentPiece <= 57) {
+                // when both positions and directions have been read
+                else if (currInfo == 5 && infoCounter == 5 && addedPieces == 6) {
+                    mapPieces.add(currentPiece);
+                    addedPieces = 0;
+                }
+            }
+            // if the read symbol is a number
+            else if (isNumeric(currentPiece)) {
                 mapPieces.add(currentPiece);
 
-                if (currentInformation == 0) {
-                    currentInformation++;
-                } else if (currentInformation == 1 && infoCounter == 1) {
-                    if (elements[j + 1] < 48 || elements[j + 1] > 57) {
-                        currentInformation++;
+                // when you read the number of players
+                if (currInfo == 0) {
+                    currInfo++;
+                }
+                // if just the number of overwrite stones is read
+                else if (currInfo == 1 && infoCounter == 1) {
+                    // if the next character is not a number
+                    if (isNotNumeric(elements[j + 1])) {
+                        currInfo++;
                     }
-                } else if (currentInformation == 2 && infoCounter == 2) {
+                }
+                // when just reading the information for bombs
+                else if (currInfo == 2 && infoCounter == 2) {
+                    // if the next character is not a number
+                    if (isNotNumeric(elements[j + 1])) {
+                        // when the bomb count has finished reading in
+                        if (addedPieces == 0) {
+                            mapPieces.add(((byte) ' '));
+                            addedPieces++;
+                        }
+                        // when the bomb radius has finished being read in
+                        else if (addedPieces == 1) {
+                            currInfo++;
+                            addedPieces++;
+                        }
+                    }
+                }
+                // if the height or width is currently being read in
+                else if (currInfo == 3 && infoCounter == 3) {
+                    // it is about the height when addedPieces == 0
                     if (addedPieces == 0) {
-                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
-                            mapPieces.add(((byte) ' '));
-                            addedPieces++;
-                        }
-                    } else if (addedPieces == 1) {
-                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
-                            currentInformation++;
-                            addedPieces = 0;
-                        }
-                    }
-                } else if (currentInformation == 3 && infoCounter == 3) {
-                    if (addedPieces == 0) {
-                        height = (10 * height) + (currentPiece - ((byte) '0'));
+                        height = updateLength(height, currentPiece);
 
-                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
+                        // if the next character is not a number
+                        if (isNotNumeric(elements[j + 1])) {
                             mapPieces.add(((byte) ' '));
                             addedPieces++;
                         }
-                    } else {
-                        width = (10 * width) + (currentPiece - ((byte) '0'));
+                    }
+                    // it is about the height when addedPieces == 1
+                    else if (addedPieces == 1) {
+                        width = updateLength(width, currentPiece);
 
-                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
-                            currentInformation++;
-                            addedPieces++;
-                        }
-                    }
-                } else if (currentInformation == 4 && infoCounter == 4) {
-                    if (currentHeight < height) {
-                        if (currentWidth < width) {
-                            mapPieces.add(((byte) ' '));
-                            currentWidth++;
-                        }
-                    }
-                } else if (currentInformation == 5 && infoCounter == 5) {
-                    if (addedPieces < 6) {
-                        if (elements[j + 1] < 48 || elements[j + 1] > 57) {
-                            mapPieces.add(((byte) ' '));
+                        // if the next character is not a number
+                        if (isNotNumeric(elements[j + 1])) {
+                            currInfo++;
                             addedPieces++;
                         }
                     }
                 }
-            } else if (currentPiece == b || currentPiece == c || currentPiece == i || currentPiece == x) {
-                if (currentInformation == 4 && infoCounter == 4) {
-                    mapPieces.add(currentPiece);
-                    if (currentHeight < height) {
-                        if (currentWidth < (width - 1)) {
-                            mapPieces.add(((byte) ' '));
-                            currentWidth++;
-                        } else if (currentWidth < width) {
-                            currentWidth++;
-                        }
+                // when the actual playing field is read in
+                else if (currInfo == 4 && infoCounter == 4) {
+                    // if it is not out of range
+                    if ((currentHeight < height) && (currentWidth < width)) {
+                        mapPieces.add(((byte) ' '));
+                        currentWidth++;
                     }
                 }
-            } else if (currentPiece == ((byte) '<')) {
-                if (currentInformation == 5 && infoCounter == 5) {
-                    mapPieces.add(currentPiece);
-                }
-            } else if (currentPiece == ((byte) '-')) {
-                if (currentInformation == 4 && infoCounter == 4) {
-                    mapPieces.add(currentPiece);
-                    if (currentHeight < height) {
-                        if (currentWidth < (width - 1)) {
-                            mapPieces.add(((byte) ' '));
-                            currentWidth++;
-                        } else if (currentWidth < width) {
-                            currentWidth++;
-                        }
+                // when a transition is being read in
+                else if (currInfo == 5 && infoCounter == 5 && addedPieces < 6) {
+                    // if the next character is not a number
+                    if (isNotNumeric(j + 1)) {
+                        mapPieces.add(((byte) ' '));
+                        addedPieces++;
                     }
-                } else if (currentInformation == 5 && infoCounter == 5) {
+                }
+            }
+            // when a special field is read in
+            else if (currentPiece == b || currentPiece == c || currentPiece == i || currentPiece == x) {
+                // when the actual playing field is read in
+                if (currInfo == 4 && infoCounter == 4) {
+                    mapPieces.add(currentPiece);
+
+                    // if it is not out of range
+                    if (currentWidth < width) {
+                        mapPieces.add(((byte) ' '));
+                        currentWidth++;
+                    }
+                }
+            }
+            // if it is the first symbol of a transition
+            else if (currentPiece == ((byte) '<')) {
+                if (currInfo == 5 && infoCounter == 5) {
                     mapPieces.add(currentPiece);
                 }
-            } else if (currentPiece == ((byte) '>')) {
+            }
+            // if it is the second symbol of a transition or a empty piece
+            else if (currentPiece == ((byte) '-')) {
+                // when the actual playing field is read in
+                if (currInfo == 4 && infoCounter == 4) {
+                    mapPieces.add(currentPiece);
+
+                    // if it is not out of range
+                    if (currentWidth < width) {
+                        mapPieces.add(((byte) ' '));
+                        currentWidth++;
+                    }
+                }
+                // if it is a part of the transition separation
+                else if (currInfo == 5 && infoCounter == 5) {
+                    mapPieces.add(currentPiece);
+                }
+            }
+            // if it is the third symbol of a transition
+            else if (currentPiece == ((byte) '>')) {
                 mapPieces.add(currentPiece);
                 mapPieces.add(((byte) ' '));
             }
         }
 
+        // create a new char array
         int preparedLength = mapPieces.size();
         char[] preparedMapData = new char[preparedLength];
 
+        // copy all pieces into the new char array
         for (int j = 0; j < preparedLength; j++) {
             byte currentByte = mapPieces.get(j);
             preparedMapData[j] = ((char) currentByte);
         }
 
+        // create a string of the char array and split it
         String preparedMapString = String.valueOf(preparedMapData);
         String[] preparedMap = preparedMapString.split("\n");
 
+        // return the map as a list
         return new LinkedList<>(Arrays.asList(preparedMap));
     }
 
-    private boolean isNumeric(byte a) {
+    private static boolean isNumeric(byte a) {
         return (a >= 48 && a <= 57);
     }
 
-    private boolean isNotNumeric(int a) {
+    private static boolean isNotNumeric(int a) {
         return (a < 48 || a > 57);
+    }
+
+    private static int updateLength(int currentLength, byte currentPiece) {
+        return (10 * currentLength) + (currentPiece - ((byte) '0'));
     }
 
     private int get32Integer(byte[] header, int offset) {
