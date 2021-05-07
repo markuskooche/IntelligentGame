@@ -34,6 +34,7 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length);
         heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println(mapAnalyzer.toString());
+        System.out.println(mapAnalyzer.getBoardValues());
         //executeOurMove(1);
     }
 
@@ -43,6 +44,7 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length);
         heuristics = new Heuristics(board, players, mapAnalyzer);
         System.out.println(mapAnalyzer.toString());
+        System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public void setOurPlayerNumber(int ourPlayerNumber) {
