@@ -3,6 +3,7 @@ package mapanalyze;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
+import map.Player;
 import map.Transition;
 
 import java.util.ArrayList;
@@ -21,9 +22,15 @@ public class MapAnalyzer {
     private List<int[]> followFieldsPath;
     final private int playerNumber;
 
+    private int height;
+    private int width;
+    private int minFieldValue;
+
     public MapAnalyzer(Board b, int pNumber) {
         board = b;
         playerNumber = pNumber;
+        this.height = board.getHeight();
+        this.width = board.getWidth();
 
         try {
             long time = System.currentTimeMillis();
@@ -34,22 +41,18 @@ public class MapAnalyzer {
             AnalyzeParser.mapAnalyzerError();
             reachableFinished = false;
 
-            int height = board.getHeight();
-            int width = board.getWidth();
-
             field = new int[height][width];
         }
 
         createField();
+        minFieldValue = getMinFieldValue(); //Update if field changed!
+        System.out.println(toStringField());
     }
 
     /**
      * creates a Field that contains only reachable Fields and values every Field by location and location to other Fields
      */
     public void createField() {
-
-        int height = board.getHeight();
-        int width = board.getWidth();
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -100,9 +103,6 @@ public class MapAnalyzer {
     }
 
     public void createReachableField() {
-        int height = board.getHeight();
-        int width = board.getWidth();
-
         specialFieldListSidePath = new ArrayList<>();
         specialFieldListMainPath = new ArrayList<>();
         followFieldsPath = new ArrayList<>();
@@ -183,7 +183,7 @@ public class MapAnalyzer {
         changeFields(x,y,currentDirection);
         followFieldsPath.clear();
 
-        System.out.println("X: " + x + " Y: " + y);
+        //System.out.println("X: " + x + " Y: " + y);
 
         //Follow this direction until the End of the board
         while (true){
@@ -415,9 +415,6 @@ public class MapAnalyzer {
      * alters all 3's in the reachableField to 4's
      */
     private void threeToFour(){
-        int height = board.getHeight();
-        int width = board.getWidth();
-
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
 
@@ -432,10 +429,6 @@ public class MapAnalyzer {
 
 
     private void traverseMapForEachPlayerStone() {
-
-        int height = board.getHeight();
-        int width = board.getWidth();
-
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 char currField = board.getField()[i][j];
@@ -456,9 +449,6 @@ public class MapAnalyzer {
      * Updates the current board and removes all Fields that are not reachable
      */
     private void alterCurrentMap() {
-        int height = board.getHeight();
-        int width = board.getWidth();
-
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
 
@@ -526,8 +516,6 @@ public class MapAnalyzer {
      * @return int with the value of the Player-Score for the given player
      */
     public int calculateScoreForPlayer(char playerNumber) {
-        int height = board.getHeight();
-        int width = board.getWidth();
         int playerScore = 0;
 
         for (int i = 0; i < height; i++) {
@@ -544,12 +532,10 @@ public class MapAnalyzer {
     }
 
     public int calculateScoreForPlayer2(char playerNumber, Board tmpBoard) {
-        int height = tmpBoard.getHeight();
-        int width = tmpBoard.getWidth();
         int playerScore = 0;
         int minFieldValue = Integer.MAX_VALUE;
 
-        //find smalles field value
+        //find smallest field value
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if(minFieldValue > field[i][j]){
@@ -574,6 +560,50 @@ public class MapAnalyzer {
         }
         return playerScore;
     }
+
+
+    public int calculateScoreForPlayers(Player ourPlayer, Board tmpBoard, Player[] players, int factor) {
+        String playersNum = "";
+        for(Player p : players) {
+            playersNum += p.getNumber();
+        }
+
+        char tmpBoardfield[][] = tmpBoard.getField();
+        double playerScore = 0;
+        double allPlayerScore = 0;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+
+                char currField = tmpBoardfield[i][j];
+                if (currField == ourPlayer.getNumber()) {
+                    playerScore += (field[i][j] + minFieldValue);
+                }
+                if (playersNum.indexOf(currField) != -1) {
+                    allPlayerScore += (field[i][j] + minFieldValue);
+                }
+            }
+        }
+
+        double tmpMapValue =  playerScore / allPlayerScore;
+        return (int) (tmpMapValue * factor);
+    }
+
+    private int getMinFieldValue() {
+        int minFieldValue = Integer.MAX_VALUE;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(minFieldValue > field[i][j]){
+                    minFieldValue = field[i][j];
+                }
+            }
+        }
+
+        if(minFieldValue < 0){
+            minFieldValue *= (-1);
+        }
+        return minFieldValue;
+    }
+
 
     /**
      * Creates a wave in all directions that changes sign every Field and gets smaller.
@@ -744,6 +774,20 @@ public class MapAnalyzer {
                     continue;
                 }
                 boardString.append(String.format("%2s", reachableField[y][x]));
+            }
+            boardString.append("\n");
+        }
+
+
+        return boardString.toString();
+    }
+
+    public String toStringField() {
+        StringBuilder boardString = new StringBuilder();
+
+        for (int y = 0; y < board.getHeight(); y++) {
+            for (int x = 0; x < board.getWidth(); x++) {
+                boardString.append(String.format("%2s", field[y][x]));
             }
             boardString.append("\n");
         }

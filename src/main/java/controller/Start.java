@@ -17,7 +17,7 @@ public class Start {
 
         try {
             List<String> file = Files.lines(path).collect(Collectors.toList());
-            game = new Game(file, 1);
+            game = new Game(file, 2);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,13 +26,13 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/oldMaps/2_player/2019_comp_2_2p.map");
+        Game game = createGame("maps/testMaps/standard/dogUnterschied.map");
         System.out.println(game.toString());
 
-        Player player = game.getPlayer(1);
-
-        System.out.println(player);
-        game.getBoard().executeMoveManually(player, true);
-        System.out.println(player);
+//        Player player = game.getPlayer(2);
+//
+//        System.out.println(player);
+//        game.getBoard().executeMoveManually(player, true);
+//        System.out.println(player);
     }
 }
