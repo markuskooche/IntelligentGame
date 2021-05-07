@@ -15,16 +15,18 @@ public class Main {
         for (int i = 0; i < args.length; i=i+2) {
             switch (args[i]) {
                 case "-h":
-                    System.out.println("-i <IP>         change to a specific ip");
-                    System.out.println("-p <PORT>       change to a specific port");
-                    System.out.println("-a <0 / 1>      enable/disable set alpha beta pruning");
-                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
-                    System.out.println("-n <0 / 1>      enable/disable move sorting");
-                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
-                    System.out.println("-q <0 / 1>      enable/disable console output");
-                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
-                    System.out.println("-r <0 / 1>      enable/disable reduce output");
-                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
+                    System.out.println();
+                    System.out.println("  -i <IP>           change to a specific ip\n");
+                    System.out.println("  -p <PORT>         change to a specific port\n");
+                    System.out.println("  -a <0 or 1>       enable/disable set alpha beta pruning");
+                    System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
+                    System.out.println("  -n <0 or 1>       enable/disable move sorting");
+                    System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
+                    System.out.println("  -q <0 or 1>       enable/disable console output");
+                    System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
+                    System.out.println("  -r <0 or 1>       enable/disable reduce output");
+                    System.out.println("                    0 = DISABLE   |   1 = ENABLE");
+                    System.out.println();
                     System.exit(0);
                     break;
                 case "-i":
