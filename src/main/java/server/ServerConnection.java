@@ -25,11 +25,11 @@ public class ServerConnection {
     private Socket socket;
     private boolean running = true;
 
-    public ServerConnection(String host, int port, boolean alphaBeta, boolean sorting, boolean output) {
+    public ServerConnection(String host, int port, boolean alphaBeta, boolean sorting, boolean output, boolean reduce) {
         this.alphaBeta = alphaBeta;
         this.moveSorting = sorting;
 
-        this.analyzeParser = new AnalyzeParser(group, output, true);
+        this.analyzeParser = new AnalyzeParser(group, output, reduce);
         analyzeParser.printGameInformation(alphaBeta);
 
         try {

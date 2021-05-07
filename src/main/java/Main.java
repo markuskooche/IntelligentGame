@@ -7,6 +7,7 @@ public class Main {
         int port = 7777;
 
         boolean consoleOutput = true;
+        boolean reduceOutput = true;
         boolean moveSorting = true;
         boolean alphaBeta = true;
 
@@ -21,6 +22,8 @@ public class Main {
                     System.out.println("-n <0 / 1>      enable/disable move sorting");
                     System.out.println("                0 = DISABLE   |   1 = ENABLE");
                     System.out.println("-q <0 / 1>      enable/disable console output");
+                    System.out.println("                0 = DISABLE   |   1 = ENABLE");
+                    System.out.println("-r <0 / 1>      enable/disable reduce output");
                     System.out.println("                0 = DISABLE   |   1 = ENABLE");
                     System.exit(0);
                     break;
@@ -71,11 +74,22 @@ public class Main {
                         System.exit(1);
                     }
                     break;
+                case "-r":
+                    String reduceEntry = args[i+1];
+                    if (reduceEntry.equals("0")) {
+                        reduceOutput = false;
+                    } else if (reduceEntry.equals("1")) {
+                        reduceOutput = true;
+                    } else {
+                        System.err.println("ERROR: Please set console reduce to 0 or 1!");
+                        System.exit(1);
+                    }
+                    break;
                 default:
                     break;
             }
         }
 
-        new ServerConnection(host, port, alphaBeta, moveSorting, consoleOutput);
+        new ServerConnection(host, port, alphaBeta, moveSorting, consoleOutput, reduceOutput);
     }
 }
