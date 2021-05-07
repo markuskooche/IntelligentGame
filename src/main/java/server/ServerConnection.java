@@ -90,7 +90,15 @@ public class ServerConnection {
 
                 if (!bomb) {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                    int[] executedMove = game.executeOurMove(allowedDepth, alphaBeta);
+                    int[] executedMove;
+
+
+                    if (allowedTime == 0) {
+                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta);
+                    } else {
+                        // TODO: [Markus] executedMove = game.executeOurMoveTime(allowedTime, alphaBeta);
+                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta); // delete me
+                    }
 
                     // insert the x coordinate into the byte array
                     move[6] = (byte) (executedMove[0]);
