@@ -29,7 +29,7 @@ public class ServerConnection {
         this.alphaBeta = alphaBeta;
         this.moveSorting = sorting;
 
-        this.analyzeParser = new AnalyzeParser(group, output);
+        this.analyzeParser = new AnalyzeParser(group, output, true);
         analyzeParser.printGameInformation(alphaBeta);
 
         try {

@@ -21,7 +21,7 @@ public class TestReachableField {
         try {
             byte[] bytes = Files.readAllBytes(path);
             List<String> file = ServerConnection.createMap(bytes);
-            AnalyzeParser analyzeParser =  new AnalyzeParser(1,false);
+            AnalyzeParser analyzeParser =  new AnalyzeParser(1,false, true);
             game = new Game(file, analyzeParser);
 
         } catch (IOException e) {

@@ -11,10 +11,12 @@ public class AnalyzeParser {
 
     private final String group;
     private final boolean output;
+    private final boolean reduce;
 
-    public AnalyzeParser(int group, boolean output) {
+    public AnalyzeParser(int group, boolean output, boolean reduce) {
         this.group =  ("XT0" + group + "-");
         this.output = output;
+        this.reduce = reduce;
     }
 
     public void printGameInformation(boolean alphaBeta) {
@@ -74,8 +76,10 @@ public class AnalyzeParser {
     }
 
     public void disqualifiedSelf(byte ourPlayer, Board board) {
-        System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
-        System.out.println(board.toString());
+        if (output && !reduce) {
+            System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
+            System.out.println(board.toString());
+        }
     }
 
     public void startBombPhase() {
@@ -91,7 +95,7 @@ public class AnalyzeParser {
     }
 
     public void loggingBoard(char[][] field) {
-        if (output) {
+        if (output && !reduce) {
             System.out.println("[MAP]");
 
             int height = field.length;
@@ -109,7 +113,7 @@ public class AnalyzeParser {
     }
 
     public void loggingBoard(Board board, Player player) {
-        if (output) {
+        if (output && !reduce) {
             System.out.println("[MAP]");
             List<Move> legalMoves = board.getLegalMoves(player, true);
             char[][] field = board.getField();
@@ -139,6 +143,6 @@ public class AnalyzeParser {
     }
 
     public boolean isPrintable() {
-        return output;
+        return (output && reduce);
     }
 }

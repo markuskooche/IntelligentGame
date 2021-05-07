@@ -6,7 +6,7 @@ public class Main {
         String host = "127.0.0.1";
         int port = 7777;
 
-        boolean consoleOutput = false;
+        boolean consoleOutput = true;
         boolean moveSorting = true;
         boolean alphaBeta = true;
 

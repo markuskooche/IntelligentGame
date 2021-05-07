@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 public class GamePanelManager {
 
+    private static final boolean reduce = true;
+
     private final int groupNumber;
     private final String group;
 
@@ -332,7 +334,7 @@ public class GamePanelManager {
         byte[] mapStream = getGameState(lineArray);
 
         List<String> gameList = ServerConnection.createMap(mapStream);
-        AnalyzeParser analyzeParser = new AnalyzeParser(groupNumber, false);
+        AnalyzeParser analyzeParser = new AnalyzeParser(groupNumber, false, reduce);
         game = new Game(gameList, analyzeParser);
 
         height = game.getBoard().getHeight();

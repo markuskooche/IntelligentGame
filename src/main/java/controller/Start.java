@@ -19,7 +19,7 @@ public class Start {
         try {
             byte[] bytes = Files.readAllBytes(path);
             List<String> file = ServerConnection.createMap(bytes);
-            AnalyzeParser analyzeParser =  new AnalyzeParser(1,true);
+            AnalyzeParser analyzeParser =  new AnalyzeParser(1,true, false);
             game = new Game(file, analyzeParser);
         } catch (IOException e) {
             e.printStackTrace();
