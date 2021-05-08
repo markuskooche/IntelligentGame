@@ -70,7 +70,7 @@ public class Heuristics {
             }
         }
         // TODO: [IWAN] System.out.println("Analyzed Maps: " + mapsAnalyzed);
-        // TODO: [IWAN] System.out.println("XT01-98-AM-" + mapsAnalyzed);
+        System.out.println("XT01-98-AM-" + mapsAnalyzed);
         // TODO: [IWAN] System.out.println("OUR PICKED MOVE (PARANOID): " + move);
         return move;
     }
