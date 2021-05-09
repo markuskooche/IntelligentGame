@@ -18,7 +18,7 @@ public class Board {
     private final int playerAmount;
     private final int bombRadius;
 
-    private char[][] field;
+    private final char[][] field;
     private final int width;
     private final int height;
 
@@ -69,17 +69,7 @@ public class Board {
         return newField;
     }
 
-    private void choiceManually() {
-        System.out.print("Please enter two Players you would like to change: ");
-        Scanner scanner = new Scanner(System.in);
-
-        char a = scanner.next().charAt(0);
-        char b = scanner.next().charAt(0);
-
-        choice(a, b);
-    }
-
-    private void choice(char a, char b) {
+    protected void choice(char a, char b) {
         if (a != b) {
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
@@ -138,69 +128,6 @@ public class Board {
         return positions;
     }
 
-    /**
-     * Returns a list of all legal moves from a passed player.
-     * It is possible to include override stones or not.
-     *
-     * @param player char representation of a player
-     * @param overrideMoves true if override moves should be added
-     *
-     * @return a list of all legal {@link Move}s from a passed player
-     *
-     * @see Move
-     */
-    public List<Move> getLegalMovesPrint(Player player, boolean overrideMoves) {
-        List<Move> legalMoves = new LinkedList<>();
-        List<Move> legalOverrideMoves = new LinkedList<>();
-
-        // inserts all legal moves of a player's pieces into a list
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                char piece = field[y][x];
-                if ("0bic".indexOf(piece) != -1) {
-                    Move legalMove = checkMove(x, y, player.getNumber(), false);
-
-                    if (!legalMove.isEmpty()) {
-                            legalMoves.add(legalMove);
-                    }
-                }
-
-                if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
-                //if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1 && (overrideMoves || legalMoves.isEmpty())) {
-                    Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
-                    if (!legalOverrideMove.isEmpty()) {
-                        legalOverrideMoves.add(legalOverrideMove);
-                    }
-                }
-            }
-        }
-
-        if (player.hasOverrideStone() && overrideMoves) {
-        //if (player.hasOverrideStone() && (overrideMoves || legalMoves.isEmpty())) {
-            for (int[] expansion : getPlayerPositions('x')) {
-                Move expansionMove = new Move(expansion);
-                legalOverrideMoves.add(expansionMove);
-            }
-        }
-
-        System.out.println("LEGAL MOVES FROM PLAYER '" + player.getNumber() + "'");
-        for (Move legalNormalMove : legalMoves) {
-            System.out.println(legalNormalMove);
-        }
-
-        if (overrideMoves) {
-            System.out.println("\nLEGAL OVERRIDE MOVES FROM PLAYER '" + player.getNumber() + "'");
-            for (Move legalOverrideMove : legalOverrideMoves) {
-                System.out.println(legalOverrideMove);
-            }
-        }
-
-        legalMoves.addAll(legalOverrideMoves);
-
-
-        return legalMoves;
-    }
-
     public List<Move> getLegalMoves(Player player, boolean overrideMoves) {
         List<Move> legalMoves = new LinkedList<>();
 
@@ -239,27 +166,6 @@ public class Board {
 
     public void executeBomb(int x, int y) {
         field[y][x] = '-';
-    }
-
-    /**
-     * Executing a valid move entered by a human (for testing).
-     *
-     * @param player player who should execute the move
-     * @param overrideMoves boolean whether override stones are to be executed as well
-     *
-     * @see Move
-     */
-    public void executeMoveManually(Player player, boolean overrideMoves) {
-        getLegalMovesPrint(player, overrideMoves);
-
-        System.out.print("\nPlease enter a valid move: ");
-        Scanner scanner = new Scanner(System.in);
-        int x = scanner.nextInt();
-        int y = scanner.nextInt();
-        int additionalOperation = scanner.nextInt();
-
-        executeMove(x, y, player, additionalOperation, overrideMoves);
-        System.out.println("\n" + this);
     }
 
     /**
@@ -317,7 +223,7 @@ public class Board {
         }
     }
 
-    private Move checkMove(int x, int y, char player, boolean isOverrideMove) {
+    protected Move checkMove(int x, int y, char player, boolean isOverrideMove) {
         Move legalMove;
 
         if (isOverrideMove) {
