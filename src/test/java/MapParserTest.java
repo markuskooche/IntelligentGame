@@ -23,25 +23,25 @@ public class MapParserTest {
                 48, 32, 48, 10, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48
         };
 
-        List<String> expectedResult01 = new LinkedList<>();
-        expectedResult01.add("2");
-        expectedResult01.add("0");
-        expectedResult01.add("0 0");
-        expectedResult01.add("8 8");
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
-        expectedResult01.add("0 0 0 1 2 0 0 0 ");
-        expectedResult01.add("0 0 0 2 1 0 0 0 ");
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
+        List<String> expectedResult = new LinkedList<>();
+        expectedResult.add("2");
+        expectedResult.add("0");
+        expectedResult.add("0 0");
+        expectedResult.add("8 8");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 1 2 0 0 0 ");
+        expectedResult.add("0 0 0 2 1 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
 
         List<String> receivedResult = MapParser.createMap(map);
-        MatcherAssert.assertThat(receivedResult, is(expectedResult01));
+        MatcherAssert.assertThat(receivedResult, is(expectedResult));
 
-        expectedResult01.add("0 0 0 0 0 0 0 0 ");
-        MatcherAssert.assertThat(receivedResult, is(not(expectedResult01)));
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        MatcherAssert.assertThat(receivedResult, is(not(expectedResult)));
     }
 
     @Test
@@ -63,30 +63,60 @@ public class MapParserTest {
                 55, 10, 55, 32, 51
         };
 
-        List<String> expectedResult02 = new LinkedList<>();
-        expectedResult02.add("2");
-        expectedResult02.add("255");
-        expectedResult02.add("255 255");
-        expectedResult02.add("8 8");
-        expectedResult02.add("0 0 0 0 0 0 0 0 ");
-        expectedResult02.add("0 0 0 0 0 0 0 0 ");
-        expectedResult02.add("0 0 0 0 0 0 0 0 ");
-        expectedResult02.add("0 0 0 1 2 0 0 0 ");
-        expectedResult02.add("0 0 0 2 1 0 0 0 ");
-        expectedResult02.add("0 0 0 0 0 0 0 0 ");
-        expectedResult02.add("0 0 0 0 0 0 0 0 ");
-        expectedResult02.add("0 0 0 0 0 0 0 0 ");
-        expectedResult02.add("0 0 7 <-> 7 7 3");
+        List<String> expectedResult = new LinkedList<>();
+        expectedResult.add("2");
+        expectedResult.add("255");
+        expectedResult.add("255 255");
+        expectedResult.add("8 8");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 1 2 0 0 0 ");
+        expectedResult.add("0 0 0 2 1 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 7 <-> 7 7 3");
 
         List<String> receivedResult = MapParser.createMap(map);
+        MatcherAssert.assertThat(receivedResult, is(expectedResult));
 
-        for (String l : receivedResult) {
-            System.out.println(l);
-        }
+        expectedResult.add("7 0 1 <-> 0 7 5");
+        MatcherAssert.assertThat(receivedResult, is(not(expectedResult)));
+    }
 
-        MatcherAssert.assertThat(receivedResult, is(expectedResult02));
+    @Test
+    @DisplayName("Tests if a one line formatted map can be read in")
+    void oneLineMapTest() {
+        byte[] map = {
+                50, 32, 53, 32, 49, 32, 51, 32, 56, 32, 56, 32, 98, 32, 48, 32, 48, 32, 48, 32,
+                48, 32, 48, 32, 48, 32, 99, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32,
+                48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32,
+                48, 32, 48, 32, 48, 32, 49, 32, 50, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32,
+                48, 32, 50, 32, 49, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32,
+                48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32,
+                48, 32, 48, 32, 120, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 48, 32, 105, 32,
+                48, 32, 48, 32, 55, 32, 60, 45, 62, 32, 55, 32, 55, 32, 51, 32, 55, 32, 48, 32,
+                49, 32, 60, 45, 62, 32, 48, 32, 55, 32, 53
+        };
 
-        expectedResult02.add("7 0 1 <-> 0 7 5");
-        MatcherAssert.assertThat(receivedResult, is(not(expectedResult02)));
+        List<String> expectedResult = new LinkedList<>();
+        expectedResult.add("2");
+        expectedResult.add("5");
+        expectedResult.add("1 3");
+        expectedResult.add("8 8");
+        expectedResult.add("b 0 0 0 0 0 0 c ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 1 2 0 0 0 ");
+        expectedResult.add("0 0 0 2 1 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("0 0 0 0 0 0 0 0 ");
+        expectedResult.add("x 0 0 0 0 0 0 i ");
+        expectedResult.add("0 0 7 <-> 7 7 3");
+        expectedResult.add("7 0 1 <-> 0 7 5");
+
+        List<String> receivedResult = MapParser.createMap(map);
+        MatcherAssert.assertThat(receivedResult, is(expectedResult));
     }
 }
