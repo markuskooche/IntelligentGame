@@ -2,7 +2,7 @@ package controller;
 
 import loganalyze.additional.AnalyzeParser;
 import map.Player;
-import server.ServerConnection;
+import server.MapParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +18,7 @@ public class Start {
 
         try {
             byte[] bytes = Files.readAllBytes(path);
-            List<String> file = ServerConnection.createMap(bytes);
+            List<String> file = MapParser.createMap(bytes);
             AnalyzeParser analyzeParser =  new AnalyzeParser(1,true, false);
             game = new Game(file, analyzeParser);
         } catch (IOException e) {

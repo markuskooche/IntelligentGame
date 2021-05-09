@@ -2,7 +2,7 @@ import controller.Game;
 import loganalyze.additional.AnalyzeParser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.ServerConnection;
+import server.MapParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +20,7 @@ public class TestReachableField {
 
         try {
             byte[] bytes = Files.readAllBytes(path);
-            List<String> file = ServerConnection.createMap(bytes);
+            List<String> file = MapParser.createMap(bytes);
             AnalyzeParser analyzeParser =  new AnalyzeParser(1,false, true);
             game = new Game(file, analyzeParser);
 

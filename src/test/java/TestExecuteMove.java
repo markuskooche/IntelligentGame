@@ -3,14 +3,13 @@ import loganalyze.additional.AnalyzeParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import server.ServerConnection;
+import server.MapParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +22,7 @@ public class TestExecuteMove {
 
         try {
             byte[] bytes = Files.readAllBytes(path);
-            List<String> file = ServerConnection.createMap(bytes);
+            List<String> file = MapParser.createMap(bytes);
             AnalyzeParser analyzeParser =  new AnalyzeParser(1, false, true);
             game = new Game(file, analyzeParser);
 

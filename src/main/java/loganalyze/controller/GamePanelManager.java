@@ -8,7 +8,7 @@ import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
 import map.Player;
 import map.Transition;
-import server.ServerConnection;
+import server.MapParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -333,7 +333,7 @@ public class GamePanelManager {
         String[] lineArray = tmp.split(", ");
         byte[] mapStream = getGameState(lineArray);
 
-        List<String> gameList = ServerConnection.createMap(mapStream);
+        List<String> gameList = MapParser.createMap(mapStream);
         AnalyzeParser analyzeParser = new AnalyzeParser(groupNumber, false, reduce);
         game = new Game(gameList, analyzeParser);
 
