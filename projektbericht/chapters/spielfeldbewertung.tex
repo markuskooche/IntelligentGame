@@ -61,7 +61,7 @@ Allerdings muss man diese Berechnung wie Anfangs erw\"ahnt mit einflie"sen lasse
 Denn letztlich ist f\"ur das Gewinnen des Spieles nur die Anzahl an Spielsteinen von Bedeutung.
 
 
-\subsection{Algorithmen der Heuristik}\label{subsec:algorithmen-der-heuristik}
+\subsection{Algorithmen der Zugauswahl}\label{subsec:algorithmen-der-zugauswahl}
 F\"ur einen Computer ist es unm\"oglich den besten Spielzug zu finden, da hier jedes m\"ogliche Spielfeld \"uberpr\"uft werden m\"usste.
 Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande\footnote{epubli: Zahlen am Brett, \textit{https://www.schachlich.de/schach-in-zahlen/} (abgerufen am 09.05.2021)}.
 Bei ReversiXT liegt die Zahl wesentlich h\"oher, da es zum einen viel gr\"o"sere Karten und zum anderen bis zu 8 Spieler gibt.
@@ -111,7 +111,7 @@ Beim Gedankenexperiment muss somit nach dem Gegenstand mit Kosten 1~\euro{} kein
 Das liegt daran, dass f\"ur ihn die Schublade A wesentlich interessanter ist.
 Selbstverst\"andlich nur unter Ber\"ucksichtigung, dass der Andere seinen Verlust minimieren m\"ochte.
 
-\subsubsection{Vergleich der Algorithmen}\label{subsubsec:vergleich-von-algorithmen}
+\subsubsection{Vergleich der Algorithmen}\label{subsubsec:vergleich-der-algorithmen}
 Um die Bedeutung dieser Variante zu verdeutlichen folgt nun ein Vergleich beider Verfahren.
 Dabei wurden die selbe Karte mit unterschiedliche Suchbaumtiefen getestet.
 Es trat in den Tiefen 3 bis 8~\footnote{Die Suchbaumtiefe 8 wurde auf einem Labor-PC der OTH Regensburg durchgef\"uhrt. N\"ahere Informationen siehe Kapitel~\ref{subsec:technische-daten}} jeweils zwei Spieler gegeneinander an.
@@ -124,7 +124,6 @@ Es wurde je einmal der erste Spieler und einmal der zweite Spieler mit Alpha-Bet
     \captionof{figure}[Karte für Statisitk]{Verwendete Karte für den Vergleich von Minimax und Alpha-Beta}
     \label{fig:statistic-map}
 \end{minipage}
-\vspace{1em}
 
 Wir haben uns aus folgenden Gr\"unden f\"ur die Karte aus Abbildung~\ref{fig:statistic-map} entschieden:
 \begin{enumerate}
@@ -141,7 +140,6 @@ Wir haben uns aus folgenden Gr\"unden f\"ur die Karte aus Abbildung~\ref{fig:sta
     \captionof{figure}[Statistik für Tiefe 5]{Diese Statistik wurde bei einem Spiel der Tiefe 5 aufgenommen.}
     \label{fig:statistic-screen}
 \end{minipage}
-\vspace{1em}
 
 In Abbildung~\ref{fig:statistic-screen} sind sowohl \"uberpr\"ufte Karten ohne Alpha-Beta (blaue Linie), als auch mit Alpha-Beta (orange Linie) zu sehen.
 Hierbei ist klar ersichtlich, das Alpha-Beta-Pruning einen enormen Leistungsvorteil liefert.
