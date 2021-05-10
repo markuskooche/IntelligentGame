@@ -1,6 +1,7 @@
 package controller;
 
 import heuristic.Heuristics;
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
 import map.Player;
@@ -21,84 +22,32 @@ import java.util.*;
  */
 public class Game {
 
+    private static AnalyzeParser analyzeParser;
+
     private Player[] players;
     private Board board;
     private Heuristics heuristics;
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
-    public Game(List<String> initMap, int ourPlayerNumber) {
-        createPlayers(initMap);
-        createBoard(initMap);
-        this.ourPlayerNumber = ourPlayerNumber;
-        mapAnalyzer = new MapAnalyzer(board, players.length);
-        heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println(mapAnalyzer.toString());
-        executeOurMove(3, true);
-    }
+    public Game(List<String> initMap, AnalyzeParser analyzeParser) {
+        Game.analyzeParser = analyzeParser;
 
-    public Game(List<String> initMap) {
         createPlayers(initMap);
         createBoard(initMap);
-        mapAnalyzer = new MapAnalyzer(board, players.length);
-        heuristics = new Heuristics(board, players, mapAnalyzer);
-        System.out.println(mapAnalyzer.toString());
+        mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
+        heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
+        // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
+        // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
-    public int[] executeOurMove(int depth, boolean alphaBeta) {
-        Player ourPlayer = players[ourPlayerNumber - 1];
-        int [] ourMove = new int[3];
-        long time = System.currentTimeMillis();
-        Move move = heuristics.getMoveTimeLimited(ourPlayer, depth - 200, alphaBeta, false);
-        //Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, true);
-        System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
-        ourMove[0] = move.getX();
-        ourMove[1] = move.getY();
-
-        if (move.isChoice()) {
-            Random r = new Random();
-            ourMove[2] = r.nextInt(players.length - 1) + 1;
-        } else if (move.isBonus()) {
-            ourMove[2] = 21; //Extra Overridestone
-        } else {
-            ourMove[2] = 0; // Just a normal move
-        }
-
-        if (move.isOverride()) {
-            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
-        } else {
-            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], false);
-        }
-        return ourMove;
-    }
-
-    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
-        Player ourPlayer = players[ourPlayerNumber - 1];
-        Move move = heuristics.getMoveTimeLimited(ourPlayer, time - 200, alphaBeta, moveSorting);
-        int additional;
-
-        if (move.isChoice()) {
-            // TODO: additional should be the currently best player
-            Random r = new Random();
-            additional = r.nextInt(players.length - 1) + 1;
-        } else if (move.isBonus()) {
-            // always choosing an overridestone
-            additional = 21;
-        } else {
-            additional = 0;
-        }
-
-        //board.colorizeMove(move, ourPlayer, additional);
-        return new int[] {move.getX(), move.getY(), additional};
-    }
-
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, moveSorting);
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta);
         int additional;
 
         if (move.isChoice()) {
@@ -112,7 +61,7 @@ public class Game {
             additional = 0;
         }
 
-        //board.colorizeMove(move, ourPlayer, additional);
+        board.colorizeMove(move, ourPlayer, additional);
         return new int[] {move.getX(), move.getY(), additional};
     }
 
@@ -193,7 +142,16 @@ public class Game {
      * @see Board
      */
     public void executeMove(int x, int y, int player, int additionalOperation) {
-        board.executeMove(x, y, players[player - 1], additionalOperation, true);
+        Player currentPlayer = players[player - 1];
+        List<Move> legalMoves = board.getLegalMoves(currentPlayer, true);
+        int[] selectedMove = new int[] {x, y};
+
+        for (Move legalMove : legalMoves) {
+            if (legalMove.isMove(selectedMove)) {
+                board.colorizeMove(legalMove, currentPlayer, additionalOperation);
+                break;
+            }
+        }
     }
 
     /**

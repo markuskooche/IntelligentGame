@@ -2,6 +2,7 @@ package server;
 
 import controller.Game;
 import loganalyze.additional.AnalyzeParser;
+import map.Player;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,36 +12,42 @@ import java.util.*;
 
 public class ServerConnection {
 
-    private boolean bomb = false;
-    private final boolean alphaBeta;
+    private static final byte group = 1;
+    private AnalyzeParser analyzeParser;
+
+    private String host = "127.0.0.1";
+    private int port = 7777;
+
+    private boolean alphaBeta = true;
+    private boolean moveSorting = true;
+
+    private boolean consoleOutput = true;
+    private boolean reduceOutput = true;
 
     private Game game;
     private byte ourPlayer;
     private Socket socket;
     private boolean running = true;
+    private boolean bomb = false;
 
-    public ServerConnection(String host, int port, int groupNumber, boolean alphaBeta) {
-        this.alphaBeta = alphaBeta;
-        AnalyzeParser.printGameInformation(alphaBeta);
+    public void start() {
+        this.analyzeParser = new AnalyzeParser(group, consoleOutput, reduceOutput);
+        analyzeParser.printGameInformation(alphaBeta);
 
         try {
             socket = new Socket(InetAddress.getByName(host), port);
-            byte group = (byte) groupNumber;
             byte[] message = new byte[] {1, 0, 0, 0, 1, group};
 
             sendMessage(message);
-            play();
+
+            while (running) {
+                receiveMessage();
+            }
         } catch (ConnectException ce) {
             System.err.println("No server is running on " + host + ":" + port + "!");
         } catch (IOException e) {
             System.err.println("Please add this Exception to ServerConnection IOException Block");
             e.printStackTrace();
-        }
-    }
-
-    private void play() throws IOException {
-        while (running) {
-            receiveMessage();
         }
     }
 
@@ -61,24 +68,37 @@ public class ServerConnection {
         inputStream.read(byteMessage, 0, messageLength);
 
         switch (messageHeader[0]) {
+            // receive the map
             case 2:
-                game = new Game(createMap(byteMessage));
+                analyzeParser.parseBoard(byteMessage);
+                List<String> receivedMap = MapParser.createMap(byteMessage);
+                game = new Game(receivedMap, analyzeParser);
                 break;
+            // receive your player number
             case 3:
                 ourPlayer = byteMessage[0];
                 game.setOurPlayerNumber(ourPlayer);
-                AnalyzeParser.setPlayer(ourPlayer);
+                analyzeParser.setPlayer(ourPlayer);
                 break;
+            // receive a move request and sending a move
             case 4:
                 int allowedTime = get32Integer(byteMessage, 0);
                 byte allowedDepth = byteMessage[4];
 
-                System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
-                //game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
+                if (analyzeParser.isPrintable()) {
+                    Player printPlayer = game.getPlayer(ourPlayer);
+                    analyzeParser.loggingBoard(game.getBoard(), printPlayer);
+                }
 
                 if (!bomb) {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                    int[] executedMove = game.executeOurMove(allowedTime, alphaBeta);
+                    int[] executedMove;
+
+                    if (allowedTime == 0) {
+                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta, moveSorting);
+                    } else {
+                        executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting);
+                    }
 
                     // insert the x coordinate into the byte array
                     move[6] = (byte) (executedMove[0]);
@@ -91,7 +111,7 @@ public class ServerConnection {
                     // insert the special field into the byte array
                     move[9] = (byte) (executedMove[2]);
                     sendMessage(move);
-                    AnalyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
+                    analyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
                 } else {
                     char[][] field = game.getBoard().getField();
                     byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
@@ -117,9 +137,10 @@ public class ServerConnection {
 
                     sendMessage(bombMove);
                     game.executeBomb(xBomb, yBomb);
-                    AnalyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
+                    analyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
                 }
                 break;
+            // receive a move of a player (also from itself)
             case 6:
                 int x = byteMessage[0] << 8;
                 x += byteMessage[1];
@@ -130,74 +151,54 @@ public class ServerConnection {
                 int player = byteMessage[5];
                 int additionalOperation = byteMessage[4];
 
-                AnalyzeParser.printCurrentTime(player);
+                analyzeParser.printCurrentTime(player);
 
                 if (player != ourPlayer) {
-                    //game.getBoard().loggingBoard(game.getPlayer(player));
+                    if (analyzeParser.isPrintable()) {
+                        Player printPlayer = game.getPlayer(player);
+                        analyzeParser.loggingBoard(game.getBoard(), printPlayer);
+                    }
 
                     if (!bomb) {
                         game.executeMove(x, y, player, additionalOperation);
-                        AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                        analyzeParser.parseMove(x, y, player, additionalOperation);
                     } else {
                         game.executeBomb(x, y);
-                        AnalyzeParser.parseMove(x, y, player, 0);
+                        analyzeParser.parseMove(x, y, player, 0);
                     }
                 } else {
-                    AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                    analyzeParser.parseMove(x, y, player, additionalOperation);
                 }
-
-                //int nextPlayer = (player % game.getPlayers().length) + 1;
-                //game.getBoard().loggingBoard(game.getPlayer(nextPlayer));
                 break;
+            // receive a disqualified player
             case 7:
+                Player disqualifiedPlayer = game.getPlayer(byteMessage[0]);
+                disqualifiedPlayer.setDisqualified();
+
                 if (byteMessage[0] == ourPlayer) {
-                    System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
-                    System.out.println(game.getBoard().toString());
+                    analyzeParser.disqualifiedSelf(ourPlayer, game.getBoard());
+                } else {
+                    analyzeParser.disqualifyPlayer(byteMessage[0]);
                 }
-                AnalyzeParser.disqualifyPlayer(byteMessage[0]);
                 break;
+            // receive that phase 2 has started
             case 8:
                 bomb = true;
-                AnalyzeParser.startBombPhase();
+                analyzeParser.startBombPhase();
                 break;
+            // receive that the game has finished
             case 9:
                 running = false;
-                AnalyzeParser.endGame();
-                //game.getBoard().loggingBoard();
+                analyzeParser.endGame();
+                if (analyzeParser.isPrintable()) {
+                    char[][] field = game.getBoard().getField();
+                    analyzeParser.loggingBoard(field);
+                }
                 System.exit(0);
                 break;
             default:
                 break;
         }
-    }
-
-    public static List<String> createMap(byte[] elements) {
-        int length = elements.length;
-        char[] message = new char[length];
-
-        // TODO: Das kann man alles weglassen da nun diese Methode zum parsen verwendet wird. (BITTE UMBAUEN)
-        List<Byte> printList = new ArrayList<>();
-
-        for (int i = 0; i < length; i++) {
-            message[i] = (char) elements[i];
-            if (elements[i] != ((byte) 13)) {
-                printList.add(elements[i]);
-            }
-        }
-
-        AnalyzeParser.parseBoard(printList);
-
-        String string = String.valueOf(message);
-
-        String[] lines;
-        // TODO: Könnte eventuell nicht funktionieren wenn Leerzeichen folgen. (BITTE TESTEN)
-        if (elements[1] == (byte) 13) {
-            lines = string.split("\r\n");
-        } else {
-            lines = string.split("\n");
-        }
-
-        return new LinkedList<>(Arrays.asList(lines));
     }
 
     private int get32Integer(byte[] header, int offset) {
@@ -209,5 +210,29 @@ public class ServerConnection {
         }
 
         return length;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void setAlphaBeta(boolean alphaBeta) {
+        this.alphaBeta = alphaBeta;
+    }
+
+    public void setMoveSorting(boolean moveSorting) {
+        this.moveSorting = moveSorting;
+    }
+
+    public void setConsoleOutput(boolean consoleOutput) {
+        this.consoleOutput = consoleOutput;
+    }
+
+    public void setReduceOutput(boolean reduceOutput) {
+        this.reduceOutput = reduceOutput;
     }
 }

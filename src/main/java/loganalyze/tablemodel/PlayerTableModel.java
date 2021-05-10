@@ -66,7 +66,7 @@ public class PlayerTableModel extends AbstractTableModel {
                     return "Disqualifiziert: " + disqualifiedMove;
                 }
             } else if (playerRow == 3) {
-                return "Überschreibsteine: " + player.getOverride();
+                return "\u00dcberschreibsteine: " + player.getOverride();
             } else if (playerRow == 4) {
                 return "Bomben: " + player.getBomb();
             }

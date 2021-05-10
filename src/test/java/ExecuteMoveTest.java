@@ -1,27 +1,30 @@
 import controller.Game;
+import loganalyze.additional.AnalyzeParser;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import server.MapParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestExecuteMove {
+public class ExecuteMoveTest {
 
 
-    private Game createGame(String filename, int player){
+    private Game createGame(String filename){
         Game game = null;
         Path path = Paths.get(filename);
 
         try {
-            List<String> file = Files.lines(path).collect(Collectors.toList());
-            game = new Game(file, player);
+            byte[] bytes = Files.readAllBytes(path);
+            List<String> file = MapParser.createMap(bytes);
+            AnalyzeParser analyzeParser =  new AnalyzeParser(1, false, true);
+            game = new Game(file, analyzeParser);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,7 +44,7 @@ public class TestExecuteMove {
                                {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
                                {'0', '0', '0', '0', '0', '0', '0', '0', '0'}};
 
-        Game game = createGame("maps/testMaps/standard/EasyTestMap.map", 1);
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
         //checks if a move to a Edge is valid
         game.executeMove(8 , 4, 1, 0);
         //check if the board is still the same
@@ -70,7 +73,7 @@ public class TestExecuteMove {
     @DisplayName("Simulates a few turns of a game to see if the board is updated properly")
     void simulateGame() {
 
-        Game game = createGame("maps/testMaps/standard/EasyTestMap.map", 1);
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
 
         //map.Move 1
         game.executeMove(4 , 3, 1, 0);
@@ -160,7 +163,7 @@ public class TestExecuteMove {
     @DisplayName("Test if the turns over holes are invalid")
     void testTurnWithHolesInBetween() {
 
-        Game game = createGame("maps/testMaps/standard/TestMapForHoles.map", 1);
+        Game game = createGame("maps/testMaps/standard/TestMapForHoles.map");
 
         char[][] expectedResult = {{'0', '0', '0', '0', '0', '0', '0', '0', '0'},
                                    {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -175,7 +178,7 @@ public class TestExecuteMove {
     @Test
     @DisplayName("Test what happens if a player with no overridestones trys to override something")
     void testOverrideWithNoOverridestones() {
-        Game game = createGame("maps/testMaps/standard/TestOverrideStonesWithNoStones.map", 1);
+        Game game = createGame("maps/testMaps/standard/TestOverrideStonesWithNoStones.map");
 
         game.executeMove(2 , 2, 1, 0);
 
@@ -191,7 +194,7 @@ public class TestExecuteMove {
     @Test
     @DisplayName("Test what happens if a player with no overridestones trys to override something")
     void testOverride() {
-        Game game = createGame("maps/testMaps/standard/TestOverrideStones.map", 1);
+        Game game = createGame("maps/testMaps/standard/TestOverrideStones.map");
 
         game.executeMove(2 , 2, 1, 0);
 
@@ -208,7 +211,7 @@ public class TestExecuteMove {
     @DisplayName("Test for all directions")
     void testAllDirection() {
 
-        Game game = createGame("maps/testMaps/standard/AllDirectionsTestMap.map", 1);
+        Game game = createGame("maps/testMaps/standard/AllDirectionsTestMap.map");
 
         game.executeMove(3 , 2, 2, 0);
 
@@ -226,7 +229,7 @@ public class TestExecuteMove {
     @DisplayName("Test for all directions while using an Override stone")
     void testAllDirectionsWithOverrideStones() {
 
-        Game game = createGame("maps/testMaps/standard/TestOverrideStonesAllDirections.map", 1);
+        Game game = createGame("maps/testMaps/standard/TestOverrideStonesAllDirections.map");
 
         game.executeMove(2 , 3, 2, 0);
 
@@ -243,7 +246,7 @@ public class TestExecuteMove {
     @DisplayName("Test the first evil Map")
     void TestEvilMap1() {
 
-        Game game = createGame("maps/evilMaps/boeseMap01.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap01.map");
         System.out.println(game.toString());
         game.executeMove(3 , 0, 1, 0);
 
@@ -258,7 +261,7 @@ public class TestExecuteMove {
     @DisplayName("Test the second evil Map")
     void TestEvilMap2() {
 
-        Game game = createGame("maps/evilMaps/boeseMap02.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap02.map");
         game.executeMove(4 , 0, 1, 0);
 
         char[][] expectedResult = {{'1', '1', '1', '1', '1', '1', '1', '1', '1', '1'},
@@ -272,7 +275,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 3th evil Map")
     void TestEvilMap3() {
 
-        Game game = createGame("maps/evilMaps/boeseMap03.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap03.map");
         game.executeMove(2 , 0, 1, 0);
 
         char[][] expectedResult = {{'0', '0', '1'},
@@ -288,7 +291,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 4th evil Map")
     void TestEvilMap4() {
 
-        Game game = createGame("maps/evilMaps/boeseMap04.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap04.map");
         game.executeMove(0 , 2, 1, 0);
 
 
@@ -305,7 +308,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 5th evil Map")
     void TestEvilMap5() {
 
-        Game game = createGame("maps/evilMaps/boeseMap05.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap05.map");
         game.executeMove(0 , 2, 1, 0);
 
         char[][] expectedResult = {{'1', '1', '1'},
@@ -321,7 +324,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 6th evil Map")
     void TestEvilMap6() {
 
-        Game game = createGame("maps/evilMaps/boeseMap06.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap06.map");
         game.executeMove(4 , 2, 1, 0);
 
         char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '-', '-', '-'},
@@ -341,7 +344,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 7th evil Map")
     void TestEvilMap7() {
 
-        Game game = createGame("maps/evilMaps/boeseMap07.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap07.map");
         game.executeMove(6 , 0, 1, 0);
 
         char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
@@ -360,7 +363,7 @@ public class TestExecuteMove {
     @Test
     @DisplayName("Test the 8th evil Map")
     void TestEvilMap8() {
-        Game game = createGame("maps/evilMaps/boeseMap08.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap08.map");
         game.executeMove(6 , 2, 1, 0);
 
         char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
@@ -380,7 +383,7 @@ public class TestExecuteMove {
     @Test
     @DisplayName("Test the 8th evil Map (override themself)")
     void TestEvilMap8OverrideThemself() {
-        Game game = createGame("maps/evilMaps/boeseMap08.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap08.map");
         game.executeMove(6 , 0, 1, 0);
 
         char[][] expectedResult = {{'-', '-', '-', '-', '-', '-', '1', '-', '-', '-', '-'},
@@ -400,7 +403,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 9th evil Map")
     void TestEvilMap9() {
 
-        Game game = createGame("maps/evilMaps/boeseMap09.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap09.map");
         game.executeMove(4 , 4, 1, 2);
 
         //choice take stones of player 2 makes no sense but do it anyways
@@ -422,7 +425,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 10th evil Map")
     void TestEvilMap10() {
 
-        Game game = createGame("maps/evilMaps/boeseMap10.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap10.map");
         game.executeMove(4 , 4, 1, 0);
 
         char[][] expectedResult2 = {{'-', '-', '-', '-', '-', '-', '-', '-'},
@@ -441,7 +444,7 @@ public class TestExecuteMove {
     @DisplayName("Test the 11th evil Map")
     void TestEvilMap11() {
 
-        Game game = createGame("maps/evilMaps/boeseMap11.map", 1);
+        Game game = createGame("maps/evilMaps/boeseMap11.map");
         game.executeMove(3 , 2, 1, 0);
 
         char[][] expectedResult = {{'-', '-', '-', '-'},
@@ -462,7 +465,7 @@ public class TestExecuteMove {
     @DisplayName("Test 1st transitionsMap")
     void TestTransitionsMap1() {
 
-        Game game = createGame("maps/testMaps/transitions/map01.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map01.map");
         game.executeMove(2 , 2, 1, 0);
 
         char[][] expectedResult = {{'1', '1', '1', '1', '1'},
@@ -479,7 +482,7 @@ public class TestExecuteMove {
     @DisplayName("Test 2st transitionsMap")
     void TestTransitionsMap2() {
 
-        Game game = createGame("maps/testMaps/transitions/map02.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map02.map");
         game.executeMove(0 , 2, 1, 0);
 
         char[][] expectedResult = {{'1', '1', '1', '1'},
@@ -495,7 +498,7 @@ public class TestExecuteMove {
     @DisplayName("Test 3st transitionsMap")
     void TestTransitionsMap3() {
 
-        Game game = createGame("maps/testMaps/transitions/map03.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map03.map");
         game.executeMove(5 , 5, 1, 0);
 
         char[][] expectedResult = {{'1', '-', '-', '-', '-', '1', '-', '-', '-', '-', '1'},
@@ -518,7 +521,7 @@ public class TestExecuteMove {
     @DisplayName("Test 4st transitionsMap")
     void TestTransitionsMap4() {
 
-        Game game = createGame("maps/testMaps/transitions/map04.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map04.map");
         game.executeMove(5 , 5, 1, 0);
 
         char[][] expectedResult = {{'1', '-', '-', '-', '-', '1', '-', '-', '-', '-', '1'},
@@ -541,7 +544,7 @@ public class TestExecuteMove {
     @DisplayName("Test 5st transitionsMap")
     void TestTransitionsMap5() {
 
-        Game game = createGame("maps/testMaps/transitions/map05.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map05.map");
         game.executeMove(5 , 5, 1, 0);
 
         char[][] expectedResult = {{'1', '-', '-', '-', '-', '1', '-', '-', '-', '-', '1'},
@@ -565,7 +568,7 @@ public class TestExecuteMove {
     @DisplayName("Test 6st transitionsMap")
     void TestTransitionsMap6() {
 
-        Game game = createGame("maps/testMaps/transitions/map06.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map06.map");
         game.executeMove(5 , 5, 1, 0);
 
         char[][] expectedResult = {{'1', '-', '-', '-', '-', '1', '-', '-', '-', '-', '1'},
@@ -588,7 +591,7 @@ public class TestExecuteMove {
     @DisplayName("Test 7st transitionsMap")
     void TestTransitionsMap7() {
 
-        Game game = createGame("maps/testMaps/transitions/map07.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map07.map");
         game.executeMove(5 , 5, 1, 0);
 
         char[][] expectedResult = {{'1', '-', '-', '-', '-', '1', '-', '-', '-', '-', '1'},
@@ -611,7 +614,7 @@ public class TestExecuteMove {
     @DisplayName("Test 8st transitionsMap")
     void TestTransitionsMap8() {
 
-        Game game = createGame("maps/testMaps/transitions/map08.map", 1);
+        Game game = createGame("maps/testMaps/transitions/map08.map");
         game.executeMove(5 , 5, 1, 0);
 
         char[][] expectedResult = {
