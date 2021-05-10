@@ -74,11 +74,11 @@ public class ServerConnection {
                 byte allowedDepth = byteMessage[4];
 
                 System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
-                game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
+                //game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
 
                 if (!bomb) {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                    int[] executedMove = game.executeOurMove(allowedDepth, alphaBeta);
+                    int[] executedMove = game.executeOurMove(allowedTime, alphaBeta);
 
                     // insert the x coordinate into the byte array
                     move[6] = (byte) (executedMove[0]);
@@ -133,7 +133,7 @@ public class ServerConnection {
                 AnalyzeParser.printCurrentTime(player);
 
                 if (player != ourPlayer) {
-                    game.getBoard().loggingBoard(game.getPlayer(player));
+                    //game.getBoard().loggingBoard(game.getPlayer(player));
 
                     if (!bomb) {
                         game.executeMove(x, y, player, additionalOperation);
@@ -163,7 +163,7 @@ public class ServerConnection {
             case 9:
                 running = false;
                 AnalyzeParser.endGame();
-                game.getBoard().loggingBoard();
+                //game.getBoard().loggingBoard();
                 System.exit(0);
                 break;
             default:
