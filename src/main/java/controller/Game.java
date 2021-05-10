@@ -47,29 +47,22 @@ public class Game {
 
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta) {
         Player ourPlayer = players[ourPlayerNumber - 1];
-        int [] ourMove = new int[3];
-        long time = System.currentTimeMillis();
         Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta);
-        // TODO: [Iwan] System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
-        ourMove[0] = move.getX();
-        ourMove[1] = move.getY();
+        int additional;
 
         if (move.isChoice()) {
+            // TODO: additional should be the currently best player
             Random r = new Random();
-            ourMove[2] = r.nextInt(players.length - 1) + 1;
+            additional = r.nextInt(players.length - 1) + 1;
         } else if (move.isBonus()) {
-            ourMove[2] = 21; //Extra Overridestone
+            // always choosing an overridestone
+            additional = 21;
         } else {
-            ourMove[2] = 0; // Just a normal move
+            additional = 0;
         }
-        // TODO: [Iwan] System.out.println("X: " + ourMove[0] + " Y: " + ourMove[1] + " special: " + ourMove[2]);
 
-        if (move.isOverride()) {
-            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], true);
-        } else {
-            board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], false);
-        }
-        return ourMove;
+        board.colorizeMove(move, ourPlayer, additional);
+        return new int[] {move.getX(), move.getY(), additional};
     }
 
     private void createPlayers(List<String> initMap) {
@@ -149,7 +142,16 @@ public class Game {
      * @see Board
      */
     public void executeMove(int x, int y, int player, int additionalOperation) {
-        board.executeMove(x, y, players[player - 1], additionalOperation, true);
+        Player currentPlayer = players[player - 1];
+        List<Move> legalMoves = board.getLegalMoves(currentPlayer, true);
+        int[] selectedMove = new int[] {x, y};
+
+        for (Move legalMove : legalMoves) {
+            if (legalMove.isMove(selectedMove)) {
+                board.colorizeMove(legalMove, currentPlayer, additionalOperation);
+                break;
+            }
+        }
     }
 
     /**

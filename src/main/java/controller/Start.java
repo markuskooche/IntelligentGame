@@ -14,7 +14,8 @@ import java.util.Scanner;
 
 public class Start {
 
-    private static final boolean override = true;
+    private static final boolean OVERRIDE = true;
+    private static final int PLAYER_NUMBER = 1;
 
     private static Game createGame(String filename){
         Game game = null;
@@ -48,7 +49,7 @@ public class Start {
 
         } while((x < 0 || x >= width) || (y < 0 && x >= height));
 
-        List<Move> legalMoves = game.getBoard().getLegalMoves(player, override);
+        List<Move> legalMoves = game.getBoard().getLegalMoves(player, OVERRIDE);
         for (Move legalMove : legalMoves) {
             if (legalMove.isMove(new int[] {x, y})) {
                 if (legalMove.isBonus()) {
@@ -80,7 +81,7 @@ public class Start {
         System.out.println(game);
 
         Player player = game.getPlayer(1);
-        List<Move> legalMoves = game.getBoard().getLegalMoves(player, override);
+        List<Move> legalMoves = game.getBoard().getLegalMoves(player, OVERRIDE);
 
         for (Move legalMove : legalMoves) {
             System.out.println(legalMove);
@@ -93,7 +94,7 @@ public class Start {
         int y = position[1];
         int a = position[2];
 
-        game.getBoard().executeMove(x, y, player, a, override);
+        game.executeMove(x, y, PLAYER_NUMBER, a);
         System.out.println(game.getBoard());
     }
 }

@@ -175,10 +175,13 @@ public class Heuristics {
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
-            int x = m.getX();
-            int y = m.getY();
+
+            // ??: int x = m.getX();
+            // ??: int y = m.getY();
             int additionalInformation = getAdditionalInfo(m, player);
-            newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
+            // ??: newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
+            newBoard.colorizeMove(m, player, additionalInformation);
+
             //executeMove() will decrease if override = true -> but this is only an assumption
             if(overrideMoves) player.increaseOverrideStone();
             if(m.isBonus()) player.decreaseOverrideStone();

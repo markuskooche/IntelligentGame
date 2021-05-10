@@ -12,7 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-public class TestReachableField {
+public class ReachableFieldTest {
 
     private Game createGame(String filename) {
         Game game = null;

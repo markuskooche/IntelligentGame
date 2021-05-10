@@ -144,7 +144,6 @@ public class Board {
                 }
 
                 if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
-                //if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1 && (overrideMoves || legalMoves.isEmpty())) {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
                         legalMoves.add(legalOverrideMove);
@@ -154,7 +153,6 @@ public class Board {
         }
 
         if (player.hasOverrideStone() && overrideMoves) {
-        //if (player.hasOverrideStone() && (overrideMoves || legalMoves.isEmpty())) {
             for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
                 legalMoves.add(expansionMove);
@@ -168,47 +166,26 @@ public class Board {
         field[y][x] = '-';
     }
 
-    /**
-     * Computerized method for executing a valid move.
-     *
-     * @param x position of the player on the x axis
-     * @param y position of the player on the y axis
-     * @param player player who should execute the move
-     * @param overrideMoves boolean whether override stones are to be executed as well
-     *
-     * @see Move
-     */
-    public void executeMove(int x, int y, Player player, int additionalOperation, boolean overrideMoves) {
-        List<Move> legalMoves = getLegalMoves(player, overrideMoves);
-
-        int[] move = new int[] {x, y};
-        colorizeMove(legalMoves, move, player, additionalOperation);
-    }
-
-    private void colorizeMove(List<Move> legalMoves, int[] move, Player player, int additionalOperation) {
+    public void colorizeMove(Move legalMove, Player player, int additionalOperation) {
         boolean override = false;
 
         boolean inversion = false;
         boolean choice = false;
         boolean bonus = false;
 
-        for (Move legalMove : legalMoves) {
-            if (legalMove.isMove(move)) {
-                for (int[] position : legalMove.getList()) {
-                    int colorizeX = position[0];
-                    int colorizeY = position[1];
-                    field[colorizeY][colorizeX] = player.getNumber();
+        for (int[] position : legalMove.getList()) {
+            int colorizeX = position[0];
+            int colorizeY = position[1];
+            field[colorizeY][colorizeX] = player.getNumber();
 
-                    if (legalMove.isInversion()) {
-                        inversion = true;
-                    } else if (legalMove.isChoice()) {
-                        choice = true;
-                    } else if (legalMove.isBonus()) {
-                        bonus = true;
-                    } else if (legalMove.isOverride()) {
-                        override = true;
-                    }
-                }
+            if (legalMove.isInversion()) {
+                inversion = true;
+            } else if (legalMove.isChoice()) {
+                choice = true;
+            } else if (legalMove.isBonus()) {
+                bonus = true;
+            } else if (legalMove.isOverride()) {
+                override = true;
             }
         }
 
