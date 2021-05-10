@@ -1,5 +1,6 @@
 package heuristic;
 
+import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
 import map.Player;
@@ -18,14 +19,16 @@ public class Heuristics {
     private int width;
     private long spentTime;
     private long zeit;
+    private static AnalyzeParser analyzeParser;
 
-    public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer) {
+    public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
         this.board = board;
         this.players = players;
         numPlayers = players.length;
         this.mapAnalyzer = mapAnalyzer;
         this.height = board.getHeight();
         this.width = board.getWidth();
+        Heuristics.analyzeParser = analyzeParser;
     }
 
     public Move getMoveTimeLimited(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
@@ -101,7 +104,7 @@ public class Heuristics {
                  break;
             }
 
-            System.out.println("Search Depth: " + searchDepth + " Spent Time: " + spentTime + " Analyzed: " + mapsAnalyzed);
+            //System.out.println("Search Depth: " + searchDepth + " Spent Time: " + spentTime + " Analyzed: " + mapsAnalyzed);
             move = tmpMove;
             searchDepth ++;
         }
@@ -113,10 +116,8 @@ public class Heuristics {
                                int alpha ,int beta, boolean alphaBeta, boolean orderMoves, long time, long maxTimeForMove) throws TimeExceededException {
 
         spentTime += (System.currentTimeMillis() - zeit);
-        if (spentTime > maxTimeForMove) {
-            System.out.println("B");
-            throw new TimeExceededException();
-        }
+        if (spentTime > maxTimeForMove) throw new TimeExceededException();
+
         zeit = System.currentTimeMillis();
 
         Player player = players[currPlayer - 1];
@@ -196,10 +197,7 @@ public class Heuristics {
                 }
             }
             spentTime += (System.currentTimeMillis() - zeit);
-            if (spentTime > maxTimeForMove) {
-                System.out.println("A");
-                throw new TimeExceededException();
-            }
+            if (spentTime > maxTimeForMove) throw new TimeExceededException();
         }
 
         return value;
@@ -359,19 +357,20 @@ public class Heuristics {
 
     private List<BoardMove> executeAllMoves(Player player, Board board, boolean overrideMoves) {
         List<Move> myMoves = board.getLegalMoves(player, overrideMoves);
+        // TODO: [IWAN] System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
-            int x = m.getX();
-            int y = m.getY();
             int additionalInformation = getAdditionalInfo(m, player);
-            newBoard.executeMove(x, y, player, additionalInformation, overrideMoves);
+            newBoard.colorizeMove(m, player, additionalInformation);
+
             //executeMove() will decrease if override = true -> but this is only an assumption
             if(overrideMoves) player.increaseOverrideStone();
             if(m.isBonus()) player.decreaseOverrideStone();
             //-------------------------------------------------
             executedMoves.add(new BoardMove(newBoard, m, player));
         }
+        // TODO: [IWAN] System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
         return executedMoves;
     }
 
@@ -413,7 +412,7 @@ public class Heuristics {
         return value;
     }
 
-    public int getMapValue(Player player, Board tmpBoard) {
+    public int getMapValue2(Player player, Board tmpBoard) {
         long myMapValue = mapAnalyzer.calculateScoreForPlayer2(player.getNumber(), tmpBoard);
 
         long mapValueAll = 0;
@@ -424,7 +423,8 @@ public class Heuristics {
         double tmpMapValue = ((double) myMapValue) / mapValueAll;
         return (int) (tmpMapValue * 100000);
     }
-    public int getMapValue2(Player player, Board tmpBoard) {
+
+    public int getMapValue(Player player, Board tmpBoard) {
         int factor = (int) (100000);
         return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, factor);
     }

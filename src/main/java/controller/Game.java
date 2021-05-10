@@ -45,9 +45,29 @@ public class Game {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
+    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
+        Player ourPlayer = players[ourPlayerNumber - 1];
+        Move move = heuristics.getMoveTimeLimited(ourPlayer, time, alphaBeta, moveSorting);
+        int additional;
+
+        if (move.isChoice()) {
+            // TODO: additional should be the currently best player
+            Random r = new Random();
+            additional = r.nextInt(players.length - 1) + 1;
+        } else if (move.isBonus()) {
+            // always choosing an overridestone
+            additional = 21;
+        } else {
+            additional = 0;
+        }
+
+        board.colorizeMove(move, ourPlayer, additional);
+        return new int[] {move.getX(), move.getY(), additional};
+    }
+
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta);
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, moveSorting);
         int additional;
 
         if (move.isChoice()) {
