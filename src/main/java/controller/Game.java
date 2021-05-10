@@ -53,7 +53,8 @@ public class Game {
         Player ourPlayer = players[ourPlayerNumber - 1];
         int [] ourMove = new int[3];
         long time = System.currentTimeMillis();
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, true);
+        Move move = heuristics.getMoveTimeLimited(ourPlayer, depth - 200, alphaBeta, false);
+        //Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, true);
         System.out.println("Time for Move: " + (System.currentTimeMillis() - time) + " ms");
         ourMove[0] = move.getX();
         ourMove[1] = move.getY();
@@ -73,6 +74,46 @@ public class Game {
             board.executeMove(ourMove[0], ourMove[1], ourPlayer, ourMove[2], false);
         }
         return ourMove;
+    }
+
+    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
+        Player ourPlayer = players[ourPlayerNumber - 1];
+        Move move = heuristics.getMoveTimeLimited(ourPlayer, time - 200, alphaBeta, moveSorting);
+        int additional;
+
+        if (move.isChoice()) {
+            // TODO: additional should be the currently best player
+            Random r = new Random();
+            additional = r.nextInt(players.length - 1) + 1;
+        } else if (move.isBonus()) {
+            // always choosing an overridestone
+            additional = 21;
+        } else {
+            additional = 0;
+        }
+
+        //board.colorizeMove(move, ourPlayer, additional);
+        return new int[] {move.getX(), move.getY(), additional};
+    }
+
+    public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
+        Player ourPlayer = players[ourPlayerNumber - 1];
+        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, moveSorting);
+        int additional;
+
+        if (move.isChoice()) {
+            // TODO: additional should be the currently best player
+            Random r = new Random();
+            additional = r.nextInt(players.length - 1) + 1;
+        } else if (move.isBonus()) {
+            // always choosing an overridestone
+            additional = 21;
+        } else {
+            additional = 0;
+        }
+
+        //board.colorizeMove(move, ourPlayer, additional);
+        return new int[] {move.getX(), move.getY(), additional};
     }
 
     private void createPlayers(List<String> initMap) {

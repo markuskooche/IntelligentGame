@@ -16,6 +16,8 @@ public class Heuristics {
     private MapAnalyzer mapAnalyzer;
     private int height;
     private int width;
+    private long spentTime;
+    private long zeit;
 
     public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer) {
         this.board = board;
@@ -26,8 +28,184 @@ public class Heuristics {
         this.width = board.getWidth();
     }
 
+    public Move getMoveTimeLimited(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
+        long time = System.currentTimeMillis();
+        Move move = new Move();
+        spentTime = 0;
+        int searchDepth = 2;
+
+        int ourPlayerNum = ourPlayer.getNumber() - '0';
+        int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
+
+        Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
+        List<BoardMove> executedStartMoves = executeAllMoves(ourPlayer,startBoard, false);
+
+        if (executedStartMoves.isEmpty()) {
+            return onlyOverrideStone(startBoard, ourPlayer);
+        }
+        if (executedStartMoves.size() == 1) { //OverrideStones are not included
+            return executedStartMoves.get(0).getMove();
+        }
+
+        if (orderMoves) sortExecutedMoves(executedStartMoves, ourPlayer, ourPlayer);
+
+        //Auswertung für die 1 Tiefe.
+        SearchNode root = new SearchNode(null, startBoard, executedStartMoves, ourPlayer, true, 1);
+        int pickedBoardValue = Integer.MIN_VALUE;
+        for (BoardMove boardMove : executedStartMoves) {
+            Board b = boardMove.getBoard();
+            Move m = boardMove.getMove();
+            int tmpValue = getEvaluationForPlayer(ourPlayer, b, m);
+            if (tmpValue > pickedBoardValue) {
+                pickedBoardValue = tmpValue;
+                move = boardMove.getMove();
+            }
+        }
+        root.setPickedBoardValue(pickedBoardValue);
+
+        spentTime += (System.currentTimeMillis() - time);
+
+        //Search till no time left
+        while(spentTime < maxTimeForMove) {
+
+
+            if (searchDepth == 10) {
+                return move;
+            }
+
+            mapsAnalyzed = 0;
+            zeit = System.currentTimeMillis();
+            time = System.currentTimeMillis();
+            Move tmpMove = new Move();
+            try {
+                int depth = 1;
+                int value = Integer.MIN_VALUE;
+                int maxLoop = 0;
+
+                int alpha = Integer.MIN_VALUE;
+                int beta = Integer.MAX_VALUE;
+                for (BoardMove boardMove : executedStartMoves) {
+                    mapsAnalyzed++;
+                    int tmpValue  = 0;
+                    tmpValue = searchParanoidTimeLimited(root, nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, searchDepth, maxLoop,
+                            alpha, beta, alphaBeta, orderMoves, time, maxTimeForMove);
+
+                    if (tmpValue > value) {
+                        value = tmpValue;
+                        tmpMove = boardMove.getMove();
+                        if (alphaBeta) alpha = tmpValue;
+                    }
+                    depth = 1;
+                }
+            } catch (TimeExceededException e) {
+                 break;
+            }
+
+            System.out.println("Search Depth: " + searchDepth + " Spent Time: " + spentTime + " Analyzed: " + mapsAnalyzed);
+            move = tmpMove;
+            searchDepth ++;
+        }
+
+        return move;
+    }
+
+    private int searchParanoidTimeLimited(SearchNode root, int currPlayer, int ourPlayerNum, Board board, Move move, int depth, int maxDepth, int maxLoop,
+                               int alpha ,int beta, boolean alphaBeta, boolean orderMoves, long time, long maxTimeForMove) throws TimeExceededException {
+
+        spentTime += (System.currentTimeMillis() - zeit);
+        if (spentTime > maxTimeForMove) {
+            System.out.println("B");
+            throw new TimeExceededException();
+        }
+        zeit = System.currentTimeMillis();
+
+        Player player = players[currPlayer - 1];
+        Player ourPlayer = players[ourPlayerNum - 1];
+        SearchNode node = null;
+        depth++;
+
+        if(depth > maxDepth) return getEvaluationForPlayer(ourPlayer, board, move);
+
+        // Check if we already have all moves for this depth and board
+        List<BoardMove> executedMoves = new ArrayList<>();
+        if (!root.getNextChilds().isEmpty()) {
+            List<SearchNode> nextChilds = root.getNextChilds();
+            for (SearchNode child: nextChilds) {
+                if (child.getBoard() == board) {
+                    executedMoves = child.getExecutedMoves();
+                    node = child;
+                    break;
+                }
+            }
+        }
+        if (node == null) executedMoves = executeAllMoves(player, board, false);
+
+
+        // No moves for given player -> another player should move
+        // Or the player is disqualified
+        if (executedMoves.isEmpty() || player.isDisqualified()) {
+            int nextPlayer = (currPlayer % numPlayers) + 1;
+            if(maxLoop < numPlayers) {
+                maxLoop++;
+                return searchParanoidTimeLimited(root, nextPlayer, ourPlayerNum, board, move,depth - 1, maxDepth, maxLoop,
+                        alpha, beta, alphaBeta, orderMoves, time, maxTimeForMove);
+            } else {
+                return 0; //No player has any move (perhaps only override)
+            }
+        }
+
+        if (orderMoves && depth < (maxDepth - 1)) sortExecutedMoves(executedMoves, ourPlayer, player);
+
+        int value;
+        if (player == ourPlayer) {
+            value = Integer.MIN_VALUE; //MAX
+            if (node == null) {
+                node = new SearchNode(root, board, executedMoves, player, true, depth);
+                root.addNextChild(node);
+            }
+        } else {
+            value = Integer.MAX_VALUE; //MIN
+            if (node == null) {
+                node = new SearchNode(root, board, executedMoves, player, false, depth);
+                root.addNextChild(node);
+            }
+        }
+
+        int tmpValue;
+        int nextPlayer = (currPlayer % numPlayers) + 1;
+        for (BoardMove boardMove : executedMoves) {
+            mapsAnalyzed++;
+            tmpValue = searchParanoidTimeLimited(node, nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, maxDepth, maxLoop,
+                    alpha, beta, alphaBeta, orderMoves, time, maxTimeForMove);
+
+            if (player == ourPlayer) { //MAX
+                if (tmpValue > value) value = tmpValue;
+                if (alphaBeta) {
+                    if (tmpValue > alpha) alpha = tmpValue;
+                    if (tmpValue >= beta) {
+                        return value; //Cut off
+                    }
+                }
+            } else { //MIN
+                if (tmpValue < value) value = tmpValue;
+                if (alphaBeta) {
+                    if (tmpValue < beta) beta = tmpValue;
+                    if (tmpValue <= alpha) {
+                        return value; // Cut off
+                    }
+                }
+            }
+            spentTime += (System.currentTimeMillis() - zeit);
+            if (spentTime > maxTimeForMove) {
+                System.out.println("A");
+                throw new TimeExceededException();
+            }
+        }
+
+        return value;
+    }
+
     public Move getMoveParanoid(Player player, int searchDepth, boolean alphaBeta, boolean orderMoves) {
-        int numPlayers = players.length;
         int ourPlayerNum = player.getNumber() - '0';
         Player ourPlayer = players[ourPlayerNum - 1];
 
@@ -83,7 +261,6 @@ public class Heuristics {
         Move move = new Move();
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
-            //int tmpValue = getEvaluationForPlayer(player, boardMove.getBoard(), boardMove.getMove());
             int tmpValue = getCoinParity(player, boardMove.getBoard());
             if (tmpValue >= value) {
                 value = tmpValue;
@@ -245,10 +422,10 @@ public class Heuristics {
         }
 
         double tmpMapValue = ((double) myMapValue) / mapValueAll;
-        return (int) (tmpMapValue * 100000 * 1.15);
+        return (int) (tmpMapValue * 100000);
     }
     public int getMapValue2(Player player, Board tmpBoard) {
-        int factor = (int) (100000 * 1.15);
+        int factor = (int) (100000);
         return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, factor);
     }
 
