@@ -45,7 +45,7 @@ public class Game {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
-    public int[] executeOurMoveDepth(int depth, boolean alphaBeta) {
+    public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
         Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta);
         int additional;

@@ -94,14 +94,10 @@ public class ServerConnection {
                     byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
                     int[] executedMove;
 
-
                     if (allowedTime == 0) {
-                        // TODO: [Markus] add moveSorting
-                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta);
+                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta, moveSorting);
                     } else {
-                        // TODO: [Markus] add moveSorting
-                        // TODO: [Markus] executedMove = game.executeOurMoveTime(allowedTime, alphaBeta);
-                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta); // delete me
+                        executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting);
                     }
 
                     // insert the x coordinate into the byte array
