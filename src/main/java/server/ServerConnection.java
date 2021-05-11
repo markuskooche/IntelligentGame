@@ -24,7 +24,7 @@ public class ServerConnection {
         AnalyzeParser.printGameInformation(alphaBeta);
 
         try {
-            socket = new Socket(InetAddress.getByName(host), port);
+            socket = new Socket(host, port);
             byte group = (byte) groupNumber;
             byte[] message = new byte[] {1, 0, 0, 0, 1, group};
 

@@ -183,7 +183,7 @@ public class MapAnalyzer {
         changeFields(x,y,currentDirection);
         followFieldsPath.clear();
 
-        System.out.println("X: " + x + " Y: " + y);
+        //System.out.println("X: " + x + " Y: " + y);
 
         //Follow this direction until the End of the board
         while (true){
