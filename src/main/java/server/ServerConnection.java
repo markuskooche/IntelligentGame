@@ -24,7 +24,9 @@ public class ServerConnection {
         AnalyzeParser.printGameInformation(alphaBeta);
 
         try {
+            System.out.println("Try to connect..");
             socket = new Socket(host, port);
+            System.out.println("Connected..");
             byte group = (byte) groupNumber;
             byte[] message = new byte[] {1, 0, 0, 0, 1, group};
 
@@ -33,8 +35,6 @@ public class ServerConnection {
         } catch (ConnectException ce) {
             System.err.println("No server is running on " + host + ":" + port + "!");
         } catch (IOException e) {
-            //System.err.println("Please add this Exception to ServerConnection IOException Block");
-
             e.printStackTrace();
         }
     }
