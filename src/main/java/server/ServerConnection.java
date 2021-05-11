@@ -54,7 +54,7 @@ public class ServerConnection {
         InputStream inputStream = socket.getInputStream();
         byte[] messageHeader = new byte[5];
 
-        System.out.println(inputStream);
+        System.out.println("INPUTSTREAM: " + inputStream);
         int received = inputStream.read(messageHeader, 0, 5);
         System.out.println("R1: " + received);
 
