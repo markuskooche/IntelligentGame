@@ -65,7 +65,7 @@ public class Heuristics {
                 }
             }
         }
-        System.out.println("Analyzed Maps: " + mapsAnalyzed);
+        //System.out.println("Analyzed Maps: " + mapsAnalyzed);
         System.out.println("XT01-98-AM-" + mapsAnalyzed);
 //        System.out.println("OUR PICKED MOVE (PARANOID): " + move);
         return move;
