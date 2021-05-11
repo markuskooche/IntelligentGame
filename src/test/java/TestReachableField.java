@@ -1,5 +1,6 @@
 import controller.Game;
 import loganalyze.additional.AnalyzeParser;
+import mapanalyze.FieldStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import server.ServerConnection;

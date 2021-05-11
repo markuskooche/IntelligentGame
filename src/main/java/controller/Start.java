@@ -29,7 +29,7 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/fancyMaps/qr.map");
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(1);

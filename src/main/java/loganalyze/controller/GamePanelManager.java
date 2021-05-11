@@ -8,6 +8,7 @@ import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
 import map.Player;
 import map.Transition;
+import mapanalyze.FieldStatus;
 import server.ServerConnection;
 
 import java.io.IOException;
