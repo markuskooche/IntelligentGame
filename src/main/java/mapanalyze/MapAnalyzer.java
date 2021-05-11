@@ -3,6 +3,7 @@ package mapanalyze;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
+import map.Player;
 import map.Transition;
 
 import java.util.ArrayList;
@@ -647,6 +648,48 @@ public class MapAnalyzer {
 
         tmpBoard.setPlayerScores(playerScores);
         return tmpBoard;
+    }
+
+    public int calculateScoreForPlayers(Player ourPlayer, Board tmpBoard, Player[] players, int factor) {
+        String playersNum = "";
+        for(Player p : players) {
+            playersNum += p.getNumber();
+        }
+
+        char tmpBoardfield[][] = tmpBoard.getField();
+        double playerScore = 0;
+        double allPlayerScore = 0;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+
+                char currField = tmpBoardfield[i][j];
+                if (currField == ourPlayer.getNumber()) {
+                    playerScore += (field[i][j] + minFieldValue);
+                }
+                if (playersNum.indexOf(currField) != -1) {
+                    allPlayerScore += (field[i][j] + minFieldValue);
+                }
+            }
+        }
+
+        double tmpMapValue =  playerScore / allPlayerScore;
+        return (int) (tmpMapValue * factor);
+    }
+
+    private int getMinFieldValue() {
+        int minFieldValue = Integer.MAX_VALUE;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(minFieldValue > field[i][j]){
+                    minFieldValue = field[i][j];
+                }
+            }
+        }
+
+        if(minFieldValue < 0){
+            minFieldValue *= (-1);
+        }
+        return minFieldValue;
     }
 
     /**

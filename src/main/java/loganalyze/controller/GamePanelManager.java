@@ -334,7 +334,7 @@ public class GamePanelManager {
         String[] lineArray = tmp.split(", ");
         byte[] mapStream = getGameState(lineArray);
 
-        List<String> gameList = ServerConnection.createMap(mapStream);
+        List<String> gameList = MapParser.createMap(mapStream);
         AnalyzeParser analyzeParser = new AnalyzeParser(groupNumber, false, reduce);
         game = new Game(gameList, analyzeParser);
 
