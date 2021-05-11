@@ -20,6 +20,7 @@ public class Main {
                     break;
                 case "-i":
                     host = args[i+1];
+                    System.out.println(host);
                     if (!host.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
                         System.err.println("ERROR: The entered IP is not valid!");
                         System.exit(1);
