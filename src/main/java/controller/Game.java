@@ -6,6 +6,7 @@ import map.Board;
 import map.Move;
 import map.Player;
 import map.Transition;
+import mapanalyze.FieldStatus;
 import mapanalyze.MapAnalyzer;
 
 import java.util.*;

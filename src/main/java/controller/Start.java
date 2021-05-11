@@ -77,8 +77,8 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/fancyMaps/qr.map");
-        System.out.println(game);
+        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
+        System.out.println(game.toString());
 
         Player player = game.getPlayer(1);
         List<Move> legalMoves = game.getBoard().getLegalMoves(player, OVERRIDE);

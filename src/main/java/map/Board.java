@@ -21,6 +21,7 @@ public class Board {
     private final char[][] field;
     private final int width;
     private final int height;
+    private int[] playerScores;
 
     /**
      * Creates a map.Board class with all information about it.
@@ -38,9 +39,11 @@ public class Board {
         this.transitions = transitions;
         this.bombRadius = bombRadius;
         this.field = field;
+        this.playerScores = new int[playerAmount];
 
         this.height = field.length;
         this.width = field[0].length;
+
     }
 
     /**
@@ -52,9 +55,18 @@ public class Board {
         this.transitions = toCopyBoard.getAllTransitions();
         this.bombRadius = toCopyBoard.getBombRadius();
         this.field = copyField(toCopyBoard.getField());
+        this.playerScores =  copyScores(toCopyBoard.getPlayerScores());
 
         this.height = field.length;
         this.width = field[0].length;
+    }
+
+    private int[] copyScores(int[] playerScores){
+        int[] newScores = new int[playerAmount];
+        for(int i = 0; i < playerAmount; i++){
+            newScores[i] = playerScores[i];
+        }
+        return newScores;
     }
 
     private char[][] copyField(char[][] field) {
@@ -348,6 +360,19 @@ public class Board {
 
     public int getPlayerAmount(){
         return playerAmount;
+    }
+
+    /**
+     * Returns the current player scores.
+     *
+     * @return the current player scores
+     */
+    public int[] getPlayerScores() {
+        return playerScores;
+    }
+
+    public void setPlayerScores(int[] playerScores) {
+        this.playerScores = playerScores;
     }
 
     @Override

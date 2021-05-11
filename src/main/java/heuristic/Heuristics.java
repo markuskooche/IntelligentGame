@@ -412,12 +412,13 @@ public class Heuristics {
         return value;
     }
 
-    public int getMapValue2(Player player, Board tmpBoard) {
-        long myMapValue = mapAnalyzer.calculateScoreForPlayer2(player.getNumber(), tmpBoard);
+    public int getMapValue(Player player, Board tmpBoard) {
+
+        long myMapValue = tmpBoard.getPlayerScores()[(Integer.parseInt(String.valueOf(player.getNumber()))-1)];
 
         long mapValueAll = 0;
         for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += mapAnalyzer.calculateScoreForPlayer2(players[i].getNumber(), tmpBoard);
+            mapValueAll += tmpBoard.getPlayerScores()[i];
         }
 
         double tmpMapValue = ((double) myMapValue) / mapValueAll;
