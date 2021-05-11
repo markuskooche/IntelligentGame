@@ -20,10 +20,12 @@ public class Main {
                     break;
                 case "-i":
                     host = args[i+1];
-                    if (!host.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
+                    System.out.println("Args Host: " + host);
+                   /* if (!host.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
                         System.err.println("ERROR: The entered IP is not valid!");
                         System.exit(1);
                     }
+                    */
                     break;
                 case "-p":
                     port = Integer.parseInt(args[i+1]);
