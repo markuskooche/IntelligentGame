@@ -53,6 +53,8 @@ public class ServerConnection {
     private void receiveMessage() throws IOException {
         InputStream inputStream = socket.getInputStream();
         byte[] messageHeader = new byte[5];
+
+        System.out.println(inputStream);
         int received = inputStream.read(messageHeader, 0, 5);
         System.out.println("R1: " + received);
 
