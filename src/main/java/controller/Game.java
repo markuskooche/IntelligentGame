@@ -49,7 +49,7 @@ public class Game {
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
         Move move = heuristics.getMoveTimeLimited(ourPlayer, time, alphaBeta, moveSorting);
-        int additional;
+        int additional = 0;
 
         if (move.isChoice()) {
             Random r = new Random();
@@ -213,6 +213,10 @@ public class Game {
 
     public int getHeuristic(int player) {
         return heuristics.getEvaluationForPlayerStatistic(players[player - 1], board);
+    }
+
+    public void decreasePlayerNumber(){
+        mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
 
 
