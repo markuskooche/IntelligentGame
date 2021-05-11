@@ -58,9 +58,14 @@ public class Game {
         if (move.isChoice()) {
             Random r = new Random();
             ourMove[2] = r.nextInt(players.length - 1) + 1;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             ourMove[2] = 21; //Extra Overridestone
-        } else {
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+        } else if(move.isInversion()) {
+            ourMove[2] = 0;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+        }else{
             ourMove[2] = 0; // Just a normal move
         }
         // TODO: [Iwan] System.out.println("X: " + ourMove[0] + " Y: " + ourMove[1] + " special: " + ourMove[2]);
@@ -219,6 +224,10 @@ public class Game {
 
     public boolean isReachableFinished() {
         return mapAnalyzer.isReachableFinished();
+    }
+
+    public void decreasePlayerNumber(){
+        mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
 
     public String[] getTransitions() {

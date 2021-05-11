@@ -587,9 +587,9 @@ public class MapAnalyzer {
     }
 
     //TODO klasse hat als attribut ein int array das die Einzelnen Scores der player verwaltet
-    public void updatePlayerScores(List<int[]> changedFields, char currentPlayer){
+    public Board updatePlayerScores(List<int[]> changedFields, char currentPlayer, Board tmpBoard){
 
-        int[] playerScores = board.getPlayerScores();
+        int[] playerScores = tmpBoard.getPlayerScores();
         int[] fieldLocation;
         int fieldScore;
         char oldFieldValue;
@@ -597,7 +597,7 @@ public class MapAnalyzer {
         for(int i = 0; i < changedFields.size(); i++){
             fieldLocation = changedFields.get(i);
             fieldScore = field[fieldLocation[0]][fieldLocation[1]];
-            oldFieldValue = board.getField()[fieldLocation[0]][fieldLocation[1]];
+            oldFieldValue = tmpBoard.getField()[fieldLocation[0]][fieldLocation[1]];
 
 
             playerScores[currentPlayer-1] += fieldScore;
@@ -610,10 +610,11 @@ public class MapAnalyzer {
             }
         }
 
-        board.setPlayerScores(playerScores);
+        tmpBoard.setPlayerScores(playerScores);
+        return tmpBoard;
     }
 
-    public void initPlayerScores(Board tmpBoard){
+    public Board initPlayerScores(Board tmpBoard){
         int height = tmpBoard.getHeight();
         int width = tmpBoard.getWidth();
         int minFieldValue = Integer.MAX_VALUE;
@@ -645,6 +646,7 @@ public class MapAnalyzer {
             }
 
         tmpBoard.setPlayerScores(playerScores);
+        return tmpBoard;
     }
 
     /**
