@@ -385,13 +385,12 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayer(Player player, Board board, Move move) {
-        //int mapValue = getMapValue(player, board);
-        int mapValue2 = getMapValue2(player, board);
+        int mapValue = getMapValue(player, board);
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
         int specialField = getSpecialFieldValue(move);
         //System.out.println("Map: " + mapValue + " Coins: " + coinParity + " Mobility: " + mobility);
-        return mapValue2 + coinParity + mobility + specialField;
+        return mapValue + coinParity + mobility + specialField;
     }
 
     public int getEvaluationForPlayerStatistic(Player player, Board board) {
@@ -425,10 +424,6 @@ public class Heuristics {
         return (int) (tmpMapValue * 100000);
     }
 
-    public int getMapValue(Player player, Board tmpBoard) {
-        int factor = (int) (100000);
-        return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, factor);
-    }
 
     public int getCoinParity(Player player, Board board) {
         List<int[]> myStones = new ArrayList<>();

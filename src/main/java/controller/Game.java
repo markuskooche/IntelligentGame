@@ -49,17 +49,20 @@ public class Game {
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
         Move move = heuristics.getMoveTimeLimited(ourPlayer, time, alphaBeta, moveSorting);
-        int additional;
+        int additional = 0;
 
         if (move.isChoice()) {
-            // TODO: additional should be the currently best player
             Random r = new Random();
             additional = r.nextInt(players.length - 1) + 1;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = 21;
-        } else {
+        } else if(move.isInversion()) {
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+        }else {
             additional = 0;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
         }
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -210,6 +213,10 @@ public class Game {
 
     public int getHeuristic(int player) {
         return heuristics.getEvaluationForPlayerStatistic(players[player - 1], board);
+    }
+
+    public void decreasePlayerNumber(){
+        mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
 
 

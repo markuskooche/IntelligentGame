@@ -174,6 +174,7 @@ public class ServerConnection {
             case 7:
                 Player disqualifiedPlayer = game.getPlayer(byteMessage[0]);
                 disqualifiedPlayer.setDisqualified();
+                game.decreasePlayerNumber();
 
                 if (byteMessage[0] == ourPlayer) {
                     analyzeParser.disqualifiedSelf(ourPlayer, game.getBoard());

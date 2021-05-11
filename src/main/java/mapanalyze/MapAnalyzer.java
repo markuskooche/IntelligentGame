@@ -588,9 +588,9 @@ public class MapAnalyzer {
     }
 
     //TODO klasse hat als attribut ein int array das die Einzelnen Scores der player verwaltet
-    public void updatePlayerScores(List<int[]> changedFields, char currentPlayer){
+    public Board updatePlayerScores(List<int[]> changedFields, char currentPlayer, Board tmpBoard){
 
-        int[] playerScores = board.getPlayerScores();
+        int[] playerScores = tmpBoard.getPlayerScores();
         int[] fieldLocation;
         int fieldScore;
         char oldFieldValue;
@@ -598,7 +598,7 @@ public class MapAnalyzer {
         for(int i = 0; i < changedFields.size(); i++){
             fieldLocation = changedFields.get(i);
             fieldScore = field[fieldLocation[0]][fieldLocation[1]];
-            oldFieldValue = board.getField()[fieldLocation[0]][fieldLocation[1]];
+            oldFieldValue = tmpBoard.getField()[fieldLocation[0]][fieldLocation[1]];
 
 
             playerScores[currentPlayer-1] += fieldScore;
@@ -611,10 +611,11 @@ public class MapAnalyzer {
             }
         }
 
-        board.setPlayerScores(playerScores);
+        tmpBoard.setPlayerScores(playerScores);
+        return tmpBoard;
     }
 
-    public void initPlayerScores(Board tmpBoard){
+    public Board initPlayerScores(Board tmpBoard){
         int height = tmpBoard.getHeight();
         int width = tmpBoard.getWidth();
         int minFieldValue = Integer.MAX_VALUE;
@@ -646,48 +647,7 @@ public class MapAnalyzer {
             }
 
         tmpBoard.setPlayerScores(playerScores);
-    }
-
-    public int calculateScoreForPlayers(Player ourPlayer, Board tmpBoard, Player[] players, int factor) {
-        String playersNum = "";
-        for(Player p : players) {
-            playersNum += p.getNumber();
-        }
-
-        char tmpBoardfield[][] = tmpBoard.getField();
-        double playerScore = 0;
-        double allPlayerScore = 0;
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-
-                char currField = tmpBoardfield[i][j];
-                if (currField == ourPlayer.getNumber()) {
-                    playerScore += (field[i][j] + minFieldValue);
-                }
-                if (playersNum.indexOf(currField) != -1) {
-                    allPlayerScore += (field[i][j] + minFieldValue);
-                }
-            }
-        }
-
-        double tmpMapValue =  playerScore / allPlayerScore;
-        return (int) (tmpMapValue * factor);
-    }
-
-    private int getMinFieldValue() {
-        int minFieldValue = Integer.MAX_VALUE;
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if(minFieldValue > field[i][j]){
-                    minFieldValue = field[i][j];
-                }
-            }
-        }
-
-        if(minFieldValue < 0){
-            minFieldValue *= (-1);
-        }
-        return minFieldValue;
+        return tmpBoard;
     }
 
     /**
