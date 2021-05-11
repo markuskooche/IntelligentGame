@@ -1,14 +1,13 @@
 \usepackage[ngerman]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
-\usepackage{amsfonts}
+%\usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{tabularx}
 \usepackage{geometry}
 \usepackage{setspace}
-\usepackage[right]{eurosym}
 \usepackage[printonlyused]{acronym}
 \usepackage{subfig}
 \usepackage{floatflt}
@@ -19,7 +18,7 @@
 %\usepackage{titlesec}
 \usepackage{parskip}
 \usepackage[right]{eurosym}
-\usepackage{tikz}
+%\usepackage{tikz}
 \usepackage{tikz-uml}
 %\usepackage{picins}
 \usepackage[subfigure,titles]{tocloft}
@@ -27,9 +26,9 @@
 
 \usepackage{listings}
 \lstset{basicstyle=\footnotesize, captionpos=b, breaklines=true, showstringspaces=false, tabsize=2, frame=lines, numbers=left, numberstyle=\tiny, xleftmargin=2em, framexleftmargin=2em}
-\makeatletter
-\def\l@lstlisting#1#2{\@dottedtocline{1}{0em}{1em}{\hspace{1,5em} Lst. #1}{#2}}
-\makeatother
+%\makeatletter
+\newcommand{\l@lstlisting}{\#}1\#2{\@dottedtocline{1}{0em}{1em}{\hspace{1,5em} Lst. \#1}{\#2}}
+%\makeatother
 
 \geometry{a4paper, top=27mm, left=20mm, right=20mm, bottom=35mm, headsep=10mm, footskip=12mm}
 

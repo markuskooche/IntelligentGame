@@ -119,7 +119,7 @@ public class AnalyzeParser {
             char[][] field = board.getField();
 
             for (int y = 0; y < board.getHeight(); y++) {
-                for (int x = 0; x < board.getHeight(); x++) {
+                for (int x = 0; x < board.getWidth(); x++) {
                     System.out.print(field[y][x]);
 
                     boolean isMove = false;
@@ -143,6 +143,6 @@ public class AnalyzeParser {
     }
 
     public boolean isPrintable() {
-        return (output && reduce);
+        return (output && !reduce);
     }
 }

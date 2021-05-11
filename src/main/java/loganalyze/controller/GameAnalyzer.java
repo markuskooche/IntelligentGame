@@ -32,7 +32,7 @@ public class GameAnalyzer extends JFrame {
     private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
     private int counter = 0;
-    private final String groupNumber;
+    private String groupNumber = "";
     private String lastDirectory= ".";
     //private String lastDirectory= "/Users/markuskooche/Documents/IntelliJ - Code/revxt-ss21-g01/logs/stored";
 
@@ -85,7 +85,12 @@ public class GameAnalyzer extends JFrame {
                 groups, groups[0]
         );
 
-        groupNumber = String.valueOf(group).split(" ")[1];
+        try {
+            groupNumber = String.valueOf(group).split(" ")[1];
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            System.exit(0);
+        }
 
         setTitle("GameAnalyzer v0.6.4  [" + group + "]");
         if (OSValidator.isMac()) {
@@ -469,6 +474,8 @@ public class GameAnalyzer extends JFrame {
             gamePanel.hideTransitions();
             if (!transitions.isEmpty()) {
                 showTransition.setEnabled(true);
+            } else {
+                showTransition.setEnabled(false);
             }
 
             jumperInput.setEnabled(true);
