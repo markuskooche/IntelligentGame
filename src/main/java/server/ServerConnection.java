@@ -33,7 +33,8 @@ public class ServerConnection {
         } catch (ConnectException ce) {
             System.err.println("No server is running on " + host + ":" + port + "!");
         } catch (IOException e) {
-            System.err.println("Please add this Exception to ServerConnection IOException Block");
+            //System.err.println("Please add this Exception to ServerConnection IOException Block");
+
             e.printStackTrace();
         }
     }
@@ -52,122 +53,127 @@ public class ServerConnection {
     private void receiveMessage() throws IOException {
         InputStream inputStream = socket.getInputStream();
         byte[] messageHeader = new byte[5];
-        inputStream.read(messageHeader, 0, 5);
+        int received = inputStream.read(messageHeader, 0, 5);
+        System.out.println("R1: " + received);
 
-        // create an integer from the byte array
-        int messageLength = get32Integer(messageHeader, 1);
+        if (received > -1) {
 
-        byte[] byteMessage = new byte[messageLength];
-        inputStream.read(byteMessage, 0, messageLength);
+            // create an integer from the byte array
+            int messageLength = get32Integer(messageHeader, 1);
 
-        switch (messageHeader[0]) {
-            case 2:
-                game = new Game(createMap(byteMessage));
-                break;
-            case 3:
-                ourPlayer = byteMessage[0];
-                game.setOurPlayerNumber(ourPlayer);
-                AnalyzeParser.setPlayer(ourPlayer);
-                break;
-            case 4:
-                int allowedTime = get32Integer(byteMessage, 0);
-                byte allowedDepth = byteMessage[4];
+            byte[] byteMessage = new byte[messageLength];
+            int receivedLength = inputStream.read(byteMessage, 0, messageLength);
+            System.out.println("R2: " + receivedLength);
 
-                System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
-                game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
+            switch (messageHeader[0]) {
+                case 2:
+                    game = new Game(createMap(byteMessage));
+                    break;
+                case 3:
+                    ourPlayer = byteMessage[0];
+                    game.setOurPlayerNumber(ourPlayer);
+                    AnalyzeParser.setPlayer(ourPlayer);
+                    break;
+                case 4:
+                    int allowedTime = get32Integer(byteMessage, 0);
+                    byte allowedDepth = byteMessage[4];
 
-                if (!bomb) {
-                    byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-                    int[] executedMove = game.executeOurMove(allowedDepth, alphaBeta);
-
-                    // insert the x coordinate into the byte array
-                    move[6] = (byte) (executedMove[0]);
-                    move[5] = (byte) ((executedMove[0]) >> 8);
-
-                    // insert the y coordinate into the byte array
-                    move[8] = (byte) (executedMove[1]);
-                    move[7] = (byte) ((executedMove[1]) >> 8);
-
-                    // insert the special field into the byte array
-                    move[9] = (byte) (executedMove[2]);
-                    sendMessage(move);
-                    AnalyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
-                } else {
-                    char[][] field = game.getBoard().getField();
-                    byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
-
-                    int xBomb = 0;
-                    int yBomb = 0;
-
-                    for (int i = 0; i < field.length; i++) {
-                        for (int j = 0; j < field[0].length; j++) {
-                            if (field[i][j] != '-') {
-                                xBomb = j;
-                                yBomb = i;
-                                break;
-                            }
-                        }
-                    }
-
-                    bombMove[6] = (byte) (xBomb);
-                    bombMove[5] = (byte) ((xBomb) >> 8);
-
-                    bombMove[8] = (byte) (yBomb);
-                    bombMove[7] = (byte) ((yBomb) >> 8);
-
-                    sendMessage(bombMove);
-                    game.executeBomb(xBomb, yBomb);
-                    AnalyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
-                }
-                break;
-            case 6:
-                int x = byteMessage[0] << 8;
-                x += byteMessage[1];
-
-                int y = byteMessage[2] << 8;
-                y += byteMessage[3];
-
-                int player = byteMessage[5];
-                int additionalOperation = byteMessage[4];
-
-                AnalyzeParser.printCurrentTime(player);
-
-                if (player != ourPlayer) {
-                    game.getBoard().loggingBoard(game.getPlayer(player));
+                    System.out.println("[TIME: " + allowedTime + "ms  ||  DEPTH: " + allowedDepth + "]");
+                    game.getBoard().loggingBoard(game.getPlayer(ourPlayer));
 
                     if (!bomb) {
-                        game.executeMove(x, y, player, additionalOperation);
-                        AnalyzeParser.parseMove(x, y, player, additionalOperation);
-                    } else {
-                        game.executeBomb(x, y);
-                        AnalyzeParser.parseMove(x, y, player, 0);
-                    }
-                } else {
-                    AnalyzeParser.parseMove(x, y, player, additionalOperation);
-                }
+                        byte[] move = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+                        int[] executedMove = game.executeOurMove(allowedDepth, alphaBeta);
 
-                //int nextPlayer = (player % game.getPlayers().length) + 1;
-                //game.getBoard().loggingBoard(game.getPlayer(nextPlayer));
-                break;
-            case 7:
-                if (byteMessage[0] == ourPlayer) {
-                    System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
-                    System.out.println(game.getBoard().toString());
-                }
-                AnalyzeParser.disqualifyPlayer(byteMessage[0]);
-                break;
-            case 8:
-                bomb = true;
-                AnalyzeParser.startBombPhase();
-                break;
-            case 9:
-                running = false;
-                AnalyzeParser.endGame();
-                game.getBoard().loggingBoard();
-                System.exit(0);
-                break;
-            default:
-                break;
+                        // insert the x coordinate into the byte array
+                        move[6] = (byte) (executedMove[0]);
+                        move[5] = (byte) ((executedMove[0]) >> 8);
+
+                        // insert the y coordinate into the byte array
+                        move[8] = (byte) (executedMove[1]);
+                        move[7] = (byte) ((executedMove[1]) >> 8);
+
+                        // insert the special field into the byte array
+                        move[9] = (byte) (executedMove[2]);
+                        sendMessage(move);
+                        AnalyzeParser.sendMove(executedMove[0], executedMove[1], ourPlayer, executedMove[2]);
+                    } else {
+                        char[][] field = game.getBoard().getField();
+                        byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
+
+                        int xBomb = 0;
+                        int yBomb = 0;
+
+                        for (int i = 0; i < field.length; i++) {
+                            for (int j = 0; j < field[0].length; j++) {
+                                if (field[i][j] != '-') {
+                                    xBomb = j;
+                                    yBomb = i;
+                                    break;
+                                }
+                            }
+                        }
+
+                        bombMove[6] = (byte) (xBomb);
+                        bombMove[5] = (byte) ((xBomb) >> 8);
+
+                        bombMove[8] = (byte) (yBomb);
+                        bombMove[7] = (byte) ((yBomb) >> 8);
+
+                        sendMessage(bombMove);
+                        game.executeBomb(xBomb, yBomb);
+                        AnalyzeParser.sendMove(xBomb, yBomb, ourPlayer, 0);
+                    }
+                    break;
+                case 6:
+                    int x = byteMessage[0] << 8;
+                    x += byteMessage[1];
+
+                    int y = byteMessage[2] << 8;
+                    y += byteMessage[3];
+
+                    int player = byteMessage[5];
+                    int additionalOperation = byteMessage[4];
+
+                    AnalyzeParser.printCurrentTime(player);
+
+                    if (player != ourPlayer) {
+                        game.getBoard().loggingBoard(game.getPlayer(player));
+
+                        if (!bomb) {
+                            game.executeMove(x, y, player, additionalOperation);
+                            AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                        } else {
+                            game.executeBomb(x, y);
+                            AnalyzeParser.parseMove(x, y, player, 0);
+                        }
+                    } else {
+                        AnalyzeParser.parseMove(x, y, player, additionalOperation);
+                    }
+
+                    //int nextPlayer = (player % game.getPlayers().length) + 1;
+                    //game.getBoard().loggingBoard(game.getPlayer(nextPlayer));
+                    break;
+                case 7:
+                    if (byteMessage[0] == ourPlayer) {
+                        System.out.println("WE WERE DISQUALIFIED (PLAYER " + ourPlayer + ")\n");
+                        System.out.println(game.getBoard().toString());
+                    }
+                    AnalyzeParser.disqualifyPlayer(byteMessage[0]);
+                    break;
+                case 8:
+                    bomb = true;
+                    AnalyzeParser.startBombPhase();
+                    break;
+                case 9:
+                    running = false;
+                    AnalyzeParser.endGame();
+                    game.getBoard().loggingBoard();
+                    System.exit(0);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
