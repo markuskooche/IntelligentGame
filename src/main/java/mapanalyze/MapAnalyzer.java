@@ -84,14 +84,14 @@ public class MapAnalyzer {
                     }
                 }
                 if (currField == 'c') {
-                    field[i][j] += 500;
-                    createWaves(j, i, playerNumber, 500);
+                    field[i][j] += 5000;
+                    createWaves(j, i, playerNumber, 25);
                 } else if (currField == 'b') {
-                    field[i][j] += 400;
-                    createWaves(j, i, playerNumber, 400);
+                    field[i][j] += 4000;
+                    createWaves(j, i, playerNumber, 20);
                 } else if (currField == 'i') {
-                    field[i][j] += 450;
-                    createWaves(j, i, playerNumber, 450);
+                    field[i][j] += 4500;
+                    createWaves(j, i, playerNumber, 22);
                 }
 
             }
