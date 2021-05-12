@@ -1,12 +1,15 @@
 package loganalyze.controller;
 
 import controller.Game;
+import loganalyze.additional.AnalyzeParser;
 import loganalyze.tablemodel.PlayerInformation;
 import loganalyze.additional.IncorrectGroupException;
 import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
 import map.Player;
 import map.Transition;
+import mapanalyze.FieldStatus;
+import server.MapParser;
 import server.ServerConnection;
 
 import java.io.IOException;
@@ -18,6 +21,9 @@ import java.util.stream.Collectors;
 
 public class GamePanelManager {
 
+    private static final boolean reduce = true;
+
+    private final int groupNumber;
     private final String group;
 
     private Game game;
@@ -51,6 +57,7 @@ public class GamePanelManager {
 
     public GamePanelManager(String filename, String group) {
         this.filename = filename;
+        this.groupNumber = Integer.parseInt(group);
         this.group = "XT" + group + "-";
         counter = 0;
 
@@ -328,8 +335,9 @@ public class GamePanelManager {
         String[] lineArray = tmp.split(", ");
         byte[] mapStream = getGameState(lineArray);
 
-        List<String> gameList = ServerConnection.createMap(mapStream);
-        game = new Game(gameList);
+        List<String> gameList = MapParser.createMap(mapStream);
+        AnalyzeParser analyzeParser = new AnalyzeParser(groupNumber, false, reduce);
+        game = new Game(gameList, analyzeParser);
 
         height = game.getBoard().getHeight();
         width = game.getBoard().getWidth();

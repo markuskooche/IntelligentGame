@@ -3,6 +3,7 @@ package mapanalyze;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
+import map.Player;
 import map.Transition;
 
 import java.util.ArrayList;
@@ -11,36 +12,55 @@ import java.util.List;
 
 public class MapAnalyzer {
 
+    private static AnalyzeParser analyzeParser;
     private boolean reachableFinished;
 
     private int[][] field;
+    private int[][] initialField;
     private Board board;
     private int[][] reachableField;
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
-    final private int playerNumber;
+    private int playerNumber;
 
-    public MapAnalyzer(Board b, int pNumber) {
+
+    public MapAnalyzer(Board b, int pNumber, AnalyzeParser analyzeParser) {
+        MapAnalyzer.analyzeParser = analyzeParser;
+
         board = b;
         playerNumber = pNumber;
 
+        initAllFields();
         try {
             long time = System.currentTimeMillis();
             createReachableField();
-            //System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
+            // TODO: [Benedikt] System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
             reachableFinished = true;
         } catch (StackOverflowError soe) {
-            AnalyzeParser.mapAnalyzerError();
+            analyzeParser.mapAnalyzerError();
             reachableFinished = false;
-
-            int height = board.getHeight();
-            int width = board.getWidth();
-
-            field = new int[height][width];
         }
 
         createField();
+    }
+
+    private void initAllFields(){
+        int height = board.getHeight();
+        int width = board.getWidth();
+
+        reachableField = new int[height][width];
+
+        //init Array
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                reachableField[i][j] = 0;
+            }
+        }
+
+        field = new int[height][width];
+        initialField = new int[height][width];
+
     }
 
     /**
@@ -51,10 +71,9 @@ public class MapAnalyzer {
         int height = board.getHeight();
         int width = board.getWidth();
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                field[i][j] = 0;
-            }
+        //Field muss zurückgesetzt werden, da createField sehr oft aufgerufen wird
+        for (int y = 0; y < height; y++) {
+            if (width >= 0) System.arraycopy(initialField[y], 0, field[y], 0, width);
         }
 
         for (int i = 0; i < height; i++) {
@@ -82,21 +101,38 @@ public class MapAnalyzer {
                         field[i][j] += newValue * multiplier;
                         createWaves(j, i, playerNumber, newValue);
                     }
-                }
-                if (currField == 'c') {
-                    field[i][j] += 5000;
-                    createWaves(j, i, playerNumber, 25);
-                } else if (currField == 'b') {
-                    field[i][j] += 4000;
-                    createWaves(j, i, playerNumber, 20);
-                } else if (currField == 'i') {
-                    field[i][j] += 4500;
-                    createWaves(j, i, playerNumber, 22);
+
+                    if (currField == 'c') {
+                        field[i][j] += 5000;
+                        createWaves(j, i, playerNumber, 25);
+                    } else if (currField == 'b') {
+                        field[i][j] += 4000;
+                        createWaves(j, i, playerNumber, 20);
+                    } else if (currField == 'i') {
+                        field[i][j] += 4500;
+                        createWaves(j, i, playerNumber, 22);
+                    }
                 }
 
             }
         }
 
+    }
+
+    /**
+     * Marks a special Stone at a position as activated
+     */
+    public void activateSpecialStone(int x, int y, char type) {
+        if (type == 'c') {
+            field[y][x] -= 5000;
+            createWaves(x, y, playerNumber, -25);
+        } else if (type == 'b') {
+            field[y][x] -= 4000;
+            createWaves(x, y, playerNumber, -20);
+        } else if (type == 'i') {
+            field[y][x] -= 4500;
+            createWaves(x, y, playerNumber, -22);
+        }
     }
 
     public void createReachableField() {
@@ -106,15 +142,23 @@ public class MapAnalyzer {
         specialFieldListSidePath = new ArrayList<>();
         specialFieldListMainPath = new ArrayList<>();
         followFieldsPath = new ArrayList<>();
-        reachableField = new int[height][width];
 
-        field = new int[height][width];
+
 
         traverseMapForEachPlayerStone();
         alterCurrentMap();
+
+        for (int y = 0; y < height; y++) {
+            if (width >= 0) System.arraycopy(field[y], 0, initialField[y], 0, width);
+        }
     }
 
     private void changeFields(int x, int y, int[] currentDirection){
+        if (!(x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight())) {
+            if (board.getField()[y][x] == '-') {
+                return;
+            }
+        }
 
         //Skip the field itself
         x = x + currentDirection[0];
@@ -122,11 +166,6 @@ public class MapAnalyzer {
 
         //Follow this direction until the End of the board
         while (true) {
-
-            int[] currStone = new int[3];
-            currStone[0] = x;
-            currStone[1] = y;
-            currStone[2] = Direction.indexOf(currentDirection);
 
             // end the loop if the end of the board is reached
             if (x < 0 || x >= board.getWidth() || y < 0 || y >= board.getHeight() || board.getField()[y][x] == '-') {
@@ -162,12 +201,10 @@ public class MapAnalyzer {
                 break;
             }
 
-
             //Mark current Field as finished
             if(reachableField[y][x] != 4 && reachableField[y][x] != 3) {
                 reachableField[y][x] = 1;
             }
-
 
             //Go to the next Field
             x = x + currentDirection[0];
@@ -183,7 +220,7 @@ public class MapAnalyzer {
         changeFields(x,y,currentDirection);
         followFieldsPath.clear();
 
-        //System.out.println("X: " + x + " Y: " + y);
+        // TODO: [Benedikt] System.out.println("X: " + x + " Y: " + y);
 
         //Follow this direction until the End of the board
         while (true){
@@ -273,6 +310,10 @@ public class MapAnalyzer {
                             continue;
                         }
 
+                        if(board.getField()[destination[1]][destination[0]] == '0'){
+                            continue;
+                        }
+
                         // Follow fields if they are reachable
                         boolean searchForFours = false;
 
@@ -293,6 +334,7 @@ public class MapAnalyzer {
                         threeToFour();
                         followFields(destination[0], destination[1], Direction.valueOf(oppositeDest));
 
+                        /*
                         int i = 0;
                         //Remove the finished field from the blocked List
                         for(int[] specialFields : specialFieldListSidePath){
@@ -302,6 +344,7 @@ public class MapAnalyzer {
                             }
                             i++;
                         }
+                        */
 
                         int[] oppositeDirection = new int[2];
                         oppositeDirection[1] = direction[1]*(-1);
@@ -314,8 +357,6 @@ public class MapAnalyzer {
                         //Go in the other direction
                         oppositeX = x + direction[0]*(-1);
                         oppositeY = y + direction[1]*(-1);
-                        oppositeDirection[0] = direction[1]*(-1);
-                        oppositeDirection[1] = direction[0]*(-1);
 
                         if (oppositeX < 0 || oppositeX >= board.getWidth() || oppositeY < 0 || oppositeY >= board.getHeight() || board.getField()[oppositeY][oppositeX] == '-') {
 
@@ -331,7 +372,7 @@ public class MapAnalyzer {
                                     threeToFour();
                                     followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
 
-                                    i = 0;
+                           /*         i = 0;
                                     //Remove the finished field from the blocked List
                                     for(int[] specialFields : specialFieldListSidePath){
                                         if(Arrays.equals(specialFields, currStone)){
@@ -339,9 +380,13 @@ public class MapAnalyzer {
                                             break;
                                         }
                                         i++;
-                                    }
+                                     }
+                            */
+
                                 }
                             }
+                        }else{
+                            followFields(oppositeX, oppositeY,oppositeDirection);
                         }
                     }
 
@@ -395,10 +440,8 @@ public class MapAnalyzer {
                             threeToFour();
                             reachableField[y][x] = 3;
                         }
-
                     }
                 }
-
             }
 
             //Mark current Field as finished
@@ -450,6 +493,7 @@ public class MapAnalyzer {
 
             }
         }
+        threeToFour();
     }
 
     /**
@@ -543,16 +587,44 @@ public class MapAnalyzer {
         return playerScore;
     }
 
-    public int calculateScoreForPlayer2(char playerNumber, Board tmpBoard) {
+    //TODO klasse hat als attribut ein int array das die Einzelnen Scores der player verwaltet
+    public Board updatePlayerScores(List<int[]> changedFields, char currentPlayer, Board tmpBoard){
+
+        int[] playerScores = tmpBoard.getPlayerScores();
+        int[] fieldLocation;
+        int fieldScore;
+        char oldFieldValue;
+
+        for(int i = 0; i < changedFields.size(); i++){
+            fieldLocation = changedFields.get(i);
+            fieldScore = field[fieldLocation[0]][fieldLocation[1]];
+            oldFieldValue = tmpBoard.getField()[fieldLocation[0]][fieldLocation[1]];
+
+
+            playerScores[currentPlayer-1] += fieldScore;
+
+            if(oldFieldValue == '1' || oldFieldValue == '2'||
+                    oldFieldValue == '3'|| oldFieldValue == '4'|| oldFieldValue == '5'|| oldFieldValue == '6'
+                    || oldFieldValue == '7'|| oldFieldValue == '8'){
+
+                playerScores[oldFieldValue-1] -= fieldScore;
+            }
+        }
+
+        tmpBoard.setPlayerScores(playerScores);
+        return tmpBoard;
+    }
+
+    public Board initPlayerScores(Board tmpBoard){
         int height = tmpBoard.getHeight();
         int width = tmpBoard.getWidth();
-        int playerScore = 0;
         int minFieldValue = Integer.MAX_VALUE;
-
+        int[] playerScores = new int[tmpBoard.getPlayerAmount()];
+        //TODO fieldScore soll mithilfe
         //find smalles field value
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                if(minFieldValue > field[i][j]){
+                if(minFieldValue > field[i][j] && field[i][j] != Integer.MIN_VALUE){
                     minFieldValue = field[i][j];
                 }
             }
@@ -562,17 +634,20 @@ public class MapAnalyzer {
             minFieldValue *= (-1);
         }
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
 
-                char currField = tmpBoard.getField()[i][j];
+                    char currField = tmpBoard.getField()[i][j];
 
-                if (currField == playerNumber) {
-                    playerScore += (field[i][j] + minFieldValue);
+                    if (currField == '1'||  currField == '2'||currField == '3'||currField == '4'||
+                            currField == '5'||currField == '6'||currField == '7'||currField == '8'||field[i][j] != Integer.MIN_VALUE) {
+                        playerScores[Integer.parseInt(String.valueOf(currField))] += (field[i][j] + minFieldValue);
+                    }
                 }
             }
-        }
-        return playerScore;
+
+        tmpBoard.setPlayerScores(playerScores);
+        return tmpBoard;
     }
 
     /**
@@ -752,6 +827,24 @@ public class MapAnalyzer {
         return boardString.toString();
     }
 
+    public String getBoardValues() {
+        StringBuilder boardString = new StringBuilder();
+
+        for (int y = 0; y < board.getHeight(); y++) {
+            for (int x = 0; x < board.getWidth(); x++) {
+                if(field[y][x] == Integer.MIN_VALUE){
+                    boardString.append(String.format("%4s", "inf"));
+                }else{
+                    boardString.append(String.format("%4s", field[y][x]));
+                }
+            }
+            boardString.append("\n");
+        }
+
+
+        return boardString.toString();
+    }
+
 
     public int[][] getField() {
         return field;
@@ -767,6 +860,15 @@ public class MapAnalyzer {
 
     public void setBoard(Board board) {
         this.board = board;
+        createField();
+    }
+
+    public int getPlayerNumber(){
+        return playerNumber;
+    }
+
+    public void setPlayerNumber(int playerNumber){
+        this.playerNumber = playerNumber;
         createField();
     }
 

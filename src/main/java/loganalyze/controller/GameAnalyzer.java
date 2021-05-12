@@ -26,20 +26,13 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/*
-Ä, ä     \u00c4, \u00e4
-Ö, ö     \u00d6, \u00f6
-Ü, ü     \u00dc, \u00fc
-ß        \u00df
- */
-
 public class GameAnalyzer extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final Color HEADER_COLOR = new Color(190, 190, 190);
     private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
     private int counter = 0;
-    private final String groupNumber;
+    private String groupNumber = "";
     private String lastDirectory= ".";
     //private String lastDirectory= "/Users/markuskooche/Documents/IntelliJ - Code/revxt-ss21-g01/logs/stored";
 
@@ -92,7 +85,12 @@ public class GameAnalyzer extends JFrame {
                 groups, groups[0]
         );
 
-        groupNumber = String.valueOf(group).split(" ")[1];
+        try {
+            groupNumber = String.valueOf(group).split(" ")[1];
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            System.exit(0);
+        }
 
         setTitle("GameAnalyzer v0.6.4  [" + group + "]");
         if (OSValidator.isMac()) {
@@ -476,6 +474,8 @@ public class GameAnalyzer extends JFrame {
             gamePanel.hideTransitions();
             if (!transitions.isEmpty()) {
                 showTransition.setEnabled(true);
+            } else {
+                showTransition.setEnabled(false);
             }
 
             jumperInput.setEnabled(true);

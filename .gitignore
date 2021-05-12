@@ -1,5 +1,6 @@
 # IDE Files
-/.idea/
+/.idea/*
+!/.idea/settings.ini
 
 # Java Files
 /build/
@@ -30,6 +31,10 @@ hs_err_pid*
 /logs/*
 !/logs/cleanup.sh
 #!/logs/stored
+
+# Server Executables
+/server/*
+/server/*.sh
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
