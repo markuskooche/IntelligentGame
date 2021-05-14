@@ -1,10 +1,10 @@
 Ein wesentlicher Aspekt der K.I.\ ist es die aktuelle Spielfeldsituation der unterschiedlichen Spieler zu bewerten.
 Dadurch ist es der K.I.\ m\"oglich Spielz\"uge besser einzustufen und gegebenenfalls das Spiel mit Spezialsteinen zu beeinflussen.
-Ein naiver Ansatz w\"are der Vergleich der aktuellen Spielsteine jeden Spielers.
+Ein naiver Ansatz w\"are der Vergleich der Anzahl an Spielsteinen jedes Spielers.
 Dieses Vorgehen reicht jedoch nicht f\"ur eine ad\"aquate Bewertung der Spielsituation aus.
 In Abbildung~\ref{fig:naivespielfeld01} w\"urde die naive Vorgehensweise den roten Spieler besser einstufen, jedoch hat er hier keinerlei m\"ogliche Spielz\"uge.
 Der rote Spieler kann trotz dieser \"Uberlegenheit nicht mehr gewinnen, da der blaue Spieler im n\"achsten Spielzug \"uber alle roten Steine hinwegziehen kann.
-Genau aus diesem Grund reicht eine naive Spielfeldbestimmung nicht f\"ur ein aussagekr\"afigtes Resultat aus.
+Genau aus diesem Grund reicht eine naive Spielfeldbewertung nicht f\"ur ein aussagekr\"afigtes Resultat aus.
 
 \vspace{1em}
 \begin{minipage}{\linewidth}
@@ -15,10 +15,10 @@ Genau aus diesem Grund reicht eine naive Spielfeldbestimmung nicht f\"ur ein aus
 \end{minipage}
 
 \subsection{Bestandteile der Heuristik}\label{subsec:bestandteile-der-heuristik}
-Wie bereits in der Einleitung gezeigt, gen\"ugt das reine Abz\"ahlen der Spielsteine nicht aus.
-Deshalb setzen wir auf drei unterschiedliche Heuristiken, um die aktuelle Spielsituation zu bewerten.
-Unter diesen drei Ans\"atzen werden die Mobilit\"at der Spieler, das Verh\"altnis der Spielsteine sowie die aktuelle Bewertung der Karte miteinbezogen.
-Diese einzelnen Bestandteile sind w\"ahrend dem Spiel jedoch nicht immer gleichbedeutend, da zum Beispiel im fr\"uhen Spielverlauf die Mobilit\"at und das Besetzen von wichtigen Feldern von Vorteil ist.
+Wie bereits in der Einleitung dieses Abschnitts begr\"undet, gen\"ugt das reine Abz\"ahlen der Spielsteine nicht aus.
+Deshalb setzen wir auf drei unterschiedliche Heuristikbestandteile, um die aktuelle Spielsituation zu bewerten.
+Unter diesen drei Ans\"atzen werden die \emph{Mobilit\"at} der Spieler, das \emph{Verh\"altnis der Spielsteine} sowie die aktuelle \emph{Bewertung der Karte} miteinbezogen.
+Diese einzelnen Bestandteile sind w\"ahrend des Spiels jedoch nicht immer gleichbedeutend, da zum Beispiel im fr\"uhen Spielverlauf die Mobilit\"at und das Besetzen von wichtigen Feldern von Vorteil ist.
 Im sp\"ateren Spielverlauf m\"ussen die einzelnen Bestandteile anders gewertet werden.
 Hierbei muss darauf geachtet werden, seine Anzahl an Steinen zu erh\"ohen.
 
@@ -63,7 +63,7 @@ Denn letztlich ist f\"ur das Gewinnen des Spieles nur die Anzahl an Spielsteinen
 
 \subsection{Algorithmen der Zugauswahl}\label{subsec:algorithmen-der-zugauswahl}
 F\"ur einen Computer ist es unm\"oglich den besten Spielzug zu finden, da hier jedes m\"ogliche Spielfeld \"uberpr\"uft werden m\"usste.
-Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande\footnote{epubli: Zahlen am Brett, \textit{https://www.schachlich.de/schach-in-zahlen/} (abgerufen am 09.05.2021)}.
+Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande\citep[vgl.][]{chessBoards}    test\footnote{epubli: Zahlen am Brett, \textit{https://www.schachlich.de/schach-in-zahlen/} (abgerufen am 09.05.2021)}.
 Bei ReversiXT liegt die Zahl wesentlich h\"oher, da es zum einen viel gr\"o"sere Karten und zum anderen bis zu 8 Spieler gibt.
 Damit ein Computer trotzdem einen guten Zug abliefern kann, ben\"otigt es spezielle Algorithmen.
 Ein weit verbreiteter Algorithmus f\"ur Zwei-Personen-Nullsummenspiele\footnote{Duden: Spiel, bei dem die Summe der Einsätze, Verluste und Gewinne gleich null ist} lauter Minimax.
