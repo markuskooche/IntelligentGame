@@ -86,18 +86,21 @@ Aus diesem Grund ergibt es keinen Sinn die Schublade B auszuw\"ahlen, da man hie
 \vspace{1em}
 \begin{center}
     \begin{tikzpicture}[sibling distance=10em,
-        every node/.style = {circle, draw, minimum size=1cm},
+        every node/.style={circle, draw, minimum size=1.2cm},
         level/.style={sibling distance=6cm/#1}]
 
-        \node{ \avlkey{YOU} }
-            child { node {\avlkey{A} }
-                child { node {\avlkey{30}} }
-                child { node {\avlkey{20}} }
-            }
-            child { node {\avlkey{B} }
-                child { node {\avlkey{1}} }
-                child { node {\avlkey{120}} }
-            };
+        \node (Root) {YOU}
+        child {
+            node {A}
+            child { node {30} }
+            child { node {20} }
+        }
+        child {
+            node {B}
+            child { node {1} }
+            child { node {120} }
+        };
+
     \end{tikzpicture}
     \captionof{figure}{Grafik zur Veranschaulichung des Gedankenexperimentes}
     \label{fig:thought-experiment}
