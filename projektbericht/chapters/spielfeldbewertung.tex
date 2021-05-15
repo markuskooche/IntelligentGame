@@ -69,7 +69,7 @@ Denn letztlich ist f\"ur das Gewinnen des Spieles nur die Anzahl an Spielsteinen
 
 \subsection{Algorithmen der Zugauswahl}\label{subsec:algorithmen-der-zugauswahl}
 F\"ur einen Computer ist es unm\"oglich den besten Spielzug zu finden, da hier jedes m\"ogliche Spielfeld \"uberpr\"uft werden m\"usste.
-Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande\footnote{epubli: Zahlen am Brett, \textit{https://www.schachlich.de/schach-in-zahlen/} (abgerufen am 09.05.2021)}.
+Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande~\cite{chessBoards}.
 Bei ReversiXT liegt die Zahl wesentlich h\"oher, da es zum einen viel gr\"o"sere Karten und zum anderen bis zu 8 Spieler gibt.
 Damit ein Computer trotzdem einen guten Zug abliefern kann werden spezielle Algorithmen ben\"otigt.
 Ein weit verbreiteter Algorithmus f\"ur Zwei-Personen-Nullsummenspiele\footnote{Duden: Spiel, bei dem die Summe der Einsätze, Verluste und Gewinne gleich null ist} lautet Minimax.
@@ -171,7 +171,7 @@ Die Tabelle~\ref{tab:search-depth} liefert eine \"Ubersicht \"uber alle getestet
         \hline
         7 & 419.537 & 28.802.230\\
         \hline
-        8 & ? & ?\\
+        8 & 1.898.497 & 449.424.275\\
         \hline
     \end{tabular}
     \caption{Besuchte Karten mit den Suchalgorithmen (Ergebnisse wurden geglättet)}
