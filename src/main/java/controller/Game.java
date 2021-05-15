@@ -38,6 +38,7 @@ public class Game {
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
+        mapAnalyzer.createVisibleField('1');
         // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
         // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
     }

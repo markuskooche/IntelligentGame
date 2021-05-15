@@ -22,6 +22,7 @@ public class Board {
     private final int width;
     private final int height;
     private int[] playerScores;
+    private int[][] tmpField;
 
     /**
      * Creates a map.Board class with all information about it.
@@ -174,8 +175,74 @@ public class Board {
         return legalMoves;
     }
 
+    private int[][] createHelperField(){
+        int[][] tmp = new int[height][width];
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(field[i][j] != '-'){
+                    tmp[i][j] = 0;
+                }else{
+                    tmp[i][j] = -1;
+                }
+            }
+        }
+        return tmp;
+    }
+
     public void executeBomb(int x, int y) {
-        field[y][x] = '-';
+
+        tmpField = createHelperField();
+        executeBombRecursive(x, y, bombRadius+1);
+        removeFields();
+
+    }
+
+    private void executeBombRecursive(int x, int y, int radius) {
+
+        if (radius == 0) {
+            return;
+        }
+
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        int newX, newY;
+
+        tmpField[y][x] = radius;
+
+        for (int[] direction : directions) {
+            newX = x + (direction[0]);
+            newY = y + (direction[1]);
+
+            if (newX < 0 || newX >= width || newY < 0 || newY >= height || field[newY][newX] == '-') {
+
+                int directionValue = Direction.indexOf(direction);
+                Transition transition;
+
+                transition = getTransition(x, y, directionValue);
+
+                if (transition != null) {
+                    if(tmpField[transition.getY()][transition.getX()] < radius) {
+                        executeBombRecursive(transition.getX(), transition.getY(), radius - 1);
+                    }
+                }
+
+            } else {
+                if ((tmpField[y][x] - 1) > tmpField[newY][newX]) {
+                    executeBombRecursive(newX, newY, radius - 1);
+                }
+            }
+
+        }
+    }
+
+    private void removeFields(){
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(tmpField[i][j] != 0 && tmpField[i][j] != -1){
+                    field[i][j] = '-';
+                }
+            }
+        }
     }
 
     public void colorizeMove(Move legalMove, Player player, int additionalOperation) {

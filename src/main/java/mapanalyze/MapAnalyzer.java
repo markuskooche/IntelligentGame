@@ -22,7 +22,11 @@ public class MapAnalyzer {
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
+    private int[][] visibleField;
+    private int[][] tmpField;
     private int playerNumber;
+    private int width;
+    private int height;
 
 
     public MapAnalyzer(Board b, int pNumber, AnalyzeParser analyzeParser) {
@@ -46,8 +50,8 @@ public class MapAnalyzer {
     }
 
     private void initAllFields(){
-        int height = board.getHeight();
-        int width = board.getWidth();
+        height = board.getHeight();
+        width = board.getWidth();
 
         reachableField = new int[height][width];
 
@@ -61,15 +65,14 @@ public class MapAnalyzer {
         field = new int[height][width];
         initialField = new int[height][width];
 
+        visibleField = new int[height][width];
+
     }
 
     /**
      * creates a Field that contains only reachable Fields and values every Field by location and location to other Fields
      */
     public void createField() {
-
-        int height = board.getHeight();
-        int width = board.getWidth();
 
         //Field muss zurückgesetzt werden, da createField sehr oft aufgerufen wird
         for (int y = 0; y < height; y++) {
@@ -136,8 +139,6 @@ public class MapAnalyzer {
     }
 
     public void createReachableField() {
-        int height = board.getHeight();
-        int width = board.getWidth();
 
         specialFieldListSidePath = new ArrayList<>();
         specialFieldListMainPath = new ArrayList<>();
@@ -458,8 +459,6 @@ public class MapAnalyzer {
      * alters all 3's in the reachableField to 4's
      */
     private void threeToFour(){
-        int height = board.getHeight();
-        int width = board.getWidth();
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -473,11 +472,84 @@ public class MapAnalyzer {
         }
     }
 
+    private int[][] createHelperField(){
+
+        int[][] tmp = new int[height][width];
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(field[i][j] != '-'){
+                    tmp[i][j] = 0;
+                }else{
+                    tmp[i][j] = -1;
+                }
+            }
+        }
+        return tmp;
+    }
+
+    public void createVisibleField(char playerNumber) {
+
+        tmpField = createHelperField();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(board.getField()[i][j] == playerNumber){
+                    findVisibleFields(j, i, board.getPlayerAmount());
+                }
+            }
+            }
+        makeFieldsVisible();
+
+    }
+
+    private void findVisibleFields(int x, int y, int radius) {
+
+        if (radius == 0) {
+            return;
+        }
+
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        int newX, newY;
+
+        tmpField[y][x] = radius;
+
+        for (int[] direction : directions) {
+            newX = x + (direction[0]);
+            newY = y + (direction[1]);
+
+            if (newX < 0 || newX >= width || newY < 0 || newY >= height || field[newY][newX] == '-') {
+
+                int directionValue = Direction.indexOf(direction);
+                Transition transition;
+
+                transition = board.getTransition(x, y, directionValue);
+
+                if (transition != null) {
+                    if(tmpField[transition.getY()][transition.getX()] < radius) {
+                        findVisibleFields(transition.getX(), transition.getY(), radius - 1);
+                    }
+                }
+
+            } else {
+                if ((tmpField[y][x] - 1) > tmpField[newY][newX]) {
+                    findVisibleFields(newX, newY, radius - 1);
+                }
+            }
+        }
+    }
+
+    private void makeFieldsVisible() {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (tmpField[i][j] != 0 && tmpField[i][j] != -1) {
+                    visibleField[i][j] = 1;
+                }
+            }
+        }
+    }
+
 
     private void traverseMapForEachPlayerStone() {
-
-        int height = board.getHeight();
-        int width = board.getWidth();
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -500,8 +572,6 @@ public class MapAnalyzer {
      * Updates the current board and removes all Fields that are not reachable
      */
     private void alterCurrentMap() {
-        int height = board.getHeight();
-        int width = board.getWidth();
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -570,8 +640,6 @@ public class MapAnalyzer {
      * @return int with the value of the Player-Score for the given player
      */
     public int calculateScoreForPlayer(char playerNumber) {
-        int height = board.getHeight();
-        int width = board.getWidth();
         int playerScore = 0;
 
         for (int i = 0; i < height; i++) {
