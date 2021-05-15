@@ -24,21 +24,22 @@ In Phase 1 m\"ussen Spieler solange ziehen, bis kein Zug mehr m\"oglich ist.
 Im Anschluss beginnt die Phase 2, die sogenannte \emph{Bombenphase}.
 Zudem gibt es mehrere Spezialfelder (siehe Abbildung~\ref{fig:reversixt-map}), die vorab fest definiert sind und jeweils nur einmal ausgel\"ost werden k\"onnen.
 Mit einem \emph{Inversionsfeld} werden die Farben aller Spieler um eins weiter verschoben.
-Mit einem \emph{Choicefeld} wird die Farbe von sich selbst mit einem ausgew\"ahlten Spieler getauscht, dabei ist es auch erlaubt sich selbst zu w\"ahlen.
+Bei einem \emph{Choicefeld} wird die Farbe von sich selbst mit einem ausgew\"ahlten Spieler getauscht, dabei ist es auch erlaubt sich selbst zu w\"ahlen.
 Ein \emph{Expansionsfeld} wird als Gegner gewertet und kann nach den gleichen Regeln wie andere Spieler eingenommen werden, oder mithilfe eines \emph{\"Uberschreibsteins} - ohne Notwendigkeit der Umf\"arbung anderer Spieler - \"uberschrieben werden.
 \"Uberschreibsteine k\"onnen auch genutzt werden, um einen Gegenspieler unter Beachtung der normalen Regeln zu \"uberschreiben und dabei das Spielfeld auf gewohnte Weise einzuf\"arben.
 Die Anzahl von \"Uberschreibsteinen sowie Bomben ist zu Beginn des Spieles festgelegt.
 Durch ein \emph{Bonusfeld} darf der Spieler zwischen einem \"Uberschreibstein und einer Bombe w\"ahlen, welche dem jeweiligen Spieler gutgeschrieben wird.
 Sobald kein Spieler mehr einen legitimen Spielzug besitzt, beginnt die zweite Phase.
 Hierbei m\"ussen abwechselnd, sofern vorhanden, alle Bomben gesetzt werden.
-Hierzu wird ein Feld ausgew\"ahlt und ein Bereich mit festgelegtem Radius weggesprengt.
+Hierzu wird ein Feld (L\"ocher ausgenommen) ausgew\"ahlt und ein Bereich mit festgelegtem Radius weggesprengt.
 Dabei werden alle betroffenen Felder zu L\"ochern umgewandelt.
-L\"ocher sind nicht besetzbare Felder, sozusagen nicht bespielbare Felder.
+L\"ocher sind nicht bespielbare/besetzbare Felder.
 
 \vspace{1em}
 \begin{minipage}{\linewidth}
 	\centering
 	\includegraphics[width=0.5\linewidth]{pics/transition}
+	\includegraphics[width=0.5\linewidth]{pics/color-meaning}
 	\captionof{figure}[Transitionen]{ReversiXT Karte inkl. eingezeichneter Transition}
 	\label{fig:reversixt-map}
 \end{minipage}
@@ -68,7 +69,7 @@ In Bereichen, in denen es kaum Daten f\"ur ein zu l\"osendes Problem gibt, oder 
 Betrachtet man nun ein Spiel wie ReversiXT und m\"ochte hier nun maschinelles Lernen einsetzen entsteht kein Problem aufgrund fehlender Daten, sondern es ergibt sich ein ganz anderes Problem.
 Damit ein Computer selbstst\"andig lernt, wie man ReversiXT spielt, muss dieser alle M\"oglichkeiten von Spielz\"ugen durchgehen, um dann daraus R\"uckschl\"usse \"uber Z\"uge zu erhalten, die zu einem Sieg f\"uhren.
 Nun gibt es aber so viele m\"ogliche Z\"uge, dass die Zeit nicht ausreicht um ein Spiel komplett durchsimulieren zu k\"onnen und vorallem hat man dann auch nur ein einziges Spiel simuliert, was selbstverst\"andlich alles andere als repr\"asentativ ist.
-Mit der Entwicklung einer k\"unstlichen Intelligenz und einer Einf\"uhrung \"uber das maschinelle Lernen wollen wir die Vor- und Nachteile beider Innovationen erkennen und hautnah die Unterschiede verstehen lernen.
+Mit der Entwicklung einer k\"unstlichen Intelligenz und einer Einf\"uhrung \"uber das maschinelle Lernen erhofft man sich die Vor- und Nachteile beider Innovationen erkennen und hautnah die Unterschiede verstehen zu lernen.
 
 
 \bigskip

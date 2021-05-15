@@ -16,17 +16,17 @@ Genau aus diesem Grund reicht eine naive Spielfeldbewertung nicht f\"ur ein auss
 
 \subsection{Bestandteile der Heuristik}\label{subsec:bestandteile-der-heuristik}
 Wie bereits in der Einleitung dieses Abschnitts begr\"undet, gen\"ugt das reine Abz\"ahlen der Spielsteine nicht aus.
-Deshalb setzt dieser Clent auf drei unterschiedliche Heuristikbestandteile, um die aktuelle Spielsituation zu bewerten.
+Deshalb setzt dieser Client auf drei unterschiedliche Heuristikbestandteile, um die aktuelle Spielsituation zu bewerten.
 Unter diesen drei Ans\"atzen werden die \emph{Mobilit\"at} der Spieler, das \emph{Verh\"altnis der Spielsteine} sowie die aktuelle \emph{Bewertung der Karte} miteinbezogen.
 Diese einzelnen Bestandteile sind w\"ahrend des Spiels jedoch nicht immer gleichbedeutend.
-Zu Beginn muss darauf geachtet werden, dass man sehr flexibel bleibt und Positionen erobert die nur schwer einnehmbar sind.
+Zu Beginn muss darauf geachtet werden, dass man sehr flexibel bleibt und Positionen erobert die sp\"ater nur schwer einnehmbar sind.
 Hierzu z\"ahlen vor allem Ecken und Kanten.
-Erobert man nun ein solches Feld, wird der Gegner in seiner Zugwahl eingeschr\"ankt, da er keine Z\"uge w\"ahlen will, die bereits einen Zug sp\"ater wieder \"uberzogen werden k\"onnen.
+Erobert man nun ein solches Feld, wird der Gegner in seiner Zugwahl eingegrenzt, da er keine Z\"uge w\"ahlen will, die bereits einen Zug sp\"ater wieder \"uberzogen werden.
 Eine solche Situation schr\"ankt die Mobilit\"at des Gegners drastisch ein und auch die Bewertung des Spielers aufgrund seines Kartenwertes leidet darunter.
 Je weiter man sich jedoch dem Spielende n\"ahert, desto unwichtiger wird dieses Bewertungskriterium.
 Dies liegt daran, dass man das Spiel nicht aufgrund hoher Mobilit\"at gewinnt, sondern anhand der Anzahl seiner Spielsteine.
 Aus diesem Grund wird das Verh\"altnis der Spielsteine zum Ende hin immer wichtiger.
-Wichtig ist nun den prozentualen Spielverlauf abzusch\"atzen um damit die einzelnen Heuristikbestandteile richtig gewichten zu k\"onnen.
+Ma"sgeblich ist nun den prozentualen Spielverlauf abzusch\"atzen, um damit die einzelnen Heuristikbestandteile akkurat gewichten zu k\"onnen.
 
 \subsubsection{Gewichtung des Spielfeldes}\label{subsubsec:gewichtung-des-spielfeldes}
 Es gibt gewisse Positionen die f\"ur einen Spieler wertvoller sind als andere.
@@ -79,9 +79,9 @@ Zur Veranschaulichung von Minimax soll ein kurzes Gedankenexperiment (siehe Abbi
 Es gibt zwei Personen.
 Die eine hat zwei Schubl\"aden A \& B mit je zwei Gegenst\"anden (Wert in Euro angegeben).
 Die andere Person darf sich nun eine Schublade aussuchen, aus dem Sie ein Geschenk bekommt.
-Nun muss sich der Besitzer dieser Gegenst\"ande aussuchen, welches er dem Gl\"ucklichen schenken m\"ochte.
+Nun muss der Besitzer dieser Gegenst\"ande ausw\"ahlen, welches er dem Gl\"ucklichen \"uberreichen m\"ochte.
 Deshalb wird er den Gegenstand w\"ahlen, der f\"ur Ihn am wenigsten Verlust darstellt.
-Aus diesem Grund ergibt es keinen Sinn die Schublade B auszuw\"ahlen, da man hier den Gegenstand f\"ur 1~\euro{} bekommt, andernfalls den f\"ur 20~\euro{}.
+Aus diesem Grund ergibt es f\"ur den Spieler YOU keinen Sinn die Schublade B auszuw\"ahlen, da man hier den Gegenstand f\"ur 1~\euro{} bekommt, andernfalls den f\"ur 20~\euro{}.
 
 \vspace{1em}
 \begin{center}
@@ -112,15 +112,15 @@ Jedoch beinhaltet dieser Algorithmus einen Nachteil - es werden auch Spielz\"uge
 \subsubsection{Alpha-Beta-Pruning}\label{subsubsec:alpha-beta-pruning}
 Dieses Problem kann mithilfe des Alpha-Beta-Prunings drastisch reduziert werden.
 Hierbei werden Hilfsvariablen (alpha und beta) durchgereicht.
-Mit dieser Verbesserung werden Zugfolgen, die das Ergebnis nicht beeinflussen, nicht mehr kontrolliert.
+Dieser Verbesserung muss Zugfolgen, die das Ergebnis unbeeinflusst lassen, nicht mehr kontrolliert.
 Beim Gedankenexperiment muss somit nach dem Gegenstand im Wert von 1~\euro{} kein weiterer Knoten untersucht werden, da der Spieler YOU diesen Pfad (im Beispiel die Schublade B) nicht w\"ahlen wird.
 Das liegt daran, dass f\"ur ihn die Schublade A wesentlich interessanter ist.
 Selbstverst\"andlich nur unter Ber\"ucksichtigung, dass der Andere seinen Verlust minimieren m\"ochte.
 
 \subsubsection{Vergleich der Algorithmen}\label{subsubsec:vergleich-der-algorithmen}
 Um die Bedeutung dieser Variante zu verdeutlichen, folgt nun ein Vergleich beider Verfahren.
-Dabei wird dieselbe Karte mit unterschiedlichen Suchbaumtiefen getestet.
-Es trat in den Tiefen 3 bis 8 jeweils zwei Spieler gegeneinander an\footnote{Die Suchbaumtiefe 8 wurde auf einem Labor-PC der OTH Regensburg durchgef\"uhrt. N\"ahere Informationen siehe Kapitel~\ref{subsec:technische-daten}}.
+Dabei wird zuerst dieselbe Karte mit unterschiedlichen Suchbaumtiefen getestet.
+Es treten in den Tiefen 3 bis 8 jeweils zwei Spieler gegeneinander an\footnote{Die Suchbaumtiefe 8 wurde auf einem Labor-PC der OTH Regensburg durchgef\"uhrt. N\"ahere Informationen siehe Kapitel~\ref{subsec:technische-daten}}.
 Es wird je einmal der erste Spieler und einmal der zweite Spieler mit Alpha-Beta gestartet.
 
 \vspace{1em}
@@ -131,7 +131,7 @@ Es wird je einmal der erste Spieler und einmal der zweite Spieler mit Alpha-Beta
     \label{fig:statistic-map}
 \end{minipage}
 
-Wir haben uns aus folgenden Gr\"unden f\"ur die Karte aus Abbildung~\ref{fig:statistic-map} entschieden:
+Es wird aus folgenden Gr\"unden die Karte aus Abbildung~\ref{fig:statistic-map} zu Begin gew\"ahlt:
 \begin{enumerate}
     \item Es gibt nur zwei Spieler, womit beide Verfahren gegeneinander antreten k\"onnen.
     \item Es gibt keine Spezialsteine, was das Spiel einfacher gestaltet und beim Vergleich der Algorithmen nicht von Bedeutung ist.
@@ -193,7 +193,7 @@ Der Aufwand, alle m\"oglichen Spielzust\"ande zu vergleichen, w\"achst bei beide
 Jedoch bewirkt das Alpha-Beta-Pruning eine gestauchtere Kurve als der Minimax-Algorithmus ohne Alpha-Beta-Pruning.
 
 Bei gleicher Anzahl an bewerteten Feldern wird mit Alpha-Beta-Pruning der Suchbaum tiefer analysiert und dadurch mehr Z\"uge miteinander verglichen.
-Das f\"uhrt dazu, dass bei gleichem Zeitaufwand (= gleiche Anzahl an analysierten Spielzust\"anden) das beste Ergebnis einer tieferen Suchbaumebene gefunden wird.
+Das f\"uhrt dazu, dass bei gleichem Zeitaufwand (= gleiche Anzahl an analysierten Spielzust\"anden) das beste Ergebnis einer \underline{tieferen} Suchbaumebene gefunden wird.
 
 \bigskip
 \newpage

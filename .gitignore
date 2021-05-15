@@ -22,7 +22,8 @@ hs_err_pid*
 
 # LaTeX Files
 /out/*
-# !/out/Projektbericht.pdf
+/projektbericht/Projektbericht.*
+!/projektbericht/Projektbericht.tex
 
 # JavaDoc Files
 /javadoc/
