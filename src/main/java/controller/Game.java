@@ -1,12 +1,12 @@
 package controller;
 
+import heuristic.BombPosition;
 import heuristic.Heuristics;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
 import map.Player;
 import map.Transition;
-import mapanalyze.FieldStatus;
 import mapanalyze.MapAnalyzer;
 
 import java.util.*;
@@ -38,6 +38,7 @@ public class Game {
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
+        mapAnalyzer.createVisibleField('1');
         // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
         // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
     }
@@ -49,20 +50,22 @@ public class Game {
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
         Move move = heuristics.getMoveTimeLimited(ourPlayer, time, alphaBeta, moveSorting);
-        int additional = 0;
+        int additional;
 
         if (move.isChoice()) {
+            // TODO: additional should be the currently best player
             Random r = new Random();
             additional = r.nextInt(players.length - 1) + 1;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = 21;
-        } else if(move.isInversion()) {
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
-        }else {
-            additional = 0;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+        } else if (move.isInversion()) {
+            additional = 0;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+        } else {
+            additional = 0;
         }
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -78,9 +81,14 @@ public class Game {
             // TODO: additional should be the currently best player
             Random r = new Random();
             additional = r.nextInt(players.length - 1) + 1;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = 21;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+        } else if (move.isInversion()) {
+            additional = 0;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
         } else {
             additional = 0;
         }
@@ -199,6 +207,17 @@ public class Game {
         board.executeBomb(x, y);
     }
 
+    public int[] executeOurBomb() {
+        int radius = board.getBombRadius();
+        char ourPlayer = getPlayer(ourPlayerNumber).getNumber();
+
+        BombPosition bomb = new BombPosition(board.getField(), ourPlayer, radius);
+        int[] position = bomb.getBestBombPosition();
+        board.executeBomb(position[0], position[1]);
+
+        return position;
+    }
+
     public int getMobility(int player) {
         return heuristics.getMobility(players[player - 1], board);
     }
@@ -218,6 +237,7 @@ public class Game {
     public void decreasePlayerNumber(){
         mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
+
 
 
     /**
