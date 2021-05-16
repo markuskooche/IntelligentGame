@@ -143,8 +143,6 @@ public class MapAnalyzer {
         specialFieldListMainPath = new ArrayList<>();
         followFieldsPath = new ArrayList<>();
 
-
-
         traverseMapForEachPlayerStone();
         alterCurrentMap();
 

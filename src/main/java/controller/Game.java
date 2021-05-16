@@ -6,7 +6,6 @@ import map.Board;
 import map.Move;
 import map.Player;
 import map.Transition;
-import mapanalyze.FieldStatus;
 import mapanalyze.MapAnalyzer;
 
 import java.util.*;
@@ -49,20 +48,22 @@ public class Game {
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
         Move move = heuristics.getMoveTimeLimited(ourPlayer, time, alphaBeta, moveSorting);
-        int additional = 0;
+        int additional;
 
         if (move.isChoice()) {
+            // TODO: additional should be the currently best player
             Random r = new Random();
             additional = r.nextInt(players.length - 1) + 1;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = 21;
-        } else if(move.isInversion()) {
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
-        }else {
-            additional = 0;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+        } else if (move.isInversion()) {
+            additional = 0;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+        } else {
+            additional = 0;
         }
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -78,9 +79,14 @@ public class Game {
             // TODO: additional should be the currently best player
             Random r = new Random();
             additional = r.nextInt(players.length - 1) + 1;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = 21;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+        } else if (move.isInversion()) {
+            additional = 0;
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
         } else {
             additional = 0;
         }
@@ -218,6 +224,7 @@ public class Game {
     public void decreasePlayerNumber(){
         mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
+
 
 
     /**

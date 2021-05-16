@@ -21,6 +21,8 @@ public class Heuristics {
     private long zeit;
     private static AnalyzeParser analyzeParser;
 
+    private Token timeToken;
+
     public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
         this.board = board;
         this.players = players;
@@ -31,12 +33,18 @@ public class Heuristics {
         Heuristics.analyzeParser = analyzeParser;
     }
 
-    public Move getMoveTimeLimited(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
-        long time = System.currentTimeMillis();
-        Move move = new Move();
-        spentTime = 0;
-        int searchDepth = 2;
+    private void startTimer(long maxTimeForMove) {
+        timeToken = new Token();
+        Thread t = new Thread(new ThreadTimer(timeToken));
+        Timer timer = new Timer();
+        timer.schedule(new TimeOutTask(t, timer), (int)(maxTimeForMove * 0.9));
+        t.start();
+    }
 
+    public Move getMoveTimeLimited(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
+        startTimer(maxTimeForMove);
+        Move move;
+        int searchDepth = 2;
         int ourPlayerNum = ourPlayer.getNumber() - '0';
         int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
 
@@ -44,15 +52,17 @@ public class Heuristics {
         List<BoardMove> executedStartMoves = executeAllMoves(ourPlayer,startBoard, false);
 
         if (executedStartMoves.isEmpty()) {
+            //No normal moves found, check for overrideStone-Moves
             return onlyOverrideStone(startBoard, ourPlayer);
         }
         if (executedStartMoves.size() == 1) { //OverrideStones are not included
             return executedStartMoves.get(0).getMove();
         }
+        move = executedStartMoves.get(0).getMove(); //Pick the first possible Move
 
         if (orderMoves) sortExecutedMoves(executedStartMoves, ourPlayer, ourPlayer);
 
-        //Auswertung für die 1 Tiefe.
+        //Get best Move for depth 1
         SearchNode root = new SearchNode(null, startBoard, executedStartMoves, ourPlayer, true, 1);
         int pickedBoardValue = Integer.MIN_VALUE;
         for (BoardMove boardMove : executedStartMoves) {
@@ -63,22 +73,12 @@ public class Heuristics {
                 pickedBoardValue = tmpValue;
                 move = boardMove.getMove();
             }
+            if (timeToken.timeExceeded()) return move;
         }
         root.setPickedBoardValue(pickedBoardValue);
 
-        spentTime += (System.currentTimeMillis() - time);
-
-        //Search till no time left
-        while(spentTime < maxTimeForMove) {
-
-
-            if (searchDepth == 10) {
-                return move;
-            }
-
+        while(!timeToken.timeExceeded()) {
             mapsAnalyzed = 0;
-            zeit = System.currentTimeMillis();
-            time = System.currentTimeMillis();
             Move tmpMove = new Move();
             try {
                 int depth = 1;
@@ -91,7 +91,7 @@ public class Heuristics {
                     mapsAnalyzed++;
                     int tmpValue  = 0;
                     tmpValue = searchParanoidTimeLimited(root, nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, searchDepth, maxLoop,
-                            alpha, beta, alphaBeta, orderMoves, time, maxTimeForMove);
+                            alpha, beta, alphaBeta, orderMoves);
 
                     if (tmpValue > value) {
                         value = tmpValue;
@@ -100,25 +100,20 @@ public class Heuristics {
                     }
                     depth = 1;
                 }
+
+                move = tmpMove;
+                searchDepth ++;
             } catch (TimeExceededException e) {
-                 break;
+                return move;
             }
-
-            //System.out.println("Search Depth: " + searchDepth + " Spent Time: " + spentTime + " Analyzed: " + mapsAnalyzed);
-            move = tmpMove;
-            searchDepth ++;
         }
-
         return move;
     }
 
     private int searchParanoidTimeLimited(SearchNode root, int currPlayer, int ourPlayerNum, Board board, Move move, int depth, int maxDepth, int maxLoop,
-                               int alpha ,int beta, boolean alphaBeta, boolean orderMoves, long time, long maxTimeForMove) throws TimeExceededException {
+                               int alpha ,int beta, boolean alphaBeta, boolean orderMoves) throws TimeExceededException {
 
-        spentTime += (System.currentTimeMillis() - zeit);
-        if (spentTime > maxTimeForMove) throw new TimeExceededException();
-
-        zeit = System.currentTimeMillis();
+        if (timeToken.timeExceeded()) throw new TimeExceededException();
 
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
@@ -149,7 +144,7 @@ public class Heuristics {
             if(maxLoop < numPlayers) {
                 maxLoop++;
                 return searchParanoidTimeLimited(root, nextPlayer, ourPlayerNum, board, move,depth - 1, maxDepth, maxLoop,
-                        alpha, beta, alphaBeta, orderMoves, time, maxTimeForMove);
+                        alpha, beta, alphaBeta, orderMoves);
             } else {
                 return 0; //No player has any move (perhaps only override)
             }
@@ -177,7 +172,7 @@ public class Heuristics {
         for (BoardMove boardMove : executedMoves) {
             mapsAnalyzed++;
             tmpValue = searchParanoidTimeLimited(node, nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, maxDepth, maxLoop,
-                    alpha, beta, alphaBeta, orderMoves, time, maxTimeForMove);
+                    alpha, beta, alphaBeta, orderMoves);
 
             if (player == ourPlayer) { //MAX
                 if (tmpValue > value) value = tmpValue;
@@ -196,8 +191,7 @@ public class Heuristics {
                     }
                 }
             }
-            spentTime += (System.currentTimeMillis() - zeit);
-            if (spentTime > maxTimeForMove) throw new TimeExceededException();
+            if (timeToken.timeExceeded()) throw new TimeExceededException();
         }
 
         return value;
@@ -357,7 +351,6 @@ public class Heuristics {
 
     private List<BoardMove> executeAllMoves(Player player, Board board, boolean overrideMoves) {
         List<Move> myMoves = board.getLegalMoves(player, overrideMoves);
-        // TODO: [IWAN] System.out.println("ALL POSSIBLE MOVES: " + myMoves.size());
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             Board newBoard = new Board(board);
@@ -370,7 +363,6 @@ public class Heuristics {
             //-------------------------------------------------
             executedMoves.add(new BoardMove(newBoard, m, player));
         }
-        // TODO: [IWAN] System.out.println("RETURNED POSSIBLE MOVES: " + executedMoves.size());
         return executedMoves;
     }
 
