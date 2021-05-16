@@ -1,36 +1,36 @@
-Einleitung ..
+Ein Turniere wird mit der Software Matchpoint gestartet.
+Hier k\"onnen Teams gegeneinander antreten und Ihre St\"arken beweisen.
+Die Abgaben der einzelnen Teams werden in Fightclub eingetragen, wo man zudem Maps erstellen und andere herunterladen kann.
+F\"ur beide Plattformen gibt es einige Verbesserungsvorsch\"age, damit es zuk\"unftige Semester leichter haben einen hervorragenden K.I.\ Client zu entwickeln.
 
 \subsection{Direkte Konsolenausgabe}\label{subsec:direkte-konsolenausgabe}
-Konsolenausgabe des Clients direkt in der Webansicht anzeigen lassen.
-Eventuell sollte man sich davor anmelden, damit man nur seine eigenen Logfiles sehen kann.
-Dadurch hat man den Vorteil, das man sich immer und von \"uberall aus seine Logfiles ansehen kann.
-Der Nutzen liegt darin, dass man sich nicht immer alle Dateien herunterladen muss.
-Zudem entf\"allt die Arbeit f\"ur den Professor, der die Dateien immer hochladen muss.
+Es werden zu jedem Spiel alle Konsolenausgaben gespeichert und k\"onnen im Anschluss heruntergeladen werden.
+Hier erh\"alt man detaillierte Informationen \"uber seinen Client und eventuelle Abst\"urze.
+Es k\"onnte jedoch darauf erweitert werden, die Konsolenausgaben in Echtzeit im Browser anzuzeigen und auch im Nachhinein alles zur Verf\"ugung stehen zu lassen.
+Dies k\"onnte mit einer Datenbank oder eine Kommunikation mittels Socket realisiert werden.
+Nutzer m\"ussten somit nicht alle Logdateien herunterladen sondern von \"uberall aus auf die Ausgaben zugreifen.
 
 \subsection{Export von Spielzust\"anden}\label{subsec:export-von-spielzustaenden}
-M\"oglichkeit bei MatchPoint durch ein beendetes Spiel zu navigieren und dann Schritt f\"ur Schritt das Spiel abzugehen und die aktuelle stelle dann exportieren k\"onnen.
-Der Vorteil liegt darin, das man sich bei eventuellen Absturz den Vorherigen Zustand herunterladen kann und dann wieder einlesen kann.
-Damit hat man den Vorteil gewissen Situationen leichter debuggen zu k\"onnen.
+Durch Matchpoint 2 ist es den Gruppen m\"oglich beendete Spiele in beide Richtungen durchzulaufen.
+Ist man disqualifiziert worden, muss man diese Situation wiederherstellen und seine Software darauf testen.
+Die Herstellung dieser Situation ist jedoch sehr aufwendig und k\"onnte durch einen einfachen Export des aktuellen Spielbrettzustandes inklusiver Transitionen deutlich erleichtert werden.
+Der Vorteil liegt eindeutig in dem verringerten Zeitaufwand Spiele nachtr\"aglich herunterladen, wieder einlesen und debuggen zu k\"onnen.
 
-\subsection{Erweiterte Information von Disqualifikationen}\label{subsec:erweiterte-information-von-disqualifikationen}
-In MatchPoint k\"onnte man sich in einem Spiel in der Tabelle anzeigen lassen, warum man disqualifiziert wurde.
-Somit hat man bei Spielen bei denen mehrere Clients disqualifiziert wurden direkt einen \"Uberblick ob es einen Zusammenhang der Disqualifikation gibt.
+\subsection{Profilbasiertes Matchpoint}\label{subsec:profilbasiertes-matchpoint}
+Aktuell werden ununterbrochen Turniere ausgef\"uhrt um damit die G\"ute der einzelnen Clients zu erhalten.
+Man k\"onnte ein profilbasiertes Matchpoint entwickeln, bei dem sich die einzelnen Gruppe anmelden k\"onnen und ein Spiel mit einer ausgew\"ahlten Karte gegen eine ausge\"ahlte Gruppe starten kann.
+Hier k\"onnten dann nur die beteiligten Gruppe Informationen \"uber ein solches Match erhalten.
+Dadurch w\"urde man \"Anderungen am Code leichter testen k\"onnen und eventuelle Spezialisierungen seines Client in echten Matches testen k\"onnen.
 
-\subsection{Anzeige der Phase einer Disqualifikation}\label{subsec:anzeige-der-phase-einer-disqualifikation}
-In MatchPoint k\"onnte man in sich bei Disqualifikation in der \"Ubersicht anzeigen lassen, ob man in Phase 1 oder Phase 2 disqualifiziert wurde.
-Dadurch hat man den Vorteil, dass man sofort sieht, ob es ein eventueller bekannter Fehler ist.
-Zum Beispiel kann man zum Anfang noch keine Bomben gr\"o"ser Radius 0 richtig behandeln.
-Sollte nun eine solche Karte ausversehen eingelesen werden kann man sofort erkennen, dass man in der Bombenphase disqualifiziert wurde und somit evtl.\ zu Beginn diese Meldung noch ignorieren.
-
-\subsection{Integrierte Tooltipps}\label{subsec:integrierte-tooltipps}
-Man k\"onnte in MatchPoint Tooltips integrieren, damit man detaillierte Informationen \"uber gewissen Inhalte erf\"ahrt.
-Zum Beispiel ist Anfangs der Unterschied zwischen Stones total und Points nicht direkt klar.
-Durch hovern \"uber diese Fl\"ache k\"onnte man genauere Informationen erhalten und somit w\"urde f\"ur Anf\"anger die Software leichter verst\"andlich sein.
+\subsection{Integrierte Tooltips}\label{subsec:integrierte-tooltipps}
+Gerade zu Beginn sind einige Elemente und deren Bedeutung von Matchpoint f\"ur den Nutzer unklar.
+Durch die Integration von Tooltips w\"urden anf\"angliche Startprobleme beseitigt werden und Matchpoint damit leicher verst\"andlich werden.
 
 \subsection{Informationen \"uber Fairness}\label{subsec:informationen-ueber-fairness}
-Man k\"onnte sich im Editor in Fightclub anzeigen lassen, ob es sich bei der erstellten/hochgeladenen Karte um eine Faire Map handelt.
-Sollte dies nicht zutreffen k\"onnte man anzeigen wieso diese nicht Fair ist und gegenbenenfalls zudem Verbesserungen einblenden, damit man die Fairness der Karte verbessern k\"onnte.
-Durch dieses Feature w\"urden weniger Unfaire Karten entwickelt werden und somit auch gerechtere Matches durchgef\"uhrt werden.
+Beim Erstellen einer Karte sollte speziell auf die Fairness dieser Map geachtet werden.
+Eine willkommene Neuerung f\"ur den Mapeditor in Fightclub w\"are eine Aussage \"uber die Fairness dieser erstellen Karte zu geben.
+Zudem k\"onnte man automatisch faire Startpostionen selektieren und auf die Karte setzten.
+Durch diese Neuerung w\"urde die Fairness aller Karten drastisch verbessert werden, was im Interessen aller Beteiligten sein sollte.
 
 \bigskip
 \newpage
