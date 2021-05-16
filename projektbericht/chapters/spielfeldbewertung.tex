@@ -195,5 +195,30 @@ Jedoch bewirkt das Alpha-Beta-Pruning eine gestauchtere Kurve als der Minimax-Al
 Bei gleicher Anzahl an bewerteten Feldern wird mit Alpha-Beta-Pruning der Suchbaum tiefer analysiert und dadurch mehr Z\"uge miteinander verglichen.
 Das f\"uhrt dazu, dass bei gleichem Zeitaufwand (= gleiche Anzahl an analysierten Spielzust\"anden) das beste Ergebnis einer \underline{tieferen} Suchbaumebene gefunden wird.
 
+Um diese Aussage adequate zu best\"atigen werden vier weitere Karten aufgef\"uhrt, bei denen erneut Tests durchgef\"uhrt werden.
+
+\textbf{Cupcake:}
+Diese Map hat bereits zu Beginn sehr viele unterschiedliche Startpositionen.
+Was dazu f\"uhrt, dass der Suchbaum bereits zu Beginn sehr breit ist und somit sehr stark anw\"achst.
+Er beeinhaltet jedoch keine Transitionen oder Sonstige Spezialfelder, wodurch die Anzahl damit jedoch zu einem gewissen Teil eingeschr\"ankt werden.
+Die Karte wird auf Tiefe 5 durchlaufen.
+
+\textbf{QR:}
+Diese Map ist zu einem sehr gro"sen Bestandteil nicht bespielbar, wodurch die Berechnungen zu einem hohen Teil eigentlich hinf\"allig ist, sofern man diese Stellen mit ber\"ucksichtigt.
+Viele Bereiche k\"onnen zum Teil gar nicht erreicht werden oder nur unter ganz bestimmten Umst\"anden, was dazu f\"uhrt, dass die Mobilit\"at hier extrem eingeschr\"ankt wird.
+Durch diese Karte soll getestet werden wie sich die Mobilit\"at auf die beiden Algorithmen auswirkt.
+Diese Karte wird aufgrund wenig erreichbarer Felder auf Tiefe 6 durchlaufen.
+
+\textbf{Dog Extended:}
+Bei der Dog Extended Karte handelt es sich um die Karte, die f\"ur alle Abgaben w\"ahrend dem Semester verwendet wird.
+Aus diesem Grund wird auch die Map Dog Extended bei diesem Test \"uberpr\"uft.
+In dieser Karte sind Transitionen sowie alle m\"oglichen Spezialsteine integriert um alle Abh\"anigkeiten zu testen.
+Diese Karte wird auf Tiefe 5 durchlaufen.
+
+\textbf{Europa:}
+Die Europa Karte ist eine sehr gro\"se Map bei der jedoch viele Stellen aus L\"ochern bestehen und es zudem eine Menge an Kanten und Ecken gibt.
+Dadurch wird die Spielfeldgewichtung unter Probe gestellt um zu testen ob es hierbei zu starken Abweichungen kommt, da die Gewichtung hier oft gleiche Ergebnise liefern k\"onnte und somit wenig weggek\"urzt werden kann.
+Diese Karte wird auf Tiefe 5 durchlaufen.
+
 \bigskip
 \newpage
