@@ -89,6 +89,9 @@ public class Start {
 
         System.out.println();
 
+        game.executeBomb(4,2);
+        //game.executeBomb(11,2);
+
         int[] position = selectMove(game, player);
         int x = position[0];
         int y = position[1];
