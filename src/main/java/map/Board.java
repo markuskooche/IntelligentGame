@@ -425,6 +425,14 @@ public class Board {
         return field;
     }
 
+    public char getPiece(int x, int y) {
+        if (x < width && y < height) {
+            return field[y][x];
+        }
+
+        return '#';
+    }
+
     public int getPlayerAmount(){
         return playerAmount;
     }

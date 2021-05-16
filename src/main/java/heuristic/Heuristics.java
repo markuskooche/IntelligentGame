@@ -242,8 +242,8 @@ public class Heuristics {
                 }
             }
         }
-        System.out.println("Analyzed Maps: " + mapsAnalyzed);
-        System.out.println("XT01-98-AM-" + mapsAnalyzed);
+        // TODO: [IWAN] bitte in AnalyseParser aufrufen [[ System.out.println("Analyzed Maps: " + mapsAnalyzed); ]]
+        // TODO: [IWAN] bitte in AnalyseParser aufrufen [[ System.out.println("XT01-98-AM-" + mapsAnalyzed); ]]
         return move;
     }
 
@@ -381,7 +381,6 @@ public class Heuristics {
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
         int specialField = getSpecialFieldValue(move);
-        //System.out.println("Map: " + mapValue + " Coins: " + coinParity + " Mobility: " + mobility);
         return mapValue + coinParity + mobility + specialField;
     }
 
@@ -404,18 +403,28 @@ public class Heuristics {
     }
 
     public int getMapValue(Player player, Board tmpBoard) {
-
+        /*
+        // TODO: [IWAN] Methoden an erforderlichen Stellen aufrufen
         long myMapValue = tmpBoard.getPlayerScores()[(Integer.parseInt(String.valueOf(player.getNumber()))-1)];
 
         long mapValueAll = 0;
         for (int i = 0; i < numPlayers; i++) {
             mapValueAll += tmpBoard.getPlayerScores()[i];
         }
+        */
+
+        // TODO: LÖSCHEN
+        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getNumber(), tmpBoard);
+
+        long mapValueAll = 0;
+        for (int i = 0; i < numPlayers; i++) {
+            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getNumber(), tmpBoard);
+        }
+        // TODO: BIS HIER HIN
 
         double tmpMapValue = ((double) myMapValue) / mapValueAll;
         return (int) (tmpMapValue * 100000);
     }
-
 
     public int getCoinParity(Player player, Board board) {
         List<int[]> myStones = new ArrayList<>();

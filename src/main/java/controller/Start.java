@@ -73,31 +73,56 @@ public class Start {
             }
         }
 
+        game.executeMove(x, y, PLAYER_NUMBER, a);
         return new int[] {x, y, a};
     }
 
-    public static void main(String[] args) {
-        Game game = createGame("maps/testMaps/standard/EasyTestMap.map");
-        System.out.println(game.toString());
+    private static int[] selectBombMove (Game game) {
+        int height = game.getBoard().getHeight();
+        int width = game.getBoard().getWidth();
 
-        Player player = game.getPlayer(1);
+        int a = 0;
+        int x, y;
+        char piece;
+
+        do {
+            System.out.print("Please select a valid position [x, y]: ");
+            Scanner scanner = new Scanner(System.in);
+
+            x = scanner.nextInt();
+            y = scanner.nextInt();
+
+            piece = game.getBoard().getPiece(x, y);
+
+        } while((x < 0 || x >= width) || (y < 0 && x >= height) || piece == '#');
+
+        game.executeBomb(x, y);
+        return new int[] {x, y, a};
+    }
+
+    private static void printLegalMoves(Game game, Player player) {
         List<Move> legalMoves = game.getBoard().getLegalMoves(player, OVERRIDE);
 
         for (Move legalMove : legalMoves) {
             System.out.println(legalMove);
         }
-
         System.out.println();
+    }
 
-        game.executeBomb(4,2);
-        //game.executeBomb(11,2);
+    public static void main(String[] args) {
+        Game game = createGame("maps/benesTestMaps/bomben01.map");
+        System.out.println(game.toString());
 
-        int[] position = selectMove(game, player);
-        int x = position[0];
-        int y = position[1];
-        int a = position[2];
+        Player player = game.getPlayer(1);
 
-        game.executeMove(x, y, PLAYER_NUMBER, a);
+        //printLegalMoves(game, player);
+        //selectMove(game, player);
+
+        // execute bomb move
+        selectBombMove(game);
+        System.out.println(game.getBoard());
+
+        selectBombMove(game);
         System.out.println(game.getBoard());
     }
 }
