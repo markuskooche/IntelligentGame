@@ -1,5 +1,6 @@
 package controller;
 
+import heuristic.BombPosition;
 import heuristic.Heuristics;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
@@ -204,6 +205,17 @@ public class Game {
 
     public void executeBomb(int x, int y) {
         board.executeBomb(x, y);
+    }
+
+    public int[] executeOurBomb() {
+        int radius = board.getBombRadius();
+        char ourPlayer = getPlayer(ourPlayerNumber).getNumber();
+
+        BombPosition bomb = new BombPosition(board.getField(), ourPlayer, radius);
+        int[] position = bomb.getBestBombPosition();
+        board.executeBomb(position[0], position[1]);
+
+        return position;
     }
 
     public int getMobility(int player) {

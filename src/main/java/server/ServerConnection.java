@@ -116,18 +116,9 @@ public class ServerConnection {
                     char[][] field = game.getBoard().getField();
                     byte[] bombMove = {5, 0, 0, 0, 5, 0, 0, 0, 0, 0};
 
-                    int xBomb = 0;
-                    int yBomb = 0;
-
-                    for (int i = 0; i < field.length; i++) {
-                        for (int j = 0; j < field[0].length; j++) {
-                            if (field[i][j] != '-') {
-                                xBomb = j;
-                                yBomb = i;
-                                break;
-                            }
-                        }
-                    }
+                    int[] bombPosition = game.executeOurBomb();
+                    int xBomb = bombPosition[0];
+                    int yBomb = bombPosition[1];
 
                     bombMove[6] = (byte) (xBomb);
                     bombMove[5] = (byte) ((xBomb) >> 8);
@@ -136,7 +127,6 @@ public class ServerConnection {
                     bombMove[7] = (byte) ((yBomb) >> 8);
 
                     sendMessage(bombMove);
-                    game.executeBomb(xBomb, yBomb);
                     analyzeParser.sendMove(xBomb ,yBomb, ourPlayer,0);
                 }
                 break;
