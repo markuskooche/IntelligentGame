@@ -1,26 +1,32 @@
 Ein wesentlicher Aspekt der K.I.\ ist es die aktuelle Spielfeldsituation der unterschiedlichen Spieler zu bewerten.
-Dadurch ist es der K.I.\ m\"oglich Spielz\"uge besser einzustufen und gegebenenfalls das Spiel mit Spezialsteinen zu beeinflussen.
-Ein naiver Ansatz w\"are der Vergleich der aktuellen Spielsteine jeden Spielers.
+Dadurch kann die K.I.\ Spielz\"uge besser einstufen und gegebenenfalls das Spiel mit Spezialsteinen beeinflussen.
+Ein naiver Ansatz w\"are der Vergleich der Anzahl an Spielsteinen jedes Spielers.
 Dieses Vorgehen reicht jedoch nicht f\"ur eine ad\"aquate Bewertung der Spielsituation aus.
 In Abbildung~\ref{fig:naivespielfeld01} w\"urde die naive Vorgehensweise den roten Spieler besser einstufen, jedoch hat er hier keinerlei m\"ogliche Spielz\"uge.
 Der rote Spieler kann trotz dieser \"Uberlegenheit nicht mehr gewinnen, da der blaue Spieler im n\"achsten Spielzug \"uber alle roten Steine hinwegziehen kann.
-Genau aus diesem Grund reicht eine naive Spielfeldbestimmung nicht f\"ur ein aussagekr\"afigtes Resultat aus.
+Genau aus diesem Grund reicht eine naive Spielfeldbewertung nicht f\"ur ein aussagekr\"afigtes Resultat aus.
 
 \vspace{1em}
 \begin{minipage}{\linewidth}
     \centering
     \includegraphics[width=0.6\linewidth]{pics/naive-game-situation}
-    \captionof{figure}[Spielfeldsituation 01]{Problematik der naiven Bewertung}
+    \captionof{figure}{Problematik der naiven Bewertung}
     \label{fig:naivespielfeld01}
 \end{minipage}
 
 \subsection{Bestandteile der Heuristik}\label{subsec:bestandteile-der-heuristik}
-Wie bereits in der Einleitung gezeigt, gen\"ugt das reine Abz\"ahlen der Spielsteine nicht aus.
-Deshalb setzen wir auf drei unterschiedliche Heuristiken, um die aktuelle Spielsituation zu bewerten.
-Unter diesen drei Ans\"atzen werden die Mobilit\"at der Spieler, das Verh\"altnis der Spielsteine sowie die aktuelle Bewertung der Karte miteinbezogen.
-Diese einzelnen Bestandteile sind w\"ahrend dem Spiel jedoch nicht immer gleichbedeutend, da zum Beispiel im fr\"uhen Spielverlauf die Mobilit\"at und das Besetzen von wichtigen Feldern von Vorteil ist.
-Im sp\"ateren Spielverlauf m\"ussen die einzelnen Bestandteile anders gewertet werden.
-Hierbei muss darauf geachtet werden, seine Anzahl an Steinen zu erh\"ohen.
+Wie bereits in der Einleitung dieses Abschnitts begr\"undet, gen\"ugt das reine Abz\"ahlen der Spielsteine nicht aus.
+Deshalb setzt dieser Client auf drei unterschiedliche Heuristikbestandteile, um die aktuelle Spielsituation zu bewerten.
+Unter diesen drei Ans\"atzen werden die \emph{Mobilit\"at} der Spieler, das \emph{Verh\"altnis der Spielsteine} sowie die aktuelle \emph{Bewertung der Karte} miteinbezogen.
+Diese einzelnen Bestandteile sind w\"ahrend des Spiels jedoch nicht immer gleichbedeutend.
+Zu Beginn muss darauf geachtet werden, dass man sehr flexibel bleibt und Positionen erobert die sp\"ater nur schwer einnehmbar sind.
+Hierzu z\"ahlen vor allem Ecken und Kanten.
+Erobert man nun ein solches Feld, wird der Gegner in seiner Zugwahl eingegrenzt, da er keine Z\"uge w\"ahlen will, die bereits einen Zug sp\"ater wieder \"uberzogen werden.
+Eine solche Situation schr\"ankt die Mobilit\"at des Gegners drastisch ein und auch die Bewertung des Spielers aufgrund seines Kartenwertes leidet darunter.
+Je weiter man sich jedoch dem Spielende n\"ahert, desto unwichtiger wird dieses Bewertungskriterium.
+Dies liegt daran, dass man das Spiel nicht aufgrund hoher Mobilit\"at gewinnt, sondern anhand der Anzahl seiner Spielsteine.
+Aus diesem Grund wird das Verh\"altnis der Spielsteine zum Ende hin immer wichtiger.
+Ma"sgeblich ist nun den prozentualen Spielverlauf abzusch\"atzen, um damit die einzelnen Heuristikbestandteile akkurat gewichten zu k\"onnen.
 
 \subsubsection{Gewichtung des Spielfeldes}\label{subsubsec:gewichtung-des-spielfeldes}
 Es gibt gewisse Positionen die f\"ur einen Spieler wertvoller sind als andere.
@@ -49,73 +55,73 @@ Wie bereits in der Einleitung gezeigt kann ein Spieler seine positive Stellung n
 Aus diesem Grund wird in diesem Ansatz bestimmt wie beweglich ein Spieler gegen\"uber den Anderen ist.
 
 Ein Vorteil dieser Bewertungsmethode besteht darin, dass ein Spieler mit wenig Steinen aber einer hohen Mobilit\"at bei diesem Verfahren nicht negativ bewertet wird.
-Ein Problem daran ist jedoch, dass zum Ende des Spieles dieser Ansatz an Relevanz verliert, da zum Schluss nur die Anzahl an eigenen Steinen wichtig ist.
+Ein Problem daran ist jedoch, dass zum Ende des Spieles dieser Ansatz an Relevanz verliert, da zum Schluss nur die Anzahl an eigenen Steinen relevant ist.
 
 \subsubsection{Spielfeldbelegung}\label{subsubsec:spielfeldbelegung}
-Da es besonders gegen Ende des Spiels wichtig ist, viele Steine zu besitzen, muss man dies ebenfalls in die Bewertung miteinbeziehen.
+Da es besonders gegen Ende des Spiels essenziell ist, viele Steine zu besitzen, muss man dies ebenfalls in die Bewertung miteinbeziehen.
 Anstatt aber nur einfach die Anzahl der Spielsteine zu z\"ahlen, wird hier das prozentuale Verh\"altnis gegen\"uber allen existierenden Spielsteinen genommen.
 
 Der Vorteil dieses Verfahrens ist hier, dass man vor allem im sp\"ateren Spielverlauf feststellen kann, wie der aktuelle Stand des Spiels ist und welche Spieler es anzugreifen gilt.
 Der Nachteil hierbei ist aber, dass dieses Verfahren im anf\"anglichen und mittleren Spielverlauf nicht aussagekr\"aftig ist.
+Dies liegt daran, dass man besonders zum Spielende durch eine zuvor sehr gute Mobilit\"at einen vermeintlich besseren Spieler sehr viele Steine wegnehmen kann.
 Allerdings muss man diese Berechnung wie Anfangs erw\"ahnt mit einflie"sen lassen, da man zum Schluss einen Greedyansatz w\"ahlen muss.
 Denn letztlich ist f\"ur das Gewinnen des Spieles nur die Anzahl an Spielsteinen von Bedeutung.
 
-
 \subsection{Algorithmen der Zugauswahl}\label{subsec:algorithmen-der-zugauswahl}
 F\"ur einen Computer ist es unm\"oglich den besten Spielzug zu finden, da hier jedes m\"ogliche Spielfeld \"uberpr\"uft werden m\"usste.
-Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande\footnote{epubli: Zahlen am Brett, \textit{https://www.schachlich.de/schach-in-zahlen/} (abgerufen am 09.05.2021)}.
+Bei einem Spiel wie Schach w\"aren dies circa $10^{120}$ unterschiedliche Spielbrettzust\"ande~\cite{chessBoards}.
 Bei ReversiXT liegt die Zahl wesentlich h\"oher, da es zum einen viel gr\"o"sere Karten und zum anderen bis zu 8 Spieler gibt.
-Damit ein Computer trotzdem einen guten Zug abliefern kann, ben\"otigt es spezielle Algorithmen.
-Ein weit verbreiteter Algorithmus f\"ur Zwei-Personen-Nullsummenspiele\footnote{Duden: Spiel, bei dem die Summe der Einsätze, Verluste und Gewinne gleich null ist} lauter Minimax.
+Damit ein Computer trotzdem einen guten Zug abliefern kann werden spezielle Algorithmen ben\"otigt.
+Ein weit verbreiteter Algorithmus f\"ur Zwei-Personen-Nullsummenspiele\footnote{Duden: Spiel, bei dem die Summe der Einsätze, Verluste und Gewinne gleich null ist} lautet Minimax.
 
 \subsubsection{Minimax Algorithmus}\label{subsubsec:minimax-algorithmus}
-Zur Veranschaulichung von Minimax soll ein kurzes Gedankenexperiment (siehe Abbildung~\ref{fig:thought-experiment}) dienen, was auch f\"ur fortlaufende Verbesserungen dienen wird.
+Zur Veranschaulichung von Minimax soll ein kurzes Gedankenexperiment (siehe Abbildung~\ref{fig:thought-experiment}) dienen.
 Es gibt zwei Personen.
-Die eine hat zwei Schubl\"aden A \& B mit je zwei Gegenst\"anden.
-Die andere Person darf sich nun einen Schubladen aussuchen, aus dem Sie dann ein Geschenk bekommt.
-Nun muss sich der Besitzer dieser Gegenst\"ande aussuchen welches er dem Gl\"ucklichen schenken m\"ochte.
-Freilich wird er den Gegenstand w\"ahlen, der f\"ur Ihn am wenigsten Verlust darstellt.
-Aus diesen Grund macht es keinen Sinn die Schublade B auszuw\"ahlen, da man hier den Gegenstand f\"ur 1~\euro{} bekommt, andernfalls den f\"ur 20~\euro{}.
+Die eine hat zwei Schubl\"aden A \& B mit je zwei Gegenst\"anden (Wert in Euro angegeben).
+Die andere Person darf sich nun eine Schublade aussuchen, aus dem Sie ein Geschenk bekommt.
+Nun muss der Besitzer dieser Gegenst\"ande ausw\"ahlen, welches er dem Gl\"ucklichen \"uberreichen m\"ochte.
+Deshalb wird er den Gegenstand w\"ahlen, der f\"ur Ihn am wenigsten Verlust darstellt.
+Aus diesem Grund ergibt es f\"ur den Spieler YOU keinen Sinn die Schublade B auszuw\"ahlen, da man hier den Gegenstand f\"ur 1~\euro{} bekommt, andernfalls den f\"ur 20~\euro{}.
 
 \vspace{1em}
 \begin{center}
-    \begin{tikzpicture}[
-        level distance=15mm,
-        every node/.style={circle,draw,minimum size=1cm},
-        level/.style={sibling distance=60mm/#1}
-    ]
+    \begin{tikzpicture}[sibling distance=10em,
+        every node/.style={circle, draw, minimum size=1.2cm},
+        level/.style={sibling distance=6cm/#1}]
 
-        \node{\avlkey{YOU}}
-            child {node {\avlkey{A}}
-                child {node {\avlkey{30}}}
-                child {node {\avlkey{20}}}
-            }
-            child {node {\avlkey{B}}
-                child {node {\avlkey{1}}}
-                child {node {\avlkey{120}}}
-            }
-        ;
+        \node (Root) {YOU}
+        child {
+            node {A}
+            child { node {30} }
+            child { node {20} }
+        }
+        child {
+            node {B}
+            child { node {1} }
+            child { node {120} }
+        };
+
     \end{tikzpicture}
-    \captionof{figure}[Gedankenexperiment]{Grafik zur Veranschaulichung des Gedankenexperimentes.}
+    \captionof{figure}{Grafik zur Veranschaulichung des Gedankenexperimentes}
     \label{fig:thought-experiment}
 \end{center}
 
-Ein solches Verfahren kann nun genutzt werden um unterschiedliche Spielz\"uge gegeneinander zu vergleichen und den Bestm\"oglichen - unter Ber\"ucksichtung der sp\"ateren Z\"uge des Gegners - auszuw\"ahlen.
-Jedoch beinhaltet dieser Algorithmus einen Nachteil - es werden auch Spielz\"uge betrachtet die garnicht in Frage kommen, da ein Spieler diesen Zug niemals w\"ahlen w\"urde.
+Ein solches Verfahren kann nun genutzt werden um unterschiedliche Spielz\"uge zu vergleichen und den Bestm\"oglichen - unter Ber\"ucksichtung der sp\"ateren Z\"uge des Gegners - auszuw\"ahlen.
+Jedoch beinhaltet dieser Algorithmus einen Nachteil - es werden auch Spielz\"uge betrachtet, die nicht infrage kommen, da ein Spieler diesen Zug niemals w\"ahlen wird.
 
 \subsubsection{Alpha-Beta-Pruning}\label{subsubsec:alpha-beta-pruning}
-Dieses Problem kann mithilfe dem Alpha-Beta-Pruning drastisch reduziert werden.
+Dieses Problem kann mithilfe des Alpha-Beta-Prunings drastisch reduziert werden.
 Hierbei werden Hilfsvariablen (alpha und beta) durchgereicht.
-Mithilfe dieser Verbesserung werden Zugfolgen, die das Ergebnis nicht beeinflussen, erst garnicht kontrolliert.
-Beim Gedankenexperiment muss somit nach dem Gegenstand mit Kosten 1~\euro{} keine weiteren Knoten angeschaut werden, da der Spieler YOU diesen Pfad (im Beispiel die Schublade B) nicht w\"ahlen wird.
+Dieser Verbesserung muss Zugfolgen, die das Ergebnis unbeeinflusst lassen, nicht mehr kontrolliert.
+Beim Gedankenexperiment muss somit nach dem Gegenstand im Wert von 1~\euro{} kein weiterer Knoten untersucht werden, da der Spieler YOU diesen Pfad (im Beispiel die Schublade B) nicht w\"ahlen wird.
 Das liegt daran, dass f\"ur ihn die Schublade A wesentlich interessanter ist.
 Selbstverst\"andlich nur unter Ber\"ucksichtigung, dass der Andere seinen Verlust minimieren m\"ochte.
 
 \subsubsection{Vergleich der Algorithmen}\label{subsubsec:vergleich-der-algorithmen}
-Um die Bedeutung dieser Variante zu verdeutlichen folgt nun ein Vergleich beider Verfahren.
-Dabei wurden die selbe Karte mit unterschiedliche Suchbaumtiefen getestet.
-Es trat in den Tiefen 3 bis 8 jeweils zwei Spieler gegeneinander an\footnote{Die Suchbaumtiefe 8 wurde auf einem Labor-PC der OTH Regensburg durchgef\"uhrt. N\"ahere Informationen siehe Kapitel~\ref{subsec:technische-daten}}.
-Es wurde je einmal der erste Spieler und einmal der zweite Spieler mit Alpha-Beta gestartet.
+Um die Bedeutung dieser Variante zu verdeutlichen, folgt nun ein Vergleich beider Verfahren.
+Dabei wird zuerst dieselbe Karte mit unterschiedlichen Suchbaumtiefen getestet.
+Es treten in den Tiefen 3 bis 8 jeweils zwei Spieler gegeneinander an\footnote{Die Suchbaumtiefe 8 wurde auf einem Labor-PC der OTH Regensburg durchgef\"uhrt. N\"ahere Informationen siehe Kapitel~\ref{subsec:technische-daten}}.
+Es wird je einmal der erste Spieler und einmal der zweite Spieler mit Alpha-Beta gestartet.
 
 \vspace{1em}
 \begin{minipage}{\linewidth}
@@ -125,7 +131,7 @@ Es wurde je einmal der erste Spieler und einmal der zweite Spieler mit Alpha-Bet
     \label{fig:statistic-map}
 \end{minipage}
 
-Wir haben uns aus folgenden Gr\"unden f\"ur die Karte aus Abbildung~\ref{fig:statistic-map} entschieden:
+Es wird aus folgenden Gr\"unden die Karte aus Abbildung~\ref{fig:statistic-map} zu Begin gew\"ahlt:
 \begin{enumerate}
     \item Es gibt nur zwei Spieler, womit beide Verfahren gegeneinander antreten k\"onnen.
     \item Es gibt keine Spezialsteine, was das Spiel einfacher gestaltet und beim Vergleich der Algorithmen nicht von Bedeutung ist.
@@ -142,7 +148,7 @@ Wir haben uns aus folgenden Gr\"unden f\"ur die Karte aus Abbildung~\ref{fig:sta
 \end{minipage}
 
 In Abbildung~\ref{fig:statistic-screen} sind sowohl \"uberpr\"ufte Karten ohne Alpha-Beta (blaue Linie), als auch mit Alpha-Beta (orange Linie) zu sehen.
-Hierbei ist klar ersichtlich, das Alpha-Beta-Pruning einen enormen Leistungsvorteil liefert.
+Hierbei ist klar ersichtlich, dass Alpha-Beta-Pruning einen enormen Leistungsvorteil liefert.
 Der obige Screenshot stammt aus der selbstentwickelten Software GameAnalyzer.
 Mehr dazu in Kapitel~\ref{sec:spielanalyse}.
 
@@ -165,10 +171,10 @@ Die Tabelle~\ref{tab:search-depth} liefert eine \"Ubersicht \"uber alle getestet
         \hline
         7 & 419.537 & 28.802.230\\
         \hline
-        8 & ? & ?\\
+        8 & 1.898.497 & 449.424.275\\
         \hline
     \end{tabular}
-    \caption{Besuchte Karten mit den Suchalgorithmen. (Ergebnisse wurden geglättet)}
+    \caption{Besuchte Karten mit den Suchalgorithmen (Ergebnisse wurden geglättet)}
     \label{tab:search-depth}
 \end{table}
 
@@ -179,15 +185,40 @@ Werden Sie jedoch in ein Koordinatensystem (siehe Abbildung~\ref{fig:statistic-g
 \begin{minipage}{\linewidth}
     \centering
     \includegraphics[width=0.7\linewidth]{pics/statistic-graph}
-    \captionof{figure}[Suchbaumtiefen in Koordinaten]{Suchbaumtiefen in ein Koordinatensystem eingetragen.}
+    \captionof{figure}[Suchbaumtiefen in Koordinaten]{Suchbaumtiefen in ein Koordinatensystem eingetragen}
     \label{fig:statistic-graph}
 \end{minipage}
 
-Der Aufwand aller m\"ogliche Spielzust\"ande zu vergleichen w\"achst bei beiden Verfahren exponentiell mit der Anzahl der Suchbaumtiefe.
-Jedoch bewirkt des Alpha-Beta-Pruning eine gestauchtere Kurve als der Minimax-Algorithmus ohne Alpha-Beta-Pruning.
+Der Aufwand, alle m\"oglichen Spielzust\"ande zu vergleichen, w\"achst bei beiden Verfahren exponentiell mit der Anzahl der Suchbaumtiefe.
+Jedoch bewirkt das Alpha-Beta-Pruning eine gestauchtere Kurve als der Minimax-Algorithmus ohne Alpha-Beta-Pruning.
 
-Bei gleicher Anzahl an analysierten Felder kann somit mit Alpha-Beta-Pruning weiter in den Suchbaum hineingeschaut und dadurch mehr Z\"uge miteinander verglichen werden.
-Das f\"uhrt dazu, dass bei gleichem Zeitaufwand (= gleiche Anzahl an analysierten Spielzust\"anden), das beste Ergebnis einer tieferen Suchbaumebene gefunden wird.
+Bei gleicher Anzahl an bewerteten Feldern wird mit Alpha-Beta-Pruning der Suchbaum tiefer analysiert und dadurch mehr Z\"uge miteinander verglichen.
+Das f\"uhrt dazu, dass bei gleichem Zeitaufwand (\corresponds gleiche Anzahl an analysierten Spielzust\"anden) das beste Ergebnis einer \underline{tieferen} Suchbaumebene gefunden wird.
+
+Um diese Aussage adequate zu best\"atigen werden vier weitere Karten aufgef\"uhrt, bei denen erneut Tests durchgef\"uhrt werden.
+
+\textbf{Cupcake:}
+Diese Map hat bereits zu Beginn sehr viele unterschiedliche Startpositionen.
+Was dazu f\"uhrt, dass der Suchbaum bereits zu Beginn sehr breit ist und somit sehr stark anw\"achst.
+Er beeinhaltet jedoch keine Transitionen oder Sonstige Spezialfelder, wodurch die Anzahl damit jedoch zu einem gewissen Teil eingeschr\"ankt werden.
+Die Karte wird auf Tiefe 5 durchlaufen.
+
+\textbf{QR:}
+Diese Map ist zu einem sehr gro"sen Bestandteil nicht bespielbar, wodurch die Berechnungen zu einem hohen Teil eigentlich hinf\"allig ist, sofern man diese Stellen mit ber\"ucksichtigt.
+Viele Bereiche k\"onnen zum Teil gar nicht erreicht werden oder nur unter ganz bestimmten Umst\"anden, was dazu f\"uhrt, dass die Mobilit\"at hier extrem eingeschr\"ankt wird.
+Durch diese Karte soll getestet werden wie sich die Mobilit\"at auf die beiden Algorithmen auswirkt.
+Diese Karte wird aufgrund wenig erreichbarer Felder auf Tiefe 6 durchlaufen.
+
+\textbf{Dog Extended:}
+Bei der Dog Extended Karte handelt es sich um die Karte, die f\"ur alle Abgaben w\"ahrend dem Semester verwendet wird.
+Aus diesem Grund wird auch die Map Dog Extended bei diesem Test \"uberpr\"uft.
+In dieser Karte sind Transitionen sowie alle m\"oglichen Spezialsteine integriert um alle Abh\"anigkeiten zu testen.
+Diese Karte wird auf Tiefe 5 durchlaufen.
+
+\textbf{Europa:}
+Die Europa Karte ist eine sehr gro\"se Map bei der jedoch viele Stellen aus L\"ochern bestehen und es zudem eine Menge an Kanten und Ecken gibt.
+Dadurch wird die Spielfeldgewichtung unter Probe gestellt um zu testen ob es hierbei zu starken Abweichungen kommt, da die Gewichtung hier oft gleiche Ergebnise liefern k\"onnte und somit wenig weggek\"urzt werden kann.
+Diese Karte wird auf Tiefe 5 durchlaufen.
 
 \bigskip
 \newpage

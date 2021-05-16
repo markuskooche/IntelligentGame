@@ -13,10 +13,10 @@
 \texttt{iwan.eckert@st.oth-regensburg.de}}
 {??.??.\the\year} % FIXME optional: Gruppenlogo als PNG, Pflichtfelder: Gruppe, Authoren durch "\\" getrennt und Abgabedatum eingeben
 
-\setcounter{page}{1} 
 % ----------------------------------------------------------------------------------------------------------
 % Inhaltsverzeichnis
 % ----------------------------------------------------------------------------------------------------------
+\setcounter{page}{1}
 \tableofcontents
 \pagebreak
 
@@ -68,6 +68,18 @@
 \input{chapters/spiel-analyse}
 
 % ----------------------------------------------------------------------------------
+% Kapitel: Erreichbare Spielfelder
+% ----------------------------------------------------------------------------------
+\section{Erreichbare Spielfelder}\label{sec:erreichbare-spielfelder}
+\input{chapters/erreichbare-felder}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Verbesserungen
+% ----------------------------------------------------------------------------------
+\section{Verbesserungen für FightClub und MatchPoint}\label{sec:verbesserungen}
+\input{chapters/verbesserungen}
+
+% ----------------------------------------------------------------------------------
 % Kapitel: Fazit
 % ----------------------------------------------------------------------------------
 \section{Fazit}\label{sec:fazit}
@@ -78,5 +90,13 @@
 % ----------------------------------------------------------------------------------
 \section{Anhang}\label{sec:anhang}
 \input{chapters/anhang}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Literaturverzeichnis
+% ----------------------------------------------------------------------------------
+\renewcommand\refname{Literaturverzeichnis}
+\bibliographystyle{unsrt}
+\bibliography{quellen}
+\pagebreak
 
 \end{document}
