@@ -45,9 +45,10 @@ public class ServerConnection {
             }
         } catch (ConnectException ce) {
             System.err.println("No server is running on " + host + ":" + port + "!");
+            System.exit(0);
         } catch (IOException e) {
-            System.err.println("Please add this Exception to ServerConnection IOException Block");
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
