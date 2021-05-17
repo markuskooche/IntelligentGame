@@ -25,7 +25,7 @@ public class  Main {
                     break;
                 case "-i":
                     String host = args[i+1];
-                    if (!host.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
+                    if (!host.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$") && !host.equals("localhost")) {
                         System.err.println("ERROR: The entered IP is not valid!");
                         System.exit(1);
                     }
