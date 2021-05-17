@@ -53,7 +53,7 @@ public class Heuristics {
 
         if (executedStartMoves.isEmpty()) {
             //No normal moves found, check for overrideStone-Moves
-            return onlyOverrideStone(startBoard, ourPlayer);
+            return onlyOverrideStoneTimeLimited(startBoard, ourPlayer);
         }
         if (executedStartMoves.size() == 1) { //OverrideStones are not included
             return executedStartMoves.get(0).getMove();
@@ -252,6 +252,25 @@ public class Heuristics {
         int value = Integer.MIN_VALUE;
         Move move = new Move();
         for (BoardMove boardMove : executedStartMoves) {
+            mapsAnalyzed++;
+            int tmpValue = getCoinParity(player, boardMove.getBoard());
+            if (tmpValue >= value) {
+                value = tmpValue;
+                move = boardMove.getMove();
+            }
+        }
+
+        return move;
+    }
+
+    private Move onlyOverrideStoneTimeLimited(Board board, Player player) {
+        Move move;
+        List<BoardMove> executedStartMoves = executeAllMoves(player,board, true);
+        move = executedStartMoves.get(0).getMove(); //Pick the first possible Move
+        int value = Integer.MIN_VALUE;
+
+        for (BoardMove boardMove : executedStartMoves) {
+            if (timeToken.timeExceeded()) return move;
             mapsAnalyzed++;
             int tmpValue = getCoinParity(player, boardMove.getBoard());
             if (tmpValue >= value) {
