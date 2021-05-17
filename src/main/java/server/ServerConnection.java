@@ -169,6 +169,7 @@ public class ServerConnection {
 
                 if (byteMessage[0] == ourPlayer) {
                     analyzeParser.disqualifiedSelf(ourPlayer, game.getBoard());
+                    System.exit(1);
                 } else {
                     analyzeParser.disqualifyPlayer(byteMessage[0]);
                 }
