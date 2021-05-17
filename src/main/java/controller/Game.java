@@ -40,7 +40,7 @@ public class Game {
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
         // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
-        // TODO: [Benedikt] System.out.println(mapAnalyzer.getBoardValues());
+        System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public void setOurPlayerNumber(int ourPlayerNumber) {
