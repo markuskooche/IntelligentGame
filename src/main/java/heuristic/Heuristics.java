@@ -448,8 +448,8 @@ public class Heuristics {
 
         double allStones = playerStones.size();
         double myStonesAmount = myStones.size();
-        double result = myStonesAmount / allStones * 100000;
-        return (int) result;
+        double result = myStonesAmount / allStones;
+        return (int) (result * 100000);
     }
 
     public int getMobility(Player player, Board board) {
@@ -467,8 +467,8 @@ public class Heuristics {
         }
 
         double myMovesAmount = myMoves.size();
-        double result = myMovesAmount / allMoves * 100000;
+        double result = myMovesAmount / allMoves;
 
-        return (int) result;
+        return (int) (result * 100000);
     }
 }
