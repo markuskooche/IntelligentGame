@@ -113,13 +113,13 @@ public class MapAnalyzer {
                     }
 
                     if (currField == 'c') {
-                        field[i][j] += 5000;
+                        field[i][j] += 10000;
                         createWaves(j, i, wavelenght, 25);
                     } else if (currField == 'b') {
-                        field[i][j] += 4000;
+                        field[i][j] += 8000;
                         createWaves(j, i, wavelenght, 20);
                     } else if (currField == 'i') {
-                        field[i][j] += 4500;
+                        field[i][j] += 9000;
                         createWaves(j, i, wavelenght, 22);
                     }
                 }
@@ -134,13 +134,13 @@ public class MapAnalyzer {
      */
     public void activateSpecialStone(int x, int y, char type) {
         if (type == 'c') {
-            field[y][x] -= 5000;
+            field[y][x] -= 10000;
             createWaves(x, y, playerNumber, -25);
         } else if (type == 'b') {
-            field[y][x] -= 4000;
+            field[y][x] -= 8000;
             createWaves(x, y, playerNumber, -20);
         } else if (type == 'i') {
-            field[y][x] -= 4500;
+            field[y][x] -= 9000;
             createWaves(x, y, playerNumber, -22);
         }
     }
