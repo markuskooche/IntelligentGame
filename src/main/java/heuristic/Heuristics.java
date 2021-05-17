@@ -483,7 +483,7 @@ public class Heuristics {
 
                 if (evaluation > bestEvaluation) {
                     bestEvaluation = evaluation;
-                    bestPlayer = player.getNumber();
+                    bestPlayer = (player.getNumber() - '0');
                 }
             }
         }
