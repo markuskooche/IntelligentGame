@@ -84,6 +84,8 @@ public class MapAnalyzer {
             if (width >= 0) System.arraycopy(initialField[y], 0, field[y], 0, width);
         }
 
+        int wavelenght = playerNumber + 1;
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
 
@@ -94,31 +96,31 @@ public class MapAnalyzer {
                     int multiplier;
                     if (newValue == 7) {
                         multiplier = 25;
-                        field[i][j] += newValue * multiplier;
-                        createWaves(j, i, playerNumber, (newValue * multiplier)/4);
+                        field[i][j] += newValue * multiplier * 2;
+                        createWaves(j, i, wavelenght, (newValue * multiplier)/4);
                     } else if (newValue == 6) {
                         multiplier = 15;
-                        field[i][j] += newValue * multiplier;
-                        createWaves(j, i, playerNumber, (newValue * multiplier)/4);
+                        field[i][j] += newValue * multiplier * 2;
+                        createWaves(j, i, wavelenght, (newValue * multiplier)/4);
                     } else if (newValue == 5) {
                         multiplier = 10;
-                        field[i][j] += newValue * multiplier;
-                        createWaves(j, i, playerNumber, (newValue * multiplier)/4);
+                        field[i][j] += newValue * multiplier * 2;
+                        createWaves(j, i, wavelenght, (newValue * multiplier)/4);
                     }else {
-                        multiplier = 3;
-                        field[i][j] += newValue * multiplier;
-                        createWaves(j, i, playerNumber, newValue);
+                        multiplier = 8;
+                        field[i][j] += newValue * multiplier *2;
+                        createWaves(j, i, wavelenght, newValue);
                     }
 
                     if (currField == 'c') {
                         field[i][j] += 5000;
-                        createWaves(j, i, playerNumber, 25);
+                        createWaves(j, i, wavelenght, 25);
                     } else if (currField == 'b') {
                         field[i][j] += 4000;
-                        createWaves(j, i, playerNumber, 20);
+                        createWaves(j, i, wavelenght, 20);
                     } else if (currField == 'i') {
                         field[i][j] += 4500;
-                        createWaves(j, i, playerNumber, 22);
+                        createWaves(j, i, wavelenght, 22);
                     }
                 }
 
@@ -743,7 +745,6 @@ public class MapAnalyzer {
     private void createWaves(int x, int y, int range, int startValue) {
 
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
-        int exhaustion = 1;
         int omen = -1;
         int currX ;
         int currY ;
@@ -752,7 +753,7 @@ public class MapAnalyzer {
         // go in each direction
         for (int[] direction : directions) {
             // go until the range runs out or there are no more reachable fields
-            for (int currRange = 1; currRange <= range; currRange++) {
+            for (int currRange = 1; currRange < range; currRange++) {
 
                 currX = x + (direction[0] * currRange);
                 currY = y + (direction[1] * currRange);
@@ -768,7 +769,7 @@ public class MapAnalyzer {
                     }
 
                     if (transition != null) {
-                        followTransaction(transition,(range - currRange), startValue, exhaustion);
+                        followTransaction(transition,(range - currRange), startValue);
                     }
                     break;
 
@@ -779,26 +780,19 @@ public class MapAnalyzer {
                         oldX = currX;
                         oldY = currY;
 
-                        if (((startValue) - exhaustion) > 0) {
-
                             if (currRange % playerNumber == 0) {
-                                field[currY][currX] += ((startValue) - exhaustion) ;
+                                field[currY][currX] += ((startValue)) ;
                             } else {
-                                field[currY][currX] += ((startValue) - exhaustion) *(playerNumber - (currRange % playerNumber)) * omen ;
+                                field[currY][currX] += ((startValue)) *(playerNumber - (currRange % playerNumber)) * omen ;
                             }
                         }
-                    }else{
-                        break;
-                    }
                 }
-                exhaustion++;
             }
-            exhaustion = 1;
         }
 
     }
 
-    private void followTransaction(Transition transition, int range, int startValue, int exhaustion) {
+    private void followTransaction(Transition transition, int range, int startValue) {
 
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int omen = -1;
@@ -835,7 +829,7 @@ public class MapAnalyzer {
                 if (transition == null) {
                     return;
                 } else {
-                    followTransaction(transition, range, startValue, exhaustion);
+                    followTransaction(transition, range-1, startValue);
                     break;
                 }
             }else{
@@ -844,21 +838,20 @@ public class MapAnalyzer {
                     oldX = startX;
                     oldY = startY;
 
-                    if (((startValue) - exhaustion) > 0) {
+
 
                         if (range % playerNumber == 0) {
-                            field[startY][startX] += ((startValue) - exhaustion) ;
+                            field[startY][startX] += (startValue);
                         } else {
-                            field[startY][startX] += ((startValue) - exhaustion) *(playerNumber - (range % playerNumber)) * omen ;
+                            field[startY][startX] += ((startValue)) *(playerNumber - (range % playerNumber)) * omen ;
                         }
                     }
                 }
             }
 
             range--;
-            exhaustion++;
         }
-    }
+
 
     /**
      * Get the value of a field depending on the aligning fields that are reachable
@@ -919,9 +912,9 @@ public class MapAnalyzer {
         for (int y = 0; y < board.getHeight(); y++) {
             for (int x = 0; x < board.getWidth(); x++) {
                 if(field[y][x] == Integer.MIN_VALUE){
-                    boardString.append(String.format("%4s", "inf"));
+                    boardString.append(String.format("%5s", "inf"));
                 }else{
-                    boardString.append(String.format("%4s", field[y][x]));
+                    boardString.append(String.format("%5s", field[y][x]));
                 }
             }
             boardString.append("\n");
