@@ -471,4 +471,23 @@ public class Heuristics {
 
         return (int) (result * 100000);
     }
+
+    public int getBestPlayer(int ourPlayer) {
+        int bestPlayer = ourPlayer;
+        int bestEvaluation = Integer.MIN_VALUE;
+
+        for (Player player : players) {
+            if (!player.isDisqualified()) {
+                Move emptyMove = new Move();
+                int evaluation = getEvaluationForPlayer(player, board, emptyMove);
+
+                if (evaluation > bestEvaluation) {
+                    bestEvaluation = evaluation;
+                    bestPlayer = player.getNumber();
+                }
+            }
+        }
+
+        return bestPlayer;
+    }
 }
