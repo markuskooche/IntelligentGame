@@ -1,7 +1,7 @@
 package map;
 
 /**
- * The map.Transition class stores the information of a transition from one field to another. The coordinates
+ * The Transition class stores the information of a transition from one field to another. The coordinates
  * of both points, as well as the respective direction are stored. With the help of a hash function, you
  * can check transitions for correspondence and determine the counterpart of a position.
  *

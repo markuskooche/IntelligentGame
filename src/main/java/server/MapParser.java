@@ -8,6 +8,10 @@ import java.util.List;
 /**
  * MapParser can be used completely static. It receives a byte array and validates the array if its a valid map.
  * The byte array will be converted to a List<String> the a correct map.
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
  */
 public class MapParser {
 
