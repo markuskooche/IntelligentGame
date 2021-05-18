@@ -14,9 +14,6 @@ import java.util.*;
  */
 public class Board {
 
-    private static final int ADDITIONAL_BOMB = 20;
-    private static final int ADDITIONAL_OVERRIDE = 21;
-
     private final HashMap<Integer, Transition> transitions;
     private final int playerAmount;
     private final int bombRadius;
@@ -28,7 +25,7 @@ public class Board {
     private int[][] tmpField;
 
     /**
-     * Creates a Board class with all information about it.
+     * Creates a map.Board class with all information about it.
      *
      * @param field two-dimensional char array which represents the board
      * @param transitions a HashMap of all transitions
@@ -52,7 +49,7 @@ public class Board {
 
     /**
      * Constructor to create a copy of a existing board
-     * @param toCopyBoard board class which should be copied
+     * @param toCopyBoard
      */
     public Board(Board toCopyBoard) {
         this.playerAmount = toCopyBoard.getPlayerAmount();
@@ -65,15 +62,11 @@ public class Board {
         this.width = field[0].length;
     }
 
-    /**
-     * Copy player scores to an array:
-     *
-     * @param playerScores array with all player scores
-     * @return array with new player scores
-     */
     private int[] copyScores(int[] playerScores){
         int[] newScores = new int[playerAmount];
-        System.arraycopy(playerScores, 0, newScores, 0, playerAmount);
+        for(int i = 0; i < playerAmount; i++){
+            newScores[i] = playerScores[i];
+        }
         return newScores;
     }
 
@@ -89,13 +82,7 @@ public class Board {
         return newField;
     }
 
-    /**
-     * Changes all player numbers by choice.
-     *
-     * @param a player one
-     * @param b player two
-     */
-    private void choice(char a, char b) {
+    protected void choice(char a, char b) {
         if (a != b) {
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
@@ -109,23 +96,14 @@ public class Board {
         }
     }
 
-    /**
-     * Increments the amount of boms or overridestones of a player.
-     *
-     * @param player the player which should be updated
-     * @param bonus the selected bonus value
-     */
     private void bonus(Player player, int bonus) {
-        if (bonus == ADDITIONAL_BOMB) {
+        if (bonus == 21) {
             player.increaseOverrideStone();
-        } else if(bonus == ADDITIONAL_OVERRIDE) {
+        } else if(bonus == 20) {
             player.increaseBomb();
         }
     }
 
-    /**
-     * Changes all player numbers by inversion.
-     */
     private void inversion() {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -170,7 +148,6 @@ public class Board {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 char piece = field[y][x];
-                // if it is a possible field
                 if ("0bic".indexOf(piece) != -1) {
                     Move legalMove = checkMove(x, y, player.getNumber(), false);
 
@@ -179,7 +156,6 @@ public class Board {
                     }
                 }
 
-                // if a player has an overridestone, it is selected and it is a possible field
                 if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
@@ -189,7 +165,6 @@ public class Board {
             }
         }
 
-        // if a player has overridestones and override is selected
         if (player.hasOverrideStone() && overrideMoves) {
             for (int[] expansion : getPlayerPositions('x')) {
                 Move expansionMove = new Move(expansion);
@@ -304,7 +279,7 @@ public class Board {
         }
     }
 
-    private Move checkMove(int x, int y, char player, boolean isOverrideMove) {
+    protected Move checkMove(int x, int y, char player, boolean isOverrideMove) {
         Move legalMove;
 
         if (isOverrideMove) {
