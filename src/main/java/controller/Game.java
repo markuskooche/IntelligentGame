@@ -23,6 +23,7 @@ import java.util.*;
  */
 public class Game {
 
+    private static final int ADDITIONAL_OVERRIDE = 21;
     private static AnalyzeParser analyzeParser;
 
     private Player[] players;
@@ -64,21 +65,24 @@ public class Game {
         return new int[] {move.getX(), move.getY(), additional};
     }
 
+    /**
+     *
+     *
+     * @param move
+     * @return
+     */
     private int getAdditional(Move move) {
-        int additional;
+        int additional = 0;
 
         if (move.isChoice()) {
             additional = heuristics.getBestPlayer(ourPlayerNumber);
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
-            additional = 21;
+            additional = ADDITIONAL_OVERRIDE;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
         } else if (move.isInversion()) {
-            additional = 0;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
-        } else {
-            additional = 0;
         }
 
         return additional;

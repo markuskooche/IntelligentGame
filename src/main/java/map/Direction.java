@@ -82,6 +82,13 @@ public class Direction {
         }
     }
 
+    /**
+     * Compares to directions
+     *
+     * @param a first direction
+     * @param b second direction
+     * @return true if directions are the same
+     */
     private static boolean compare(int[] a, int[] b) {
         return a[0] == b[0] && a[1] == b[1];
     }
