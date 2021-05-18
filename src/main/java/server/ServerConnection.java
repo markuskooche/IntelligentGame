@@ -69,15 +69,13 @@ public class ServerConnection {
         }
         // throw an SocketException if a message could not be send (disqualification or server termination)
         catch (SocketException se) {
-            System.out.println("Client could not sent a message.");
-            System.out.println("Server has been terminated.");
+            analyzeParser.couldNotSend();
             //se.printStackTrace();
             System.exit(0);
         }
         // throw an IOException if a message could not be received (disqualification or server termination)
         catch (IOException e) {
-            System.out.println("Client could not receive a message.");
-            System.out.println("Server has been terminated.");
+            analyzeParser.couldNotReceive();
             //e.printStackTrace();
             System.exit(0);
         }
