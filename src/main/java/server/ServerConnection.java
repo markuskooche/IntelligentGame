@@ -67,8 +67,17 @@ public class ServerConnection {
             System.err.println("No server is running on " + host + ":" + port + "!");
             System.exit(0);
         }
-        // throw an IOException if a message could not be sent (possibly because of a disqualification)
+        // throw an SocketException if a message could not be send (disqualification or server termination)
+        catch (SocketException se) {
+            System.out.println("Client could not sent a message.");
+            System.out.println("Server has been terminated.");
+            se.printStackTrace();
+            System.exit(0);
+        }
+        // throw an IOException if a message could not be received (disqualification or server termination)
         catch (IOException e) {
+            System.out.println("Client could not receive a message.");
+            System.out.println("Server has been terminated.");
             e.printStackTrace();
             System.exit(0);
         }
@@ -93,7 +102,15 @@ public class ServerConnection {
     private void receiveMessage() throws IOException {
         InputStream inputStream = socket.getInputStream();
         byte[] messageHeader = new byte[5];
-        int nextByte = inputStream.read(messageHeader, 0, 5);
+
+        // storage the length of read bytes
+        int readBytes = inputStream.read(messageHeader, 0, 5);
+
+        // if length == -1, not bytes could be read
+        // this happens with a closed socket connection
+        if (readBytes == -1) {
+            throw new IOException();
+        }
 
         // create an integer from the byte array which contains the length
         int messageLength = get32Integer(messageHeader, 1);
