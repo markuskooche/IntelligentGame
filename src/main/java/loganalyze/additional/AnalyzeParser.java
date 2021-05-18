@@ -142,6 +142,20 @@ public class AnalyzeParser {
         }
     }
 
+    public void couldNotSend() {
+        if (output) {
+            System.out.println("Client could not sent a message.");
+            System.out.println("Server has been terminated.");
+        }
+    }
+
+    public void couldNotReceive() {
+        if (output) {
+            System.out.println("Client could not receive a message.");
+            System.out.println("Server has been terminated.");
+        }
+    }
+
     public boolean isPrintable() {
         return (output && !reduce);
     }

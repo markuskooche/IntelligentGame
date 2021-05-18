@@ -23,6 +23,7 @@ import java.util.*;
  */
 public class Game {
 
+    private static final int ADDITIONAL_OVERRIDE = 21;
     private static AnalyzeParser analyzeParser;
 
     private Player[] players;
@@ -39,7 +40,6 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
-        // TODO: [Benedikt] System.out.println(mapAnalyzer.toString());
         System.out.println(mapAnalyzer.getBoardValues());
     }
 
@@ -65,21 +65,24 @@ public class Game {
         return new int[] {move.getX(), move.getY(), additional};
     }
 
+    /**
+     *
+     *
+     * @param move
+     * @return
+     */
     private int getAdditional(Move move) {
-        int additional;
+        int additional = 0;
 
         if (move.isChoice()) {
             additional = heuristics.getBestPlayer(ourPlayerNumber);
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
-            additional = 21;
+            additional = ADDITIONAL_OVERRIDE;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
         } else if (move.isInversion()) {
-            additional = 0;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
-        } else {
-            additional = 0;
         }
 
         return additional;
@@ -162,11 +165,15 @@ public class Game {
      * @see Board
      */
     public void executeMove(int x, int y, int player, int additionalOperation) {
-        Player currentPlayer = players[player - 1];
+        Player currentPlayer = getPlayer(player);
+
+        // get all legal moves of the player
         List<Move> legalMoves = board.getLegalMoves(currentPlayer, true);
         int[] selectedMove = new int[] {x, y};
 
+        // searches for the selected move
         for (Move legalMove : legalMoves) {
+            // colorize board if it is the correct move
             if (legalMove.isMove(selectedMove)) {
                 board.colorizeMove(legalMove, currentPlayer, additionalOperation);
                 break;
@@ -177,7 +184,7 @@ public class Game {
     /**
      * Returns the player class by the passed number.
      *
-     * @param number char representation of the player
+     * @param number number of the player
      *
      * @return a player class
      *
@@ -191,42 +198,102 @@ public class Game {
         return null;
     }
 
+    /**
+     * Execute a bomb move.
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     */
     public void executeBomb(int x, int y) {
         board.executeBomb(x, y);
     }
 
     public int[] executeOurBomb() {
         int radius = board.getBombRadius();
-        char ourPlayer = getPlayer(ourPlayerNumber).getNumber();
+        Player player = getPlayer(ourPlayerNumber);
+        char playerNumber = player.getNumber();
 
-        BombPosition bomb = new BombPosition(board.getField(), ourPlayer, radius);
+        BombPosition bomb = new BombPosition(board.getField(), playerNumber, radius);
         int[] position = bomb.getBestBombPosition();
         board.executeBomb(position[0], position[1]);
+        player.decreaseBomb();
 
         return position;
     }
 
+    /**
+     * Get the current mobility of a specific player.
+     *
+     * @param player the number of a player
+     * @returns the mobility value
+     *
+     * @see Heuristics
+     */
     public int getMobility(int player) {
-        return heuristics.getMobility(players[player - 1], board);
+        Player selectedPlayer = getPlayer(player);
+        if (selectedPlayer == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        return heuristics.getMobility(selectedPlayer, board);
     }
 
+    /**
+     * Get the current coin parity of a specific player.
+     *
+     * @param player the number of a player
+     * @returns the coin parity
+     *
+     * @see Heuristics
+     */
     public int getCoinParity(int player) {
-        return heuristics.getCoinParity(players[player - 1], board);
+        Player selectedPlayer = getPlayer(player);
+        if (selectedPlayer == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        return heuristics.getCoinParity(selectedPlayer, board);
     }
 
+    /**
+     * Get the current map value of a specific player.
+     *
+     * @param player the number of a player
+     * @returns the map value
+     *
+     * @see Heuristics
+     */
     public int getMapValue(int player) {
-        return heuristics.getMapValue(players[player - 1], board);
+        Player selectedPlayer = getPlayer(player);
+        if (selectedPlayer == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        return heuristics.getMapValue(selectedPlayer, board);
     }
 
+    /**
+     * Get the current whole heuristic value of a specific player.
+     *
+     * @param player the number of a player
+     * @returns the heuristic value
+     *
+     * @see Heuristics
+     */
     public int getHeuristic(int player) {
-        return heuristics.getEvaluationForPlayerStatistic(players[player - 1], board);
+        Player selectedPlayer = getPlayer(player);
+        if (selectedPlayer == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        Move emptyMove = new Move();
+        return heuristics.getEvaluationForPlayer(selectedPlayer, board, emptyMove);
     }
+
 
     public void decreasePlayerNumber(){
         mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
-
-
 
     /**
      * Returns a list of all players.
@@ -250,30 +317,55 @@ public class Game {
         return board;
     }
 
+    /**
+     * Get the 2D reachable field from the current map.
+     *
+     * @return 2D int array from the reachable field
+     */
     public int[][] getReachableField() {
         return mapAnalyzer.getReachableField();
     }
 
+    /**
+     * Check if the reachable field could be created.
+     *
+     * @return true if reachable field has been created
+     */
     public boolean isReachableFinished() {
         return mapAnalyzer.isReachableFinished();
     }
 
+    /**
+     * Returns an array with all transitions.
+     *
+     * @return String array with all connected transitions
+     */
     public String[] getTransitions() {
+        // gets a collection of all transition values
         Collection<Transition> transitions = board.getAllTransitions().values();
+
+        // creates a string array to store all transitions
         String[] returnTransitions = new String[transitions.size() / 2];
+
+        // a list to safe read transitions
         ArrayList<Transition> list = new ArrayList<>();
         int counter = 0;
 
+        // iterations over all transitions
         for (Transition transition : transitions) {
             int x = transition.getX();
             int y = transition.getY();
             int r = transition.getR();
 
+            // receives the associated transition
             Transition opposite = board.getTransition(x, y, r);
 
+            // if none of these transitions were handled, they will be added
             if (!list.contains(transition) || !list.contains(opposite)) {
-                returnTransitions[counter] = (transition + " <-> " + opposite);
-                counter++;
+                // added the string to the array
+                returnTransitions[counter++] = (transition + " <-> " + opposite);
+
+                // stores read transitions
                 list.add(transition);
                 list.add(opposite);
             }
@@ -297,20 +389,8 @@ public class Game {
 
         gameString.append(String.format("%s\n", board.toString()));
 
-        ArrayList<Transition> list = new ArrayList<>();
-
-        for (Transition transition : board.getAllTransitions().values()) {
-            int x = transition.getX();
-            int y = transition.getY();
-            int r = transition.getR();
-
-            Transition opposite = board.getTransition(x, y, r);
-
-            if (!list.contains(transition) || !list.contains(opposite)) {
-                gameString.append(transition + " <-> " + opposite + "\n");
-                list.add(transition);
-                list.add(opposite);
-            }
+        for (String transition : getTransitions()) {
+            gameString.append(transition);
         }
 
         return gameString.toString();

@@ -1,5 +1,12 @@
 package heuristic;
 
+/**
+ * The BombPosition class searches for the best position of a bomb. This class uses a greedy approach.
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
+ */
 public class BombPosition {
 
     private final int[][] evaluatedField;
@@ -11,6 +18,13 @@ public class BombPosition {
     private final int height;
     private final int width;
 
+    /**
+     * Initialize a BombPosition object.
+     *
+     * @param field the field where a bomb must be found
+     * @param playerNumber the player number of the client
+     * @param radius the radius of a bomb
+     */
     public BombPosition(char[][] field, char playerNumber, int radius) {
         this.field = field;
         this.radius = radius;
@@ -23,6 +37,11 @@ public class BombPosition {
         evaluateField(playerNumber);
     }
 
+    /**
+     * Evaluating a field.
+     *
+     * @param player the player number of the client
+     */
     private void evaluateField(char player) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -39,6 +58,11 @@ public class BombPosition {
         //print(evaluatedField,  " \"EF\"");
     }
 
+    /**
+     * Search for the best bomb position.
+     *
+     * @return returns the best bom position [x, y]
+     */
     public int[] getBestBombPosition() {
         int currentBestPosition = Integer.MIN_VALUE;
         int bestX = 0;
@@ -55,6 +79,7 @@ public class BombPosition {
                 if (field[y][x] != '-') {
                     int tmpCachedTotal = 0;
 
+                    // update the value inside the radius (vertically)
                     for (int c = -radius; c <= radius; c++) {
                         int row = (y + c);
 
@@ -63,6 +88,7 @@ public class BombPosition {
                         }
                     }
 
+                    // if the calculated position is better then the current best position
                     if (tmpCachedTotal > currentBestPosition) {
                         currentBestPosition = tmpCachedTotal;
                         bestX = x;
@@ -75,10 +101,16 @@ public class BombPosition {
         return new int[] {bestX, bestY};
     }
 
+    /**
+     * Create a temporary field of values.
+     *
+     * @param row the row which should be calculated and stored
+     */
     private void calculateRow(int row) {
         for(int x = 0; x < width; x++) {
             int tmpTotal = 0;
 
+            // update the value inside the radius (horizontally)
             for (int c = -radius; c <= radius; c++) {
                 int column = (x + c);
 

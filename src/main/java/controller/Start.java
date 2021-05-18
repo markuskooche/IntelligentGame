@@ -110,19 +110,17 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/benesTestMaps/bomben01.map");
+        Game game = createGame("maps/fatal.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(1);
 
-        //printLegalMoves(game, player);
-        //selectMove(game, player);
+        // EXECUTE NORMAL MOVE
+        printLegalMoves(game, player);
+        selectMove(game, player);
 
-        // execute bomb move
-        selectBombMove(game);
-        System.out.println(game.getBoard());
-
-        selectBombMove(game);
-        System.out.println(game.getBoard());
+        // EXECUTE BOMB MOVE
+        // selectBombMove(game);
+        // System.out.println(game.getBoard());
     }
 }

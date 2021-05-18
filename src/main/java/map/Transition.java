@@ -1,7 +1,7 @@
 package map;
 
 /**
- * The map.Transition class stores the information of a transition from one field to another. The coordinates
+ * The Transition class stores the information of a transition from one field to another. The coordinates
  * of both points, as well as the respective direction are stored. With the help of a hash function, you
  * can check transitions for correspondence and determine the counterpart of a position.
  *
@@ -15,16 +15,8 @@ public class Transition {
     private final int y;
     private final int r;
 
-    /**
-     * Creates a transition with the start and destination points and the respective transition directions.
-     *
-     * @param x1 the x coordinate from the start transition
-     * @param y1 the y coordinate from the start transition
-     * @param r1 the direction from the start transition
-     * @param x2 the x coordinate from the end transition
-     * @param y2 the y coordinate from the end transition
-     * @param r2 the direction from the end transition
-     */
+
+
     public Transition(int x, int y, int r) {
         this.x = x;
         this.y = y;
