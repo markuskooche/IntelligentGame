@@ -40,9 +40,9 @@ public class Player {
     }
 
     /**
-     * Returns true if the player has a bomb.
+     * Check if the player has a bomb.
      *
-     * @return true or false
+     * @return true if the player has a bomb
      */
     public boolean hasBomb() {
         return bomb > 0;
@@ -72,9 +72,9 @@ public class Player {
     }
 
     /**
-     * Returns true if the player has an overridestone.
+     * Check if the player has an overridestone.
      *
-     * @return true or false
+     * @return true if a player has overridestones
      */
     public boolean hasOverrideStone() {
         return overrideStone > 0;
@@ -103,10 +103,18 @@ public class Player {
         overrideStone = overrideStone - 1;
     }
 
+    /**
+     * A method to set a player to disqualified.
+     */
     public void setDisqualified() {
         disqualified = true;
     }
 
+    /**
+     * Check if a Player is disqualified.
+     *
+     * @return true if player is disqualifed
+     */
     public boolean isDisqualified() {
         return disqualified;
     }

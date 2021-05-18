@@ -53,7 +53,7 @@ public class ServerConnection {
         try {
             socket = new Socket(InetAddress.getByName(host), port);
 
-            // sending the group number to the socket
+            // sending the group number to the server
             byte[] message = new byte[] {1, 0, 0, 0, 1, GROUP};
             sendMessage(message);
 

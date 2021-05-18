@@ -190,14 +190,29 @@ public class Move {
         return move[0] == getX() && move[1] == getY();
     }
 
+    /**
+     * Get the x coordinate of the move to set.
+     *
+     * @return x coordinate
+     */
     public int getX() {
         return list.get(0)[0];
     }
 
+    /**
+     * Get the y coordinate of the move to set.
+     *
+     * @return y coordinate
+     */
     public int getY() {
         return list.get(0)[1];
     }
 
+    /**
+     * Add a Move to the current move.
+     *
+     * @param two move which should be added
+     */
     public void merge(Move two) {
         if (two.isInversion()) {
             setInversion();
