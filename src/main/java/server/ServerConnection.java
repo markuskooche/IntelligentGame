@@ -71,14 +71,14 @@ public class ServerConnection {
         catch (SocketException se) {
             System.out.println("Client could not sent a message.");
             System.out.println("Server has been terminated.");
-            se.printStackTrace();
+            //se.printStackTrace();
             System.exit(0);
         }
         // throw an IOException if a message could not be received (disqualification or server termination)
         catch (IOException e) {
             System.out.println("Client could not receive a message.");
             System.out.println("Server has been terminated.");
-            e.printStackTrace();
+            //e.printStackTrace();
             System.exit(0);
         }
     }
