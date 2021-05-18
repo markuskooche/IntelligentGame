@@ -2,6 +2,13 @@ package loganalyze.colorize;
 
 import java.awt.*;
 
+/**
+ * The BackgroundPoint classes is used to color rectangular fields on the GamePanel
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
+ */
 public class BackgroundPoint {
 
     public static final Color EXPANSION = new Color(203, 133, 223);
@@ -11,41 +18,54 @@ public class BackgroundPoint {
 
     public static final Color NOT_REACHABLE = new Color(248, 99, 99);
     public static final Color REACHABLE = new Color(119, 247, 119);
+    public static final Color BORDER = new Color(255, 0,0);
 
-    public int x;
-    public int y;
-    public char field;
+    public final char piece;
+    public final int x;
+    public final int y;
 
-    public BackgroundPoint(int x, int y, char field) {
-        this.field = field;
+    /**
+     * Create a new BackgroundPoint
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param piece piece of the selected field
+     */
+    public BackgroundPoint(int x, int y, char piece) {
+        this.piece = piece;
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Get the color from the specific Piece
+     *
+     * @return the color form the piece
+     */
     public Color getColor() {
-        if (field == '0') {
+        if (piece == '0') {
             return new Color(238, 238, 238);
-        } else if (field == '-') {
+        } else if (piece == '-') {
             return new Color(35, 35, 35);
-        } else if (field == 'c') {
-            return BackgroundPoint.CHOICE;
-        } else if (field == 'i') {
-            return BackgroundPoint.INVERSION;
-        } else if (field == 'b') {
-            return BackgroundPoint.BONUS;
-        } else if (field == 'x') {
-            return BackgroundPoint.EXPANSION;
-        } else if (field == 'R') {
-            return BackgroundPoint.REACHABLE;
-        } else if (field == 'N') {
-            return BackgroundPoint.NOT_REACHABLE;
+        } else if (piece == 'c') {
+            return CHOICE;
+        } else if (piece == 'i') {
+            return INVERSION;
+        } else if (piece == 'b') {
+            return BONUS;
+        } else if (piece == 'x') {
+            return EXPANSION;
+        } else if (piece == 'R') {
+            return REACHABLE;
+        } else if (piece == 'N') {
+            return NOT_REACHABLE;
         } else {
-            return new Color(255, 0,0);
+            return BORDER;
         }
     }
 
     @Override
     public String toString() {
-        return "[(" + x + ", " + y + ") -> " + field + "]";
+        return "[(" + x + ", " + y + ") -> " + piece + "]";
     }
 }

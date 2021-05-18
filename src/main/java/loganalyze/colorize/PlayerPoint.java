@@ -15,21 +15,39 @@ public class PlayerPoint {
             new Color(255, 0, 175),
     };
 
+    public int player;
     public int x;
     public int y;
-    public int player;
 
+    /**
+     * Create a new PlayerPoint
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     * @param player player of the selected field
+     */
     public PlayerPoint(int x, int y, int player) {
         this.player = player;
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Get the color from the specific Piece
+     *
+     * @return the color form the piece
+     */
     public Color getColor() {
         return colors[player - 1];
     }
 
-    public static String getColor(int player) {
+
+    /**
+     * Get the color name from the specific Piece
+     *
+     * @return the color name form the piece
+     */
+    public static String getColorName(int player) {
         switch (player) {
             case 1:
                 return "ROT";

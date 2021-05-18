@@ -37,7 +37,7 @@ public class GameField {
                 if (highlightedPlayer == -1) {
                     g.setColor(background.getColor());
                 } else {
-                    if ("bicx".indexOf(background.field) != -1) {
+                    if ("bicx".indexOf(background.piece) != -1) {
                         g.setColor(Color.LIGHT_GRAY);
                     } else {
                         g.setColor(background.getColor());

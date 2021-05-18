@@ -1,14 +1,12 @@
-package loganalyze.controller;
+package loganalyze.windows;
 
+import loganalyze.controller.*;
 import loganalyze.tablemodel.PlayerInformation;
 import loganalyze.tablemodel.PlayerTableModel;
 import loganalyze.additional.IncorrectGroupException;
 import loganalyze.additional.OSValidator;
 import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
-import loganalyze.windows.StatisticWindow;
-import loganalyze.windows.ColorFieldWindow;
-import loganalyze.windows.VisibleFieldWindow;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -66,7 +64,11 @@ public class GameAnalyzer extends JFrame {
     private final PlayerTableModel playerTableModel;
     private final ListSelectionModel playerSelectionModel;
 
+    private GameController gameController;
     private GamePanelManager gamePanelManager;
+    private PlayerTableManager playerTableManager;
+    private StatisticWindowManager statisticWindowManager;
+
     private final GameField.GamePanel gamePanel;
 
     public GameAnalyzer() {

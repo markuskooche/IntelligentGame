@@ -161,10 +161,10 @@ public class GamePanelManager {
         for (BackgroundPoint backgroundPoint : backgroundPoints.get(index)) {
             int x = backgroundPoint.x;
             int y = backgroundPoint.y;
-            char field = backgroundPoint.field;
+            char piece = backgroundPoint.piece;
 
             if (y < height && x < width) {
-                currentField[y][x] = field;
+                currentField[y][x] = piece;
 
             }
         }
@@ -447,7 +447,7 @@ public class GamePanelManager {
         possibleFields = height * width;
 
         for (BackgroundPoint backgroundPoint : currentBackgroundPoints) {
-            if (backgroundPoint.field == '-') {
+            if (backgroundPoint.piece == '-') {
                 possibleFields -= 1;
             }
         }

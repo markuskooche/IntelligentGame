@@ -1,6 +1,6 @@
 package loganalyze;
 
-import loganalyze.controller.GameAnalyzer;
+import loganalyze.windows.GameAnalyzer;
 
 /*
 Ä, ä     \u00c4, \u00e4

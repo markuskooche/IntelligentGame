@@ -55,7 +55,7 @@ public class PlayerTableModel extends AbstractTableModel {
             return player.getPlayer();
         } else if (columnIndex == 1) {
             if (playerRow == 0) {
-                return "Farbe: " + PlayerPoint.getColor(player.getPlayer() - '0');
+                return "Farbe: " + PlayerPoint.getColorName(player.getPlayer() - '0');
             } else if (playerRow == 1) {
                 return "Aktuell belegt: " + player.getOccupiedFields();
             } else if (playerRow == 2) {

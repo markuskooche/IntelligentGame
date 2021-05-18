@@ -7,6 +7,13 @@ import map.Player;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The AnalyzeParser class is used to write important outputs to the console.
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
+ */
 public class AnalyzeParser {
 
     private final String group;
