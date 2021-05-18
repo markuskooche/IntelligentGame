@@ -53,7 +53,7 @@ public class ServerConnection {
         try {
             socket = new Socket(InetAddress.getByName(host), port);
 
-            // sending the group number to the socket
+            // sending the group number to the server
             byte[] message = new byte[] {1, 0, 0, 0, 1, GROUP};
             sendMessage(message);
 
@@ -203,11 +203,12 @@ public class ServerConnection {
 
                 // if it is a move from an opponent
                 if (player != ourPlayer) {
+                    Player opponentPlayer = game.getPlayer(player);
+
                     // when console output is on and reduce is off,
                     // the map is output to the console
                     if (analyzeParser.isPrintable()) {
-                        Player printPlayer = game.getPlayer(player);
-                        analyzeParser.loggingBoard(game.getBoard(), printPlayer);
+                        analyzeParser.loggingBoard(game.getBoard(), opponentPlayer);
                     }
 
                     // // execute the selected move from the opponent (phase 1)
@@ -217,6 +218,7 @@ public class ServerConnection {
                     // execute the selected bomb move from the opponent (phase 2)
                     else {
                         game.executeBomb(x, y);
+                        opponentPlayer.decreaseBomb();
                     }
                 }
 
