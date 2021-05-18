@@ -1,5 +1,13 @@
 import server.ServerConnection;
 
+/**
+ * The Main class creates a new instance of a client.
+ * It is possible to set various parameters to change the behavior of the client.
+ *
+ * @author Benedikt Halbritter
+ * @author Iwan Eckert
+ * @author Markus Koch
+ */
 public class  Main {
 
     public static void main(String[] args) {
