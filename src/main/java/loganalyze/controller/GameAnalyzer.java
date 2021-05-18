@@ -32,9 +32,9 @@ public class GameAnalyzer extends JFrame {
     private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
     private int counter = 0;
+    private String title = "";
     private String groupNumber = "";
     private String lastDirectory= ".";
-    //private String lastDirectory= "/Users/markuskooche/Documents/IntelliJ - Code/revxt-ss21-g01/logs/stored";
 
     private final JMenuItem exportItem;
     private final JMenuItem hideTransition;
@@ -92,7 +92,8 @@ public class GameAnalyzer extends JFrame {
             System.exit(0);
         }
 
-        setTitle("GameAnalyzer v0.6.4  [" + group + "]");
+        title = "GameAnalyzer v0.6.4  [" + group + "]";
+        setTitle(title);
         if (OSValidator.isMac()) {
             setSize(1110, 890);
         } else {
@@ -505,6 +506,8 @@ public class GameAnalyzer extends JFrame {
             mapValueItem.setEnabled(true);
             heuristicItem.setEnabled(true);
             visitedBoardItem.setEnabled(true);
+
+            setTitle(title + " -> [" + fd.getFile() + "]");
 
             updateGamePanel();
         }

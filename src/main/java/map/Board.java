@@ -25,7 +25,7 @@ public class Board {
     private int[][] tmpField;
 
     /**
-     * Creates a map.Board class with all information about it.
+     * Creates a Board class with all information about it.
      *
      * @param field two-dimensional char array which represents the board
      * @param transitions a HashMap of all transitions
@@ -49,7 +49,7 @@ public class Board {
 
     /**
      * Constructor to create a copy of a existing board
-     * @param toCopyBoard
+     * @param toCopyBoard board class which should be copied
      */
     public Board(Board toCopyBoard) {
         this.playerAmount = toCopyBoard.getPlayerAmount();
@@ -62,11 +62,15 @@ public class Board {
         this.width = field[0].length;
     }
 
+    /**
+     * Copy player scores to an array:
+     *
+     * @param playerScores array with all player scores
+     * @return array with new player scores
+     */
     private int[] copyScores(int[] playerScores){
         int[] newScores = new int[playerAmount];
-        for(int i = 0; i < playerAmount; i++){
-            newScores[i] = playerScores[i];
-        }
+        System.arraycopy(playerScores, 0, newScores, 0, playerAmount);
         return newScores;
     }
 
