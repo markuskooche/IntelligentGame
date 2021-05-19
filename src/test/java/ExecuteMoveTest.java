@@ -1,5 +1,6 @@
 import controller.Game;
 import loganalyze.additional.AnalyzeParser;
+import map.Player;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -632,5 +633,51 @@ public class ExecuteMoveTest {
 
         assertArrayEquals(game.getBoard().getField(),expectedResult);
 
+    }
+
+    @Test
+    @DisplayName("Test bonus selection (bomb)")
+    void TestBonusMapBomb() {
+
+        Game game = createGame("maps/testMaps/standard/BonusMap.map");
+        game.executeMove(1 , 3, 1, 20);
+
+        char[][] expectedResult = {
+                {'0', '0', '0', '0'},
+                {'0', '1', '2', '0'},
+                {'0', '1', '1', '0'},
+                {'0', '1', '0', '0'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult);
+
+        Player player = game.getPlayer(1);
+        int bombAmount = player.getBomb();
+        int overrideAmount = player.getOverrideStone();
+
+        assertEquals(bombAmount, 1);
+        assertEquals(overrideAmount ,0);
+    }
+
+    @Test
+    @DisplayName("Test bonus selection (override)")
+    void TestBonusMapOverride() {
+
+        Game game = createGame("maps/testMaps/standard/BonusMap.map");
+        game.executeMove(1 , 3, 1, 21);
+
+        char[][] expectedResult = {
+                {'0', '0', '0', '0'},
+                {'0', '1', '2', '0'},
+                {'0', '1', '1', '0'},
+                {'0', '1', '0', '0'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult);
+
+        Player player = game.getPlayer(1);
+        int bombAmount = player.getBomb();
+        int overrideAmount = player.getOverrideStone();
+
+        assertEquals(bombAmount, 0);
+        assertEquals(overrideAmount ,1);
     }
 }
