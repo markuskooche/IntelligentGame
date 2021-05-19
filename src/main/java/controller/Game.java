@@ -12,7 +12,7 @@ import mapanalyze.MapAnalyzer;
 import java.util.*;
 
 /**
- * The controller.Game class creates a new instance of a game when all important information is passed,
+ * The Game class creates a new instance of a game when all important information is passed,
  * such as the playing field, the number of players, bomb radius, transitions and much more.
  * Subsequently, a game can control all steps of an action until disqualification or until
  * one has won or lost. This is a class that can control all other classes directly or indirectly.
@@ -40,7 +40,7 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
-        System.out.println(mapAnalyzer.getBoardValues());
+        //System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public void setOurPlayerNumber(int ourPlayerNumber) {

@@ -116,9 +116,9 @@ public class Board {
      * @param bonus the selected bonus value
      */
     private void bonus(Player player, int bonus) {
-        if (bonus == ADDITIONAL_BOMB) {
+        if (bonus == ADDITIONAL_OVERRIDE) {
             player.increaseOverrideStone();
-        } else if(bonus == ADDITIONAL_OVERRIDE) {
+        } else if (bonus == ADDITIONAL_BOMB) {
             player.increaseBomb();
         }
     }

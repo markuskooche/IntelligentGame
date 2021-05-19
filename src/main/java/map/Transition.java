@@ -16,14 +16,11 @@ public class Transition {
     private final int r;
 
     /**
-     * Creates a transition with the start and destination points and the respective transition directions.
+     * Creates a transition with the destination coordinates and the direction.
      *
-     * @param x1 the x coordinate from the start transition
-     * @param y1 the y coordinate from the start transition
-     * @param r1 the direction from the start transition
-     * @param x2 the x coordinate from the end transition
-     * @param y2 the y coordinate from the end transition
-     * @param r2 the direction from the end transition
+     * @param x the x coordinate from the destination
+     * @param y the y coordinate from the destination
+     * @param r the direction from the destination
      */
     public Transition(int x, int y, int r) {
         this.x = x;
