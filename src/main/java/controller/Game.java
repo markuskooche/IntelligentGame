@@ -12,7 +12,7 @@ import mapanalyze.MapAnalyzer;
 import java.util.*;
 
 /**
- * The controller.Game class creates a new instance of a game when all important information is passed,
+ * The Game class creates a new instance of a game when all important information is passed,
  * such as the playing field, the number of players, bomb radius, transitions and much more.
  * Subsequently, a game can control all steps of an action until disqualification or until
  * one has won or lost. This is a class that can control all other classes directly or indirectly.
@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class Game {
 
-    //private static final int ADDITIONAL_OVERRIDE = 21;
+    private static final int ADDITIONAL_OVERRIDE = 21;
     private static AnalyzeParser analyzeParser;
 
     private Player[] players;
@@ -72,20 +72,17 @@ public class Game {
      * @return
      */
     private int getAdditional(Move move) {
-        int additional;
+        int additional = 0;
 
         if (move.isChoice()) {
             additional = heuristics.getBestPlayer(ourPlayerNumber);
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
-            additional = 21;
+            additional = ADDITIONAL_OVERRIDE;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
         } else if (move.isInversion()) {
-            additional = 0;
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
-        } else {
-            additional = 0;
         }
 
         return additional;
