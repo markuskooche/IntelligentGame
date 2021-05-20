@@ -33,6 +33,39 @@ public class Direction {
     }
 
     /**
+     *Static method to get the opposite direction Value
+     *
+     * @param directionValue the current direction Value
+     * @return the opposite direction Value
+     */
+    public static int getOppositeDirectionValue(int directionValue){
+        return (directionValue + 4) % 8;
+    }
+
+    /**
+     *Static method to get the opposite direction
+     *
+     * @param directionValue the current direction Value
+     * @return the opposite direction
+     */
+    public static int[] getOppositeDirection(int directionValue){
+        return directions[(directionValue + 4) % 8];
+    }
+
+    /**
+     *Static method to get the opposite direction
+     *
+     * @param direction the current direction Value
+     * @return the opposite direction
+     */
+    public static int[] getOppositeDirection(int[] direction){
+            int[] myDirection = new int[2];
+        myDirection[0] = direction[0] * (-1);
+        myDirection[1] = direction[1] * (-1);
+           return myDirection;
+    }
+
+    /**
      * Static method to get the direction array by a passed direction number.
      *
      * @param number direction number
