@@ -99,6 +99,7 @@ public class ServerConnection {
      */
     private void receiveMessage() throws IOException {
         InputStream inputStream = socket.getInputStream();
+        long stopTime = System.currentTimeMillis();
         byte[] messageHeader = new byte[5];
 
         // storage the length of read bytes
@@ -167,6 +168,9 @@ public class ServerConnection {
                     // sends the best move to the server
                     byte[] move = prepareMove(executedMove);
                     sendMessage(move);
+
+                    stopTime = System.currentTimeMillis() - stopTime;
+                    analyzeParser.spentTimeForMove(stopTime);
 
                     // print the selected bomb move to the console
                     analyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);

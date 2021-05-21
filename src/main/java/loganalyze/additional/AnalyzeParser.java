@@ -163,6 +163,18 @@ public class AnalyzeParser {
         }
     }
 
+    public void searchDepth(int depth) {
+        if(output) {
+            System.out.println("Search_Depth: " + depth);
+        }
+    }
+
+    public void spentTimeForMove(long time) {
+        if(output) {
+            System.out.println("Time for Move: " + time);
+        }
+    }
+
     public boolean isPrintable() {
         return (output && !reduce);
     }

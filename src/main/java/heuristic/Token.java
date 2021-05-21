@@ -3,11 +3,15 @@ package heuristic;
 public class Token {
     private boolean noTime = false;
 
-    void stop() {
+    public void start() {
+        noTime = false;
+    }
+
+    public void stop() {
         noTime = true;
     }
 
-    boolean timeExceeded() {
+    public boolean timeExceeded() {
         return  noTime;
     }
 }

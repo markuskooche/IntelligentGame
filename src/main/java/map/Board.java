@@ -200,7 +200,11 @@ public class Board {
         return legalMoves;
     }
 
-    private int[][] createHelperField(){
+    /**
+     * creates a tmp int array to help with the bomb execution
+     * @return int array where all playable fields are 0 and all unplayable fields are -1
+     */
+    private int[][] createBombHelperField(){
         int[][] tmp = new int[height][width];
 
         for (int i = 0; i < height; i++) {
@@ -215,34 +219,41 @@ public class Board {
         return tmp;
     }
 
+    /**
+     * executes a bomb with the current bombRadius inside the board
+     */
     public void executeBomb(int x, int y) {
 
-        tmpField = createHelperField();
+        tmpField = createBombHelperField();
         executeBombRecursive(x, y, bombRadius+1);
         removeFields();
 
     }
 
+    /**
+     * recursive Method for bomb execution
+     *
+     * @param radius needed for recursion
+     */
     private void executeBombRecursive(int x, int y, int radius) {
-
+        // end recursion on radius = 0
         if (radius == 0) {
             return;
         }
 
-        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int newX, newY;
-
+        // set current field value
         tmpField[y][x] = radius;
-
-        for (int[] direction : directions) {
+        //
+        for (int[] direction : Direction.getList()) {
+            //set next field
             newX = x + (direction[0]);
             newY = y + (direction[1]);
-
+            //if field is not reachable or outside the map search for transition
             if (newX < 0 || newX >= width || newY < 0 || newY >= height || field[newY][newX] == '-') {
 
                 int directionValue = Direction.indexOf(direction);
                 Transition transition;
-
                 transition = getTransition(x, y, directionValue);
 
                 if (transition != null) {
@@ -250,8 +261,8 @@ public class Board {
                         executeBombRecursive(transition.getX(), transition.getY(), radius - 1);
                     }
                 }
-
             } else {
+                //update the field if a shorter path is found
                 if ((tmpField[y][x] - 1) > tmpField[newY][newX]) {
                     executeBombRecursive(newX, newY, radius - 1);
                 }
@@ -260,6 +271,9 @@ public class Board {
         }
     }
 
+    /**
+     * looks at the tmpField and alters the board so that the bomb is executed
+      */
     private void removeFields(){
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {

@@ -33,6 +33,7 @@ public class Game {
     private int ourPlayerNumber;
 
     public Game(List<String> initMap, AnalyzeParser analyzeParser) {
+        long stopTime = System.currentTimeMillis();
         Game.analyzeParser = analyzeParser;
 
         createPlayers(initMap);
@@ -49,7 +50,7 @@ public class Game {
 
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
-        Move move = heuristics.getMoveTimeLimited(ourPlayer, time, alphaBeta, moveSorting);
+        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -58,7 +59,7 @@ public class Game {
 
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = players[ourPlayerNumber - 1];
-        Move move = heuristics.getMoveParanoid(ourPlayer, depth, alphaBeta, moveSorting);
+        Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
