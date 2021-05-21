@@ -721,7 +721,7 @@ public class MapAnalyzer {
         return tmpBoard;
     }
 
-    //TODO Board hat playerScores as attribute this is way faster than the currently method
+    // TODO: Board has playerScores as attribute this is way faster than the currently method
     /**
      * inits the playerScores by initializing the playerScores array in a Board
      * @param tmpBoard board that is initialized

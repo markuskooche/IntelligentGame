@@ -34,7 +34,6 @@ public class Game {
     private int ourPlayerNumber;
 
     public Game(List<String> initMap, AnalyzeParser analyzeParser) {
-        long stopTime = System.currentTimeMillis();
         Game.analyzeParser = analyzeParser;
 
         createPlayers(initMap);

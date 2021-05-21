@@ -37,7 +37,7 @@ public class AnalyzeParser {
     }
 
     public void printCurrentTime(int player) {
-        if (output) {
+        if (output && !reduce) {
             System.out.println("XT01-PL-0" + player + "-" + System.currentTimeMillis());
         }
     }
@@ -149,6 +149,12 @@ public class AnalyzeParser {
         }
     }
 
+    public void analysedMaps(int value) {
+        if (output && !reduce) {
+            System.out.println(group + "98-AM-" + value);
+        }
+    }
+
     public void couldNotSend() {
         if (output) {
             System.out.println("Client could not sent a message.");
@@ -164,13 +170,15 @@ public class AnalyzeParser {
     }
 
     public void searchDepth(int depth) {
-        if(output) {
-            System.out.println("Search_Depth: " + depth);
+        // TODO: change to (output && !reduce)
+        if (output) {
+            System.out.println("Search Depth: " + depth);
         }
     }
 
     public void spentTimeForMove(long time) {
-        if(output) {
+        // TODO: change to (output && !reduce)
+        if (output) {
             System.out.println("Time for Move: " + time);
         }
     }
