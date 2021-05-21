@@ -26,12 +26,16 @@ import java.util.stream.Collectors;
 
 public class GameAnalyzer extends JFrame {
     private static final long serialVersionUID = 1L;
+
     private static final Color HEADER_COLOR = new Color(190, 190, 190);
     private static final Color TABLE_COLOR = new Color(245, 245, 245);
 
+    private int groupNumber;
+    private String groupString;
+
+    private final String title;
+
     private int counter = 0;
-    private String title = "";
-    private String groupNumber = "";
     private String lastDirectory= ".";
 
     private final JMenuItem exportItem;
@@ -67,7 +71,9 @@ public class GameAnalyzer extends JFrame {
     private GameController gameController;
     private GamePanelManager gamePanelManager;
     private PlayerTableManager playerTableManager;
+    private MenuBarPanelManager menuBarPanelManager;
     private StatisticWindowManager statisticWindowManager;
+    private InformationPanelManager informationPanelManager;
 
     private final GameField.GamePanel gamePanel;
 
@@ -88,13 +94,14 @@ public class GameAnalyzer extends JFrame {
         );
 
         try {
-            groupNumber = String.valueOf(group).split(" ")[1];
+            groupString = String.valueOf(group).split(" ")[1];
+            groupNumber = Integer.parseInt(groupString);
         }
-        catch (ArrayIndexOutOfBoundsException e) {
+        catch (Exception e) {
             System.exit(0);
         }
 
-        title = "GameAnalyzer v0.6.4  [" + group + "]";
+        title = "GameAnalyzer v0.7.0  [Gruppe " + groupNumber + "]";
         setTitle(title);
         if (OSValidator.isMac()) {
             setSize(1110, 890);
@@ -167,10 +174,9 @@ public class GameAnalyzer extends JFrame {
 
         visibleItem = new JMenuItem("Erreichbare Felder");
         visibleItem.addActionListener(e -> {
-            LinkedList<BackgroundPoint> reachableField = gamePanelManager.getReachableField();
-            boolean reachableFinished = gamePanelManager.isReachableFinished();
+            LinkedList<BackgroundPoint> reachableField = menuBarPanelManager.getReachableField();
 
-            VisibleFieldWindow window = new VisibleFieldWindow(this, reachableField, reachableFinished);
+            VisibleFieldWindow window = new VisibleFieldWindow(this, reachableField);
             visibleItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -232,7 +238,7 @@ public class GameAnalyzer extends JFrame {
 
         mobilityItem = new JMenuItem("Mobilit\u00e4t");
         mobilityItem.addActionListener(e -> {
-            StatisticWindow window = new StatisticWindow("Mobilit\u00e4t", gamePanelManager.getMobility(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Mobilit\u00e4t", statisticWindowManager.getMobility(), GameAnalyzer.this, true);
             mobilityItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -246,7 +252,7 @@ public class GameAnalyzer extends JFrame {
 
         coinParityItem = new JMenuItem("Spielfeldbelegung");
         coinParityItem.addActionListener(e -> {
-            StatisticWindow window = new StatisticWindow("Spielfeldbelegung", gamePanelManager.getCoinParity(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Spielfeldbelegung", statisticWindowManager.getCoinParity(), GameAnalyzer.this, true);
             coinParityItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -260,7 +266,7 @@ public class GameAnalyzer extends JFrame {
 
         mapValueItem = new JMenuItem("Spielfeldgewichtung");
         mapValueItem.addActionListener(e -> {
-            StatisticWindow window = new StatisticWindow("Spielfeldgewichtung", gamePanelManager.getMapValue(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Spielfeldgewichtung", statisticWindowManager.getMapValue(), GameAnalyzer.this, true);
             mapValueItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -274,7 +280,7 @@ public class GameAnalyzer extends JFrame {
 
         heuristicItem = new JMenuItem("Gesamtheuristik");
         heuristicItem.addActionListener(e -> {
-            StatisticWindow window = new StatisticWindow("Gesamtheuristik", gamePanelManager.getHeuristic(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Gesamtheuristik", statisticWindowManager.getHeuristic(), GameAnalyzer.this, true);
             heuristicItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -290,7 +296,7 @@ public class GameAnalyzer extends JFrame {
 
         visitedBoardItem = new JMenuItem("Besuchte Spielfelder");
         visitedBoardItem.addActionListener(e -> {
-            StatisticWindow window = new StatisticWindow("Besuchte Spielfelder", gamePanelManager.getVisitedBoards(), GameAnalyzer.this, true);
+            StatisticWindow window = new StatisticWindow("Besuchte Spielfelder", statisticWindowManager.getVisitedBoards(), GameAnalyzer.this, true);
             visitedBoardItem.setEnabled(false);
             window.addWindowListener(new WindowAdapter() {
                 @Override
@@ -395,7 +401,7 @@ public class GameAnalyzer extends JFrame {
         currentMove.setBounds(30, 800, 120, 30);
         add(currentMove);
 
-        playerMove = new JLabel("Zug: -");
+        playerMove = new JLabel("Spielerzug: -");
         playerMove.setBounds(160, 800, 120, 30);
         add(playerMove);
 
@@ -412,6 +418,7 @@ public class GameAnalyzer extends JFrame {
         add(nextGame);
 
         jumperInput = new JTextField();
+        jumperInput.addActionListener(e -> jumpMove());
         jumperInput.setBounds(640, 800, 50, 30);
         jumperInput.setEnabled(false);
         add(jumperInput);
@@ -435,7 +442,7 @@ public class GameAnalyzer extends JFrame {
         if (counter >= 1) {
             nextGame.setEnabled(true);
             counter--;
-            updateGamePanel();
+            updateGameAnalyzer();
 
             if (counter == 0) {
                 previousGame.setEnabled(false);
@@ -444,12 +451,12 @@ public class GameAnalyzer extends JFrame {
     }
 
     private void nextGame() {
-        if (counter < gamePanelManager.getGameSize() - 1) {
+        if (counter < gameController.getGameLength() - 1) {
             previousGame.setEnabled(true);
             counter++;
-            updateGamePanel();
+            updateGameAnalyzer();
 
-            if (counter == gamePanelManager.getGameSize() - 1) {
+            if (counter == gameController.getGameLength() - 1) {
                 nextGame.setEnabled(false);
 
                 disqualifyMessage();
@@ -469,33 +476,44 @@ public class GameAnalyzer extends JFrame {
 
         try {
             String filename = fd.getDirectory() + fd.getFile();
-            gamePanelManager = new GamePanelManager(filename, groupNumber);
-            gamePanelManager.load();
+            gameController = new GameController(groupString);
+            gameController.load(filename);
 
-            List<int[]> transitions = gamePanelManager.getTransitions();
+            gamePanelManager = gameController.getGamePanelManager();
+            playerTableManager = gameController.getPlayerTableManager();
+            menuBarPanelManager = gameController.getMenuBarPanelManager();
+            statisticWindowManager = gameController.getStatisticWindowManager();
+            informationPanelManager = gameController.getInformationPanelManager();
+
+            mobilityItem.setEnabled(statisticWindowManager.hasMobility());
+            mapValueItem.setEnabled(statisticWindowManager.hasMapValue());
+            heuristicItem.setEnabled(statisticWindowManager.hasHeuristic());
+            coinParityItem.setEnabled(statisticWindowManager.hasCoinParity());
+            visitedBoardItem.setEnabled(statisticWindowManager.hasVisitedBoards());
+
+            boolean reachableField = menuBarPanelManager.hasReachableField();
+            visibleItem.setEnabled(reachableField);
+
+            List<int[]> transitions = menuBarPanelManager.getTransitions();
+            showTransition.setEnabled(!transitions.isEmpty());
             gamePanel.setTransitions(transitions);
             gamePanel.hideTransitions();
-            if (!transitions.isEmpty()) {
-                showTransition.setEnabled(true);
-            } else {
-                showTransition.setEnabled(false);
-            }
 
             jumperInput.setEnabled(true);
             jumperRadio.setEnabled(true);
             jumperButton.setEnabled(true);
 
-            moveSize.setText("Anzahl Z\u00fcge: " + (gamePanelManager.getGameSize() - 1));
+            moveSize.setText("Anzahl Z\u00fcge: " + (gameController.getGameLength() - 1));
 
-            ownPlayer.setText("Spielfigur: " + gamePanelManager.getOwnPlayer());
-            bombRadius.setText("Bombenradius: " + gamePanelManager.getBombRadius());
-            amountPlayer.setText("Anzahl Spieler: " + gamePanelManager.getPlayerAmount());
+            ownPlayer.setText("Spielfigur: " + informationPanelManager.getOwnPlayer());
+            bombRadius.setText("Bombenradius: " + informationPanelManager.getBombRadius());
+            amountPlayer.setText("Anzahl Spieler: " + informationPanelManager.getPlayerAmount());
 
-            nextGame.setEnabled(gamePanelManager.getGameSize() != 1);
+            nextGame.setEnabled(gameController.getGameLength() > 1);
             lastDirectory = fd.getDirectory();
             counter = 0;
 
-            int[] disqualified = gamePanelManager.getDisqualifiedPlayer();
+            int[] disqualified = playerTableManager.getDisqualifiedPlayers();
             playerTableModel.setDisqualified(disqualified);
 
             gamePanel.disableHighlighting();
@@ -503,15 +521,9 @@ public class GameAnalyzer extends JFrame {
             visibleItem.setEnabled(true);
             hideTransition.setEnabled(false);
 
-            mobilityItem.setEnabled(true);
-            coinParityItem.setEnabled(true);
-            mapValueItem.setEnabled(true);
-            heuristicItem.setEnabled(true);
-            visitedBoardItem.setEnabled(true);
-
             setTitle(title + " -> [" + fd.getFile() + "]");
 
-            updateGamePanel();
+            updateGameAnalyzer();
         }
         catch (IOException ignored) {
             // this happens when the user has not selected a file
@@ -553,7 +565,7 @@ public class GameAnalyzer extends JFrame {
 
                 Path path = Paths.get(fileName);
                 List<String> list = new ArrayList<>();
-                String[] currentMap = gamePanelManager.getCurrentMap(counter);
+                String[] currentMap = gameController.getExportMap(counter);
 
                 Collections.addAll(list, currentMap);
 
@@ -573,11 +585,11 @@ public class GameAnalyzer extends JFrame {
         try {
             line = Integer.parseInt(input);
 
-            if (line >= 0 && line < gamePanelManager.getGameSize()) {
+            if (line >= 0 && line < (gameController.getGameLength())) {
                 counter = line;
-                updateGamePanel();
+                updateGameAnalyzer();
 
-                if (counter == gamePanelManager.getGameSize() - 1) {
+                if (counter == gameController.getGameLength() - 1) {
                     previousGame.setEnabled(true);
                     nextGame.setEnabled(false);
 
@@ -590,7 +602,7 @@ public class GameAnalyzer extends JFrame {
                     nextGame.setEnabled(true);
                 }
             } else {
-                int range = gamePanelManager.getGameSize() - 1;
+                int range = (gameController.getGameLength() - 1);
                 JOptionPane.showMessageDialog(
                         GameAnalyzer.this,
                         "Sie müssen eine Zahl zwischen 0 und " + range + " eingeben!",
@@ -611,9 +623,9 @@ public class GameAnalyzer extends JFrame {
     }
 
     private void disqualifyMessage() {
-        int[] disqualified = gamePanelManager.getDisqualifiedPlayer();
-        if (disqualified[gamePanelManager.getOwnPlayer() - 1] == counter) {
-            String message = gamePanelManager.getDisqualifyReason();
+        int[] disqualified = playerTableManager.getDisqualifiedPlayers();
+        if (disqualified[informationPanelManager.getOwnPlayer() - 1] == counter) {
+            String message = playerTableManager.getDisqualifyReason();
 
             JOptionPane.showMessageDialog(
                     GameAnalyzer.this,
@@ -624,19 +636,26 @@ public class GameAnalyzer extends JFrame {
         }
     }
 
-    private void updateGamePanel() {
+    private void updateGameAnalyzer() {
         fieldPercentage.setText(gamePanelManager.getPercentageDistribution(counter));
 
-        List<PlayerPoint> tmpPlayer = gamePanelManager.getPlayer(counter);
-        List<BackgroundPoint> tmpBackground = gamePanelManager.getBackground(counter);
-        gamePanel.updateFrame(tmpBackground, tmpPlayer);
+        List<PlayerPoint> tmpPlayer = gamePanelManager.getPlayerPoints(counter);
+        List<BackgroundPoint> tmpBackground = gamePanelManager.getBackgroundPoints(counter);
 
-        playerList.clear();
-        playerList.addAll(gamePanelManager.getPlayerInformation(counter));
-        playerTableModel.fireTableDataChanged();
+        if (tmpPlayer != null && tmpBackground != null) {
+            gamePanel.updateFrame(tmpBackground, tmpPlayer);
 
-        currentMove.setText("Aktuell: " + counter);
-        playerMove.setText("Zug: " + gamePanelManager.getCurrentPlayerTurn(counter));
+            LinkedList<PlayerInformation> playerInformation = playerTableManager.getPlayerInformation(counter);
+
+            if (playerInformation != null) {
+                playerList.clear();
+                playerList.addAll(playerTableManager.getPlayerInformation(counter));
+                playerTableModel.fireTableDataChanged();
+            }
+
+            currentMove.setText("Aktuell: " + counter);
+            playerMove.setText("Spielerzug: " + informationPanelManager.getPlayerTurn(counter));
+        }
     }
 
     private void showTransition() {
@@ -652,7 +671,7 @@ public class GameAnalyzer extends JFrame {
     }
 
     public void updateCounter(int playerMove) {
-        counter = gamePanelManager.getRealPlayerMove(playerMove);
+        counter = informationPanelManager.getOwnPlayerMove(playerMove);
         previousGame();
         nextGame();
     }
