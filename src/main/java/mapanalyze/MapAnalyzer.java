@@ -1,5 +1,7 @@
 
 package mapanalyze;
+import heuristic.TimeExceededException;
+import heuristic.Token;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;
@@ -32,6 +34,9 @@ public class MapAnalyzer {
     private int width;
     private int height;
 
+    private Token timeToken = new Token();
+    private boolean timeLimited = false;
+
 
     public MapAnalyzer(Board b, int pNumber, AnalyzeParser analyzeParser) {
         MapAnalyzer.analyzeParser = analyzeParser;
@@ -40,17 +45,19 @@ public class MapAnalyzer {
         playerNumber = pNumber;
 
         initAllFields();
+        reachableFinished = false;
+        createField();
+    }
+
+    public void startReachableField(boolean timelimited, Token timeToken) throws TimeExceededException {
+        this.timeLimited = timelimited;
+        this.timeToken = timeToken;
         try {
-            //long time = System.currentTimeMillis();
             createReachableField();
-            // TODO: [Benedikt] System.out.println("Map Analyze Zeit: " + (System.currentTimeMillis() - time));
             reachableFinished = true;
         } catch (StackOverflowError soe) {
             analyzeParser.mapAnalyzerError();
-            reachableFinished = false;
         }
-
-        createField();
     }
 
     private void initAllFields(){
@@ -149,10 +156,11 @@ public class MapAnalyzer {
             createWaves(x, y, waveLength, -22);
         }
     }
+
     /**
      * creates the ReachableField for the current map and
      */
-    public void createReachableField() {
+    public void createReachableField() throws TimeExceededException {
         // has all Transitions that are already taken from the recursive SidePaths
         specialFieldListSidePath = new ArrayList<>();
         // has all Transitions that are already taken from the iterative MainPath this is done due to performance reasons and to prevent endless loops
@@ -240,7 +248,7 @@ public class MapAnalyzer {
     /**
     *Main method to determine the reachable fields
      */
-    private void followFields(int x, int y, int[] currentDirection){
+    private void followFields(int x, int y, int[] currentDirection) throws TimeExceededException {
 
         //Mark the fields ahead
         changeFields(x,y,currentDirection);
@@ -249,7 +257,7 @@ public class MapAnalyzer {
 
         //Follow this direction until the End of the board
         while (true){
-
+            if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
             //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
             int [] currStone = new int[3];
             currStone[0] = x;
@@ -266,6 +274,7 @@ public class MapAnalyzer {
                 //find out if the transition is already taken
                 boolean transitionAlreadyTaken = false;
                 for(int[] specialFields : specialFieldListMainPath){
+                    if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
                     if(Arrays.equals(specialFields, tempStone)){
                         transitionAlreadyTaken = true;
                         break;
@@ -294,7 +303,7 @@ public class MapAnalyzer {
 
             //look for other stones in all directions
             for (int[] direction : Direction.getList()) {
-
+                if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
                 int nextX = x + direction[0];
                 int nextY = y + direction[1];
                 boolean transitionAlreadyTaken = false;
@@ -553,12 +562,13 @@ public class MapAnalyzer {
      *
      * Skips the stone if the position is already reachable
      */
-    private void traverseMapForEachPlayerStone() {
+    private void traverseMapForEachPlayerStone() throws TimeExceededException {
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                char currField = board.getField()[i][j];
+                if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
+                char currField = board.getField()[i][j];
                 if(currField == '1' || currField == '2' ||currField == '3' ||currField == '4' ||
                         currField == '5' ||currField == '6' ||currField == '7' || currField == '8' ||currField == 'x'){
                     //Skip stones that have already been reached
@@ -574,11 +584,11 @@ public class MapAnalyzer {
     /**
      * Updates the current board and removes all Fields that are not reachable
      */
-    private void alterCurrentMap() {
+    private void alterCurrentMap() throws TimeExceededException {
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-
+                if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
                 int currField = reachableField[i][j];
 
                 if (currField == 0) {
@@ -591,7 +601,7 @@ public class MapAnalyzer {
     /**
      * Looks in all directions of the field and over Transitions to find possible Move-directions
      */
-    private void traverseMap(int x, int y) {
+    private void traverseMap(int x, int y) throws TimeExceededException {
         int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
         int[] currentDirection;
 
@@ -599,6 +609,8 @@ public class MapAnalyzer {
         reachableField[y][x] = 3;
 
         for (int[] direction : directions) {
+            if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
+
             currentDirection = direction;
             int[] oppositeDirection = Direction.valueOf((Direction.indexOf(currentDirection) + 4) % 8);
 
