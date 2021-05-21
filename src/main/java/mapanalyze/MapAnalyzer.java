@@ -49,8 +49,8 @@ public class MapAnalyzer {
         createField();
     }
 
-    public void startReachableField(boolean timelimited, Token timeToken) throws TimeExceededException {
-        this.timeLimited = timelimited;
+    public void startReachableField(boolean timeLimited, Token timeToken) throws TimeExceededException {
+        this.timeLimited = timeLimited;
         this.timeToken = timeToken;
         try {
             createReachableField();

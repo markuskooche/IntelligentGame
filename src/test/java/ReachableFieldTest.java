@@ -23,7 +23,7 @@ public class ReachableFieldTest {
             List<String> file = MapParser.createMap(bytes);
             AnalyzeParser analyzeParser =  new AnalyzeParser(1,false, true);
             game = new Game(file, analyzeParser);
-
+            game.initializeReachableField();
         } catch (IOException e) {
             e.printStackTrace();
         }

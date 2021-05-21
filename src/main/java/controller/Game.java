@@ -2,6 +2,7 @@ package controller;
 
 import heuristic.BombPosition;
 import heuristic.Heuristics;
+import heuristic.TimeExceededException;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
@@ -325,6 +326,14 @@ public class Game {
      */
     public int[][] getReachableField() {
         return mapAnalyzer.getReachableField();
+    }
+
+    public void initializeReachableField() {
+        try {
+            mapAnalyzer.startReachableField(false, null);
+        }
+        catch (TimeExceededException ignored) {
+        }
     }
 
     /**
