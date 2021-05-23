@@ -680,4 +680,32 @@ public class ExecuteMoveTest {
         assertEquals(bombAmount, 0);
         assertEquals(overrideAmount ,1);
     }
+
+    @Test
+    @DisplayName("Test expansion move")
+    void TestExpansionMove() {
+
+        Game game = createGame("maps/testMaps/standard/ExpansionMove.map");
+        game.executeMove(8 , 4, 1, 0);
+
+        char[][] expectedResult1 = {
+                {'0', '0', '0', '0', '0', '0', '0', '0', 'x'},
+                {'0', '1', '2', '0', '0', '0', '0', '0', '0'},
+                {'0', '2', '1', '0', '0', '0', '0', '0', '0'},
+                {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                {'0', '0', '0', '0', '0', '1', '1', '1', '1'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult1);
+
+        game.executeMove(8 , 0, 1, 0);
+
+        char[][] expectedResult2 = {
+                {'0', '0', '0', '0', '0', '0', '0', '0', '1'},
+                {'0', '1', '2', '0', '0', '0', '0', '0', '0'},
+                {'0', '2', '1', '0', '0', '0', '0', '0', '0'},
+                {'0', '0', '0', '0', '0', '0', '0', '0', '0'},
+                {'0', '0', '0', '0', '0', '1', '1', '1', '1'}};
+
+        assertArrayEquals(game.getBoard().getField(),expectedResult2);
+    }
 }
