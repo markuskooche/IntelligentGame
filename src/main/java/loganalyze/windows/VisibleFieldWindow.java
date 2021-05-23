@@ -1,6 +1,6 @@
 package loganalyze.windows;
 
-import loganalyze.controller.GameField;
+import loganalyze.windows.panel.GameField;
 import loganalyze.additional.OSValidator;
 import loganalyze.colorize.BackgroundPoint;
 

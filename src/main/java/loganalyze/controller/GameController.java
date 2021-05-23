@@ -5,6 +5,7 @@ import loganalyze.additional.AnalyzeParser;
 import loganalyze.additional.IncorrectGroupException;
 import loganalyze.colorize.BackgroundPoint;
 import loganalyze.tablemodel.PlayerInformation;
+import map.Board;
 import mapanalyze.MapAnalyzer;
 import server.MapParser;
 
@@ -133,8 +134,7 @@ public class GameController {
         currentPlayerTurn = new int[playerAmount];
         Arrays.fill(currentPlayerTurn, 1);
 
-        char[][] currentField = game.getBoard().getField();
-        gamePanelManager.addGameState(currentField);
+        gamePanelManager.addGameState(game);
     }
 
     private void calculatePossibleFields() {
@@ -217,8 +217,7 @@ public class GameController {
             game.executeBomb(x, y);
         }
 
-        char[][] currentField = game.getBoard().getField();
-        gamePanelManager.addGameState(currentField);
+        gamePanelManager.addGameState(game);
     }
 
     public String[] getExportMap(int index) {

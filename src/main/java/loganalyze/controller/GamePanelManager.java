@@ -5,6 +5,7 @@ import controller.Game;
 import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
 import loganalyze.tablemodel.PlayerInformation;
+import map.Board;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,12 +18,14 @@ public class GamePanelManager {
 
     private int reachableFields = -1;
 
+    private final ArrayList<Game> games;
     private final ArrayList<LinkedList<PlayerPoint>> playerPoints;
     private final ArrayList<LinkedList<BackgroundPoint>> backgroundPoints;
 
     public GamePanelManager() {
         backgroundPoints = new ArrayList<>();
         playerPoints = new ArrayList<>();
+        games = new ArrayList<>();
     }
 
     public void setGameSize(int width, int height) {
@@ -30,9 +33,11 @@ public class GamePanelManager {
         this.width = width;
     }
 
-    public void addGameState(char[][] field) {
+    public void addGameState(Game game) {
+        char[][] field = game.getBoard().getField();
         addBackgroundPoints(field);
         addPlayerPoints(field);
+        games.add(new Game(game));
     }
 
     private void addPlayerPoints(char[][] field) {
@@ -138,6 +143,14 @@ public class GamePanelManager {
     public LinkedList<PlayerPoint> getPlayerPoints(int index) {
         if (index < backgroundPoints.size()) {
             return playerPoints.get(index);
+        }
+
+        return null;
+    }
+
+    public Game getGameState(int index) {
+        if (index < games.size()) {
+            return games.get(index);
         }
 
         return null;

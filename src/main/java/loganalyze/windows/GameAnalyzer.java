@@ -1,5 +1,6 @@
 package loganalyze.windows;
 
+import controller.Game;
 import loganalyze.controller.*;
 import loganalyze.tablemodel.PlayerInformation;
 import loganalyze.tablemodel.PlayerTableModel;
@@ -7,6 +8,8 @@ import loganalyze.additional.IncorrectGroupException;
 import loganalyze.additional.OSValidator;
 import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
+import loganalyze.windows.panel.GameField;
+import map.Board;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -37,6 +40,8 @@ public class GameAnalyzer extends JFrame {
 
     private int counter = 0;
     private String lastDirectory= ".";
+
+    private final JMenuItem gameControl;
 
     private final JMenuItem exportItem;
     private final JMenuItem hideTransition;
@@ -151,6 +156,26 @@ public class GameAnalyzer extends JFrame {
         hideTransition.addActionListener(e -> hideTransition());
         hideTransition.setEnabled(false);
         menu.add(hideTransition);
+
+        menu.add(new JSeparator());
+
+        gameControl = new JMenuItem("Manuelle Spielf\u00fchrung");
+        gameControl.addActionListener(e -> {
+            LinkedList<BackgroundPoint> backgroundPoints = gamePanelManager.getBackgroundPoints(counter);
+            LinkedList<PlayerPoint> playerPoints = gamePanelManager.getPlayerPoints(counter);
+            Game currentGame = gamePanelManager.getGameState(counter);
+
+            GameControlWindow window = new GameControlWindow(this, currentGame, backgroundPoints, playerPoints);
+            gameControl.setEnabled(false);
+            window.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    gameControl.setEnabled(true);
+                }
+            });
+        });
+        gameControl.setEnabled(false);
+        menu.add(gameControl);
 
         // ----- ----- ----- ----- GAME ANALYZER - MENU FENSTER ----- ----- ----- -----
 
@@ -332,7 +357,6 @@ public class GameAnalyzer extends JFrame {
 
         gamePanel = new GameField.GamePanel();
         gamePanel.setBounds(10, 30, 770, 770);
-
         gamePanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -341,7 +365,6 @@ public class GameAnalyzer extends JFrame {
                 gamePanel.highlightPlayer(x, y);
             }
         });
-
         add(gamePanel);
 
         // ----- ----- ----- ----- GAME ANALYZER - PLAYER TABLE ----- ----- ----- -----
@@ -478,6 +501,8 @@ public class GameAnalyzer extends JFrame {
             String filename = fd.getDirectory() + fd.getFile();
             gameController = new GameController(groupString);
             gameController.load(filename);
+
+            gameControl.setEnabled(true);
 
             gamePanelManager = gameController.getGamePanelManager();
             playerTableManager = gameController.getPlayerTableManager();

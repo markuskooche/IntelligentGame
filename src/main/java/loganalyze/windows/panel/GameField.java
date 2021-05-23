@@ -1,4 +1,4 @@
-package loganalyze.controller;
+package loganalyze.windows.panel;
 
 import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;

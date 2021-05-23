@@ -4,6 +4,10 @@ import java.awt.*;
 
 public class PlayerPoint {
 
+    private static final Color NORMAL_MOVE = Color.BLACK;
+    private static final Color OVERRIDE_MOVE = Color.DARK_GRAY;
+    private static final Color DIFFERENT_PLAYER = Color.LIGHT_GRAY;
+
     private static final Color[] colors = {
             new Color(214, 8, 7),
             new Color(4, 64, 195),
@@ -13,6 +17,9 @@ public class PlayerPoint {
             new Color(101, 33, 130),
             new Color(247, 134, 50),
             new Color(255, 0, 175),
+            NORMAL_MOVE,
+            OVERRIDE_MOVE,
+            DIFFERENT_PLAYER,
     };
 
     public int player;

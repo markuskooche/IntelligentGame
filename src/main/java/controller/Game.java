@@ -44,6 +44,19 @@ public class Game {
         //System.out.println(mapAnalyzer.getBoardValues());
     }
 
+    public Game(Game game) {
+        this.board = new Board(game.getBoard());
+        this.heuristics = game.heuristics;
+        this.mapAnalyzer = game.mapAnalyzer;
+        this.ourPlayerNumber = game.ourPlayerNumber;
+
+        int playerAmount = game.getPlayers().length;
+        this.players = new Player[playerAmount];
+        for (int i = 0; i < playerAmount; i ++) {
+            players[i] = new Player(game.getPlayers()[i]);
+        }
+    }
+
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
     }

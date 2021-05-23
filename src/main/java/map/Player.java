@@ -31,6 +31,18 @@ public class Player {
     }
 
     /**
+     * Copy a Player Object.
+     *
+     * @param player player instance
+     */
+    public Player(Player player) {
+        this.number = player.getNumber();
+        this.bomb = player.getBomb();
+        this.overrideStone = player.getOverrideStone();
+        this.disqualified = player.isDisqualified();
+    }
+
+    /**
      * A method to get the number of the player.
      *
      * @return a char representing the number of the player
