@@ -4,9 +4,7 @@ import controller.Game;
 import loganalyze.additional.AnalyzeParser;
 import map.Player;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -98,7 +96,9 @@ public class ServerConnection {
      * @throws IOException throws an IOException if this socket is closed or the socket is not connected
      */
     private void receiveMessage() throws IOException {
-        InputStream inputStream = socket.getInputStream();
+        BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+        DataInputStream inputStream = new DataInputStream(bis);
+
         long stopTime = System.currentTimeMillis();
         byte[] messageHeader = new byte[5];
 
