@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class Start {
 
     private static final boolean OVERRIDE = true;
-    private static final int PLAYER_NUMBER = 1;
+    private static final int PLAYER_NUMBER = 2;
 
     private static Game createGame(String filename){
         Game game = null;
@@ -74,6 +74,7 @@ public class Start {
         }
 
         game.executeMove(x, y, PLAYER_NUMBER, a);
+        System.out.println(game.getBoard());
         return new int[] {x, y, a};
     }
 
@@ -113,7 +114,7 @@ public class Start {
         Game game = createGame("maps/fatal.map");
         System.out.println(game.toString());
 
-        Player player = game.getPlayer(1);
+        Player player = game.getPlayer(PLAYER_NUMBER);
 
         // EXECUTE NORMAL MOVE
         printLegalMoves(game, player);

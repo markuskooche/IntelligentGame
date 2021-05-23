@@ -474,12 +474,12 @@ public class GameAnalyzer extends JFrame {
     }
 
     private void nextGame() {
-        if (counter < gameController.getGameLength() - 1) {
+        if (counter <= gameController.getGameLength()) {
             previousGame.setEnabled(true);
             counter++;
             updateGameAnalyzer();
 
-            if (counter == gameController.getGameLength() - 1) {
+            if (counter == gameController.getGameLength()) {
                 nextGame.setEnabled(false);
 
                 disqualifyMessage();
@@ -528,7 +528,7 @@ public class GameAnalyzer extends JFrame {
             jumperRadio.setEnabled(true);
             jumperButton.setEnabled(true);
 
-            moveSize.setText("Anzahl Z\u00fcge: " + (gameController.getGameLength() - 1));
+            moveSize.setText("Anzahl Z\u00fcge: " + (gameController.getGameLength()));
 
             ownPlayer.setText("Spielfigur: " + informationPanelManager.getOwnPlayer());
             bombRadius.setText("Bombenradius: " + informationPanelManager.getBombRadius());
@@ -614,7 +614,7 @@ public class GameAnalyzer extends JFrame {
                 counter = line;
                 updateGameAnalyzer();
 
-                if (counter == gameController.getGameLength() - 1) {
+                if (counter == gameController.getGameLength()) {
                     previousGame.setEnabled(true);
                     nextGame.setEnabled(false);
 
@@ -627,7 +627,7 @@ public class GameAnalyzer extends JFrame {
                     nextGame.setEnabled(true);
                 }
             } else {
-                int range = (gameController.getGameLength() - 1);
+                int range = (gameController.getGameLength());
                 JOptionPane.showMessageDialog(
                         GameAnalyzer.this,
                         "Sie müssen eine Zahl zwischen 0 und " + range + " eingeben!",

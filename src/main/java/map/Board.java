@@ -165,6 +165,7 @@ public class Board {
 
     public List<Move> getLegalMoves(Player player, boolean overrideMoves) {
         List<Move> legalMoves = new LinkedList<>();
+        boolean[][] alreadyAdded = new boolean[height][width];
 
         // inserts all legal moves of a player's pieces into a list
         for (int y = 0; y < height; y++) {
@@ -184,6 +185,9 @@ public class Board {
                     Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
                     if (!legalOverrideMove.isEmpty()) {
                         legalMoves.add(legalOverrideMove);
+                        int moveX = legalOverrideMove.getX();
+                        int moveY = legalOverrideMove.getY();
+                        alreadyAdded[moveY][moveX] = true;
                     }
                 }
             }
@@ -192,8 +196,14 @@ public class Board {
         // if a player has overridestones and override is selected
         if (player.hasOverrideStone() && overrideMoves) {
             for (int[] expansion : getPlayerPositions('x')) {
-                Move expansionMove = new Move(expansion);
-                legalMoves.add(expansionMove);
+                int expansionX = expansion[0];
+                int expansionY = expansion[1];
+
+                // if a position is not added you could move to this position
+                if (!alreadyAdded[expansionX][expansionY]) {
+                    Move expansionMove = new Move(expansion);
+                    legalMoves.add(expansionMove);
+                }
             }
         }
 
