@@ -55,7 +55,7 @@ public class MapAnalyzer {
         try {
             createReachableField();
             reachableFinished = true;
-        } catch (StackOverflowError soe) {
+        } catch (StackOverflowError | OutOfMemoryError e) {
             analyzeParser.mapAnalyzerError();
         }
     }

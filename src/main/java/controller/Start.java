@@ -111,7 +111,7 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/fatal.map");
+        Game game = createGame("maps/game121.map");
         System.out.println(game.toString());
 
         Player player = game.getPlayer(PLAYER_NUMBER);
