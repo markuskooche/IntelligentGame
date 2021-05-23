@@ -200,7 +200,7 @@ public class Board {
                 int expansionY = expansion[1];
 
                 // if a position is not added you could move to this position
-                if (!alreadyAdded[expansionX][expansionY]) {
+                if (!alreadyAdded[expansionY][expansionX]) {
                     Move expansionMove = new Move(expansion);
                     legalMoves.add(expansionMove);
                 }
