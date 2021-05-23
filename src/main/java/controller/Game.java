@@ -412,8 +412,10 @@ public class Game {
         gameString.append(String.format("%s\n", board.toString()));
 
         for (String transition : getTransitions()) {
-            gameString.append(transition);
+            gameString.append(transition + "\n");
         }
+
+        gameString.append("Transitions: " + getTransitions().length + "\n");
 
         return gameString.toString();
     }
