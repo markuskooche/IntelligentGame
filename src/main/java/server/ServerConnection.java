@@ -96,8 +96,9 @@ public class ServerConnection {
      * @throws IOException throws an IOException if this socket is closed or the socket is not connected
      */
     private void receiveMessage() throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-        DataInputStream inputStream = new DataInputStream(bis);
+        //BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+        //DataInputStream inputStream = new DataInputStream(bis);
+        InputStream inputStream = socket.getInputStream();
 
         long stopTime = System.currentTimeMillis();
         byte[] messageHeader = new byte[5];

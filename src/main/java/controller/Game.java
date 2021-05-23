@@ -62,7 +62,7 @@ public class Game {
     }
 
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
-        Player ourPlayer = players[ourPlayerNumber - 1];
+        Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
@@ -71,7 +71,7 @@ public class Game {
     }
 
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
-        Player ourPlayer = players[ourPlayerNumber - 1];
+        Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
