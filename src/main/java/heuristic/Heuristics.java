@@ -68,7 +68,7 @@ public class Heuristics {
     private Move getMove(Player ourPlayer, boolean orderMoves, boolean alphaBeta) {
         if (timeLimited) startTimer(maxTimeForMove);
         Move move;
-        int ourPlayerNum = ourPlayer.getNumber() - '0';
+        int ourPlayerNum = ourPlayer.getIntNumber();
         int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
         Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
@@ -195,7 +195,7 @@ public class Heuristics {
         // Or the player is disqualified
         if (executedMoves.isEmpty() || player.isDisqualified()) {
             if (player == ourPlayer && getAmountStones(ourPlayer, board) == 0) {
-                return Integer.MIN_VALUE; //In this situation we are dead
+                return -80000; //In this situation we are dead
             }
             int nextPlayer = (currPlayer % numPlayers) + 1;
             if(maxLoop < numPlayers) {
@@ -300,7 +300,7 @@ public class Heuristics {
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
             Board newBoard = new Board(board);
-            int additionalInformation = getAdditionalInfo(m, player);
+            int additionalInformation = getAdditionalInfo(m, player, newBoard);
             newBoard.colorizeMove(m, player, additionalInformation);
 
             //executeMove() will decrease if override = true -> but this is only an assumption
@@ -316,10 +316,12 @@ public class Heuristics {
     /**
      * Special field decision
      */
-    private int getAdditionalInfo(Move move, Player player) {
+    private int getAdditionalInfo(Move move, Player player, Board board) {
         int info = 0;
         if (move.isBonus()) info = 21; // we take allways a OverrideStone
-        if (move.isChoice()) info = player.getNumber(); //Current: never Change our Colour
+        if (move.isChoice()) {
+           info =  getBestPlayer(player.getIntNumber(), board);
+        }
         return info;
     }
 
@@ -361,11 +363,11 @@ public class Heuristics {
         */
 
         // TODO: LÖSCHEN
-        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getNumber(), tmpBoard);
+        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getCharNumber(), tmpBoard);
 
         long mapValueAll = 0;
         for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getNumber(), tmpBoard);
+            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getCharNumber(), tmpBoard);
         }
         // TODO: BIS HIER HIN
 
@@ -378,13 +380,13 @@ public class Heuristics {
         List<int[]> playerStones = new ArrayList<>();
         String playersNum = "";
         for(Player p : players) {
-            playersNum += p.getNumber();
+            playersNum += p.getCharNumber();
         }
 
         char field[][] = board.getField();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (field[y][x] == player.getNumber()) {
+                if (field[y][x] == player.getCharNumber()) {
                     myStones.add(new int[] {x, y});
                 }
                 if (playersNum.indexOf(field[y][x]) != -1) {
@@ -404,7 +406,7 @@ public class Heuristics {
         List<List<Move>> playerMoves = new ArrayList<>();
         for (Player p : players) {
             List<Move> moves = board.getLegalMoves(p, false);
-            if (player.getNumber() == p.getNumber()) myMoves = moves;
+            if (player.getCharNumber() == p.getCharNumber()) myMoves = moves;
             playerMoves.add(moves);
         }
 
@@ -425,7 +427,7 @@ public class Heuristics {
         char field[][] = board.getField();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (field[y][x] == player.getNumber()) {
+                if (field[y][x] == player.getCharNumber()) {
                     myStones.add(new int[] {x, y});
                 }
             }
@@ -433,7 +435,7 @@ public class Heuristics {
         return myStones.size();
     }
 
-    public int getBestPlayer(int ourPlayer) {
+    public int getBestPlayer(int ourPlayer, Board board) {
         int bestPlayer = ourPlayer;
         int bestEvaluation = Integer.MIN_VALUE;
 
@@ -444,7 +446,7 @@ public class Heuristics {
 
                 if (evaluation > bestEvaluation) {
                     bestEvaluation = evaluation;
-                    bestPlayer = (player.getNumber() - '0');
+                    bestPlayer = player.getIntNumber();
                 }
             }
         }

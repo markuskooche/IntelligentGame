@@ -35,7 +35,7 @@ public class PlayerTableManager {
         LinkedList<PlayerInformation> tmp = new LinkedList<>();
 
         for (Player player : game.getPlayers()) {
-            char playerNumber = player.getNumber();
+            char playerNumber = player.getCharNumber();
 
             int override = player.getOverrideStone();
             int bomb = player.getBomb();

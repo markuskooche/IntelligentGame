@@ -41,6 +41,7 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
+        this.ourPlayerNumber = 1;
         //System.out.println(mapAnalyzer.getBoardValues());
     }
 
@@ -89,7 +90,7 @@ public class Game {
         int additional = 0;
 
         if (move.isChoice()) {
-            additional = heuristics.getBestPlayer(ourPlayerNumber);
+            additional = heuristics.getBestPlayer(ourPlayerNumber, board);
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
@@ -225,7 +226,7 @@ public class Game {
     public int[] executeOurBomb() {
         int radius = board.getBombRadius();
         Player player = getPlayer(ourPlayerNumber);
-        char playerNumber = player.getNumber();
+        char playerNumber = player.getCharNumber();
 
         BombPosition bomb = new BombPosition(board.getField(), playerNumber, radius);
         int[] position = bomb.getBestBombPosition();
