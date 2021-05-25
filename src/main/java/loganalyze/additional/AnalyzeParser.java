@@ -1,9 +1,11 @@
 package loganalyze.additional;
 
+import heuristic.BoardMove;
 import map.Board;
 import map.Move;
 import map.Player;
 
+import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.util.List;
 
@@ -180,6 +182,30 @@ public class AnalyzeParser {
         // TODO: change to (output && !reduce)
         if (output) {
             System.out.println("Time for Move: " + time);
+        }
+    }
+
+    public void searchException(Board board, List<BoardMove> executedStartMoves, Player ourPlayer, Boolean override) {
+        if (output) {
+            System.out.println("---MOVE WAS NULL---");
+            if (override) {
+                System.out.println("In only OverrideStones");
+            } else {
+                System.out.println("Normal Search");
+            }
+            System.out.println(ourPlayer.toString());
+
+            System.out.println("Number of executed start move: " + executedStartMoves.size());
+
+            for (BoardMove boardMove : executedStartMoves) {
+                Board b = boardMove.getBoard();
+                Move m = boardMove.getMove();
+                System.out.println("Move to x: " + m.getX() + " y: " + m.getY());
+                System.out.println(b.toString());
+            }
+
+            System.out.println("This is the current Board: ");
+            System.out.println(board.toString());
         }
     }
 

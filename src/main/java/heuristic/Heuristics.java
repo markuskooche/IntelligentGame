@@ -118,11 +118,15 @@ public class Heuristics {
             }
         }
 
+        if (move == null) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
         if (timeLimited) {
             int searchDepth = 2;
             while(!timeToken.timeExceeded()) {
                 mapsAnalyzed = 0;
-                if (searchDepth == numPlayers * 3) return move;
+                if (searchDepth == numPlayers * 3) {
+                    if (move == null) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
+                    return move;
+                }
                 Move tmpMove;
                 try {
                     tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum,
@@ -130,6 +134,7 @@ public class Heuristics {
                     searchDepth ++;
                     analyzeParser.searchDepth(searchDepth);
                 } catch (TimeExceededException e) {
+                    if (move == null) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
                     return move;
                 }
                 if (tmpMove != null) move = tmpMove;
@@ -142,6 +147,8 @@ public class Heuristics {
                 } catch (TimeExceededException e) { }
             }
         }
+
+        if (move == null) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
         return move;
     }
 
@@ -264,6 +271,7 @@ public class Heuristics {
             }
         }
 
+        if (move == null) analyzeParser.searchException(board, executedStartMoves, player, true);
         return move;
     }
 
