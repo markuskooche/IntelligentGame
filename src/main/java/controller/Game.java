@@ -1,8 +1,6 @@
 package controller;
 
-import heuristic.BombPosition;
-import heuristic.Heuristics;
-import heuristic.TimeExceededException;
+import heuristic.*;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
@@ -30,6 +28,8 @@ public class Game {
     private Player[] players;
     private Board board;
     private Heuristics heuristics;
+    private HeuristicsBRS heuristicsBRS;
+    private BRSPlus brsPlus;
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
@@ -40,6 +40,8 @@ public class Game {
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
+        heuristicsBRS = new HeuristicsBRS(board, players, mapAnalyzer, analyzeParser);
+        brsPlus = new BRSPlus(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
         this.ourPlayerNumber = 1;
         //System.out.println(mapAnalyzer.getBoardValues());
@@ -65,6 +67,7 @@ public class Game {
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+//        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -73,7 +76,9 @@ public class Game {
 
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-        Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+//        Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+//        Move move = heuristicsBRS.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        Move move = brsPlus.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);

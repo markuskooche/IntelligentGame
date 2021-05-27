@@ -19,6 +19,7 @@ public class Move {
     private boolean override;
     private boolean choice;
     private boolean bonus;
+    private Player player = null;
 
     /**
      * Creates a Move class that contains all information about a legal move.
@@ -230,6 +231,14 @@ public class Move {
         for (int[] position : two.getList()) {
             add(position);
         }
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     @Override
