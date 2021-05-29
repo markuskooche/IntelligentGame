@@ -66,8 +66,9 @@ public class Game {
 
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+//        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
 //        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        Move move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
