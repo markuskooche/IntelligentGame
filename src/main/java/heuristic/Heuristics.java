@@ -68,7 +68,7 @@ public class Heuristics {
     private Move getMove(Player ourPlayer, boolean orderMoves, boolean alphaBeta) {
         if (timeLimited) startTimer(maxTimeForMove);
         Move move;
-        int ourPlayerNum = ourPlayer.getNumber() - '0';
+        int ourPlayerNum = ourPlayer.getIntNumber();
         int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
         Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
@@ -327,7 +327,7 @@ public class Heuristics {
     private int getAdditionalInfo(Move move, Player player) {
         int info = 0;
         if (move.isBonus()) info = 21; // we take allways a OverrideStone
-        if (move.isChoice()) info = player.getNumber(); //Current: never Change our Colour
+        if (move.isChoice()) info = player.getIntNumber(); //Current: never Change our Colour
         return info;
     }
 
@@ -369,11 +369,11 @@ public class Heuristics {
         */
 
         // TODO: LÖSCHEN
-        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getNumber(), tmpBoard);
+        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getCharNumber(), tmpBoard);
 
         long mapValueAll = 0;
         for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getNumber(), tmpBoard);
+            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getCharNumber(), tmpBoard);
         }
         // TODO: BIS HIER HIN
 
@@ -386,13 +386,13 @@ public class Heuristics {
         List<int[]> playerStones = new ArrayList<>();
         String playersNum = "";
         for(Player p : players) {
-            playersNum += p.getNumber();
+            playersNum += p.getCharNumber();
         }
 
         char field[][] = board.getField();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (field[y][x] == player.getNumber()) {
+                if (field[y][x] == player.getCharNumber()) {
                     myStones.add(new int[] {x, y});
                 }
                 if (playersNum.indexOf(field[y][x]) != -1) {
@@ -412,7 +412,7 @@ public class Heuristics {
         List<List<Move>> playerMoves = new ArrayList<>();
         for (Player p : players) {
             List<Move> moves = board.getLegalMoves(p, false);
-            if (player.getNumber() == p.getNumber()) myMoves = moves;
+            if (player.getCharNumber() == p.getCharNumber()) myMoves = moves;
             playerMoves.add(moves);
         }
 
@@ -433,7 +433,7 @@ public class Heuristics {
         char field[][] = board.getField();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (field[y][x] == player.getNumber()) {
+                if (field[y][x] == player.getCharNumber()) {
                     myStones.add(new int[] {x, y});
                 }
             }
@@ -452,7 +452,7 @@ public class Heuristics {
 
                 if (evaluation > bestEvaluation) {
                     bestEvaluation = evaluation;
-                    bestPlayer = (player.getNumber() - '0');
+                    bestPlayer = player.getIntNumber();
                 }
             }
         }

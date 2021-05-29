@@ -225,7 +225,7 @@ public class Game {
     public int[] executeOurBomb() {
         int radius = board.getBombRadius();
         Player player = getPlayer(ourPlayerNumber);
-        char playerNumber = player.getNumber();
+        char playerNumber = player.getCharNumber();
 
         BombPosition bomb = new BombPosition(board.getField(), playerNumber, radius);
         int[] position = bomb.getBestBombPosition();
