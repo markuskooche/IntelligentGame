@@ -1,6 +1,7 @@
 package heuristic;
 
 import map.Board;
+import map.Move;
 import map.Player;
 
 import java.util.ArrayList;
@@ -10,24 +11,27 @@ public class SearchNode {
 
     private List<SearchNode> nextChilds = new ArrayList<>();
     private SearchNode root;
-    private Board board;
-    private List<BoardMove> executedMoves;
-    private Player player;
-    private boolean max;
+    private Move move;
+    private int cutOffs;
     private int depth;
-    private int pickedBoardValue;
 
-    public SearchNode(SearchNode root, Board board, List<BoardMove> executedMoves, Player player, boolean max, int depth) {
+    public SearchNode(SearchNode root, Move move, int depth) {
         this.root = root;
-        this.board = board;
-        this.executedMoves = executedMoves;
-        this.player = player;
-        this.max = max;
+        this.move = move;
         this.depth = depth;
+        cutOffs = 0;
     }
 
-    public void setPickedBoardValue(int value) {
-        this.pickedBoardValue = value;
+    public void addCutOff() {
+        cutOffs++;
+    }
+
+    public int getCutOffs() {
+        return cutOffs;
+    }
+
+    public Move getMove() {
+        return move;
     }
 
     public void addNextChild(SearchNode child) {
@@ -40,22 +44,6 @@ public class SearchNode {
 
     public List<SearchNode> getNextChilds() {
         return nextChilds;
-    }
-
-    public Board getBoard() {
-        return board;
-    }
-
-    public List<BoardMove> getExecutedMoves() {
-        return executedMoves;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public boolean isMax() {
-        return max;
     }
 
     public int getDepth() {

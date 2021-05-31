@@ -114,6 +114,7 @@ public class Heuristics {
             move = executedStartMoves.get(0).getMove(); //Get best Move for depth 1
         }
 
+        SearchNode root = new SearchNode(null, new Move(), 1);
 
         if (timeLimited) {
             int searchDepth = 2;
@@ -122,7 +123,7 @@ public class Heuristics {
                 if (searchDepth == numPlayers * 3) return move;
                 Move tmpMove;
                 try {
-                    tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum);
+                    tmpMove = startSearching(root, executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum);
                     searchDepth ++;
                     analyzeParser.searchDepth(searchDepth);
                 } catch (TimeExceededException e) { return move; }
@@ -132,14 +133,14 @@ public class Heuristics {
         } else {
             if (maxSearchDepth >= 2) {
                 try {
-                    move = startSearching(executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum);
+                    move = startSearching(root, executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum);
                 } catch (TimeExceededException e) { }
             }
         }
         return move;
     }
 
-    private Move startSearching(List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum,
+    private Move startSearching(SearchNode root, List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum,
                                 int ourPlayerNum) throws TimeExceededException {
         Move move = new Move();
         int depth = 1;
@@ -149,7 +150,7 @@ public class Heuristics {
         int beta = Integer.MAX_VALUE;
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
-            int tmpValue = searchMove(nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), boardMove.getMove(), depth, searchDepth, maxLoop,
+            int tmpValue = searchMove(root, nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, searchDepth, maxLoop,
                     alpha, beta);
             if (tmpValue > value) {
                 value = tmpValue;
@@ -161,16 +162,16 @@ public class Heuristics {
         return move;
     }
 
-    private int searchMove(int currPlayer, int ourPlayerNum, Board board, Move move, Move firstMove, int depth, int maxDepth, int maxLoop,
+    private int searchMove(SearchNode root, int currPlayer, int ourPlayerNum, Board board, Move move, int depth, int maxDepth, int maxLoop,
                            int alpha , int beta) throws TimeExceededException {
 
         if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
+        SearchNode node = null;
         depth++;
         if(depth > maxDepth) return getEvaluationForPlayer(ourPlayer, board, move);
-
 
         // Get all possible moves for this depth
         List<BoardMove> executedMoves;
@@ -183,6 +184,19 @@ public class Heuristics {
             }
         }
         List<Move> playerMoves = board.getLegalMoves(player, override);
+
+
+        // Get Killer Moves for this depth
+        if (!root.getNextChilds().isEmpty()) {
+            List<SearchNode> nextChilds = root.getNextChilds();
+            for (SearchNode child: nextChilds) {
+                if (child.getMove() == move) {
+                    node = child;
+                    break;
+                }
+            }
+        }
+        if (!root.getNextChilds().isEmpty()) sortKillerMoves(playerMoves, root);
 
 
         // No moves for given player -> another player should move
@@ -202,7 +216,7 @@ public class Heuristics {
                 int nextPlayer = (currPlayer % numPlayers) + 1;
                 if(maxLoop < numPlayers) {
                     maxLoop++;
-                    return searchMove(nextPlayer, ourPlayerNum, board, move, firstMove,depth - 1, maxDepth, maxLoop,
+                    return searchMove(root, nextPlayer, ourPlayerNum, board, move,depth - 1, maxDepth, maxLoop,
                             alpha, beta);
                 } else { return 0; } //No player has any moves
             }
@@ -211,34 +225,85 @@ public class Heuristics {
 
         if (orderMoves && depth < (maxDepth - 1)) sortExecutedMoves(executedMoves, ourPlayer, player);
 
+        if (node == null) {
+            node = new SearchNode(root, move, depth);
+            root.addNextChild(node);
+        }
+
         int value = Integer.MAX_VALUE; //MIN
         if (player == ourPlayer) value = Integer.MIN_VALUE; //MAX
 
-        int tmpValue;
         int nextPlayer = (currPlayer % numPlayers) + 1;
         for (BoardMove boardMove : executedMoves) {
 
             mapsAnalyzed++;
-            tmpValue = searchMove(nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(),firstMove, depth, maxDepth, maxLoop,
+            int tmpValue = searchMove(node, nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, maxDepth, maxLoop,
                     alpha, beta);
 
             if (player == ourPlayer) { //MAX
                 if (tmpValue > value) value = tmpValue;
                 if (alphaBeta) {
                     if (tmpValue > alpha) alpha = tmpValue;
-                    if (tmpValue >= beta) return value; //Cut off
+                    if (tmpValue >= beta) {
+                        root.addCutOff();
+                        return value; //Cut off
+                    }
                 }
             } else { //MIN
                 if (tmpValue < value) value = tmpValue;
                 if (alphaBeta) {
                     if (tmpValue < beta) beta = tmpValue;
-                    if (tmpValue <= alpha)  return value; // Cut off
+                    if (tmpValue <= alpha) {
+                        root.addCutOff();
+                        return value; // Cut off
+                    }
                 }
             }
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
         }
 
         return value;
+    }
+
+    private void sortKillerMoves(List<Move> playerMoves, SearchNode root) throws TimeExceededException {
+        List<SearchNode> childs = new ArrayList<>();
+
+        for (SearchNode child : root.getNextChilds()) {
+            for (SearchNode childChild : child.getNextChilds()) {
+                childs.add(childChild);
+            }
+        }
+
+        if (childs.isEmpty()) return;
+
+        Map<Move, Integer> evaluatedBoards = new LinkedHashMap<>();
+        int size = playerMoves.size();
+        for (int i = 0; i < size; i++) {
+            Move m = playerMoves.get(i);
+            for (SearchNode child : childs) {
+                if (m.getX() == child.getMove().getX() && m.getY() == child.getMove().getY()) {
+                    evaluatedBoards.put(m, child.getCutOffs());
+                    playerMoves.remove(i);
+                    size--;
+                    i--;
+                    break;
+                }
+            }
+        }
+
+        List<Move> rest = new ArrayList<>();
+        for (Move m : playerMoves) rest.add(m);
+
+        List<Map.Entry<Move, Integer>> boardEntryList = new ArrayList<>(evaluatedBoards.entrySet());
+        boardEntryList.sort(Map.Entry.comparingByValue()); //Sorting ascending
+
+        playerMoves.clear();
+        for (Map.Entry<Move, Integer> entry : boardEntryList) {
+            if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
+            playerMoves.add(0, entry.getKey());
+        }
+
+        for (Move m : rest) playerMoves.add(m);
     }
 
     private boolean isStable(Move initMove, Move justExecuted) {
