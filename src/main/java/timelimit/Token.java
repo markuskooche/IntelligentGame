@@ -1,4 +1,4 @@
-package heuristic;
+package timelimit;
 
 public class Token {
     private boolean noTime = false;

@@ -1,7 +1,7 @@
 
 package mapanalyze;
-import heuristic.TimeExceededException;
-import heuristic.Token;
+import timelimit.TimeExceededException;
+import timelimit.Token;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Direction;

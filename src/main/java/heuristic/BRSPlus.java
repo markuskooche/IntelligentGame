@@ -5,6 +5,10 @@ import map.Board;
 import map.Move;
 import map.Player;
 import mapanalyze.MapAnalyzer;
+import timelimit.ThreadTimer;
+import timelimit.TimeExceededException;
+import timelimit.TimeOutTask;
+import timelimit.Token;
 
 import java.util.*;
 
@@ -115,7 +119,7 @@ public class BRSPlus {
             int searchDepth = 2;
             while(!timeToken.timeExceeded()) {
                 mapsAnalyzed = 0;
-                if (searchDepth == numPlayers * 3) return move;
+                if (searchDepth == numPlayers * 2 + 1) return move;
                 Move tmpMove;
                 try {
                     tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum);
@@ -154,6 +158,7 @@ public class BRSPlus {
                 if (alphaBeta) alpha = tmpValue;
             }
             depth = 1;
+            count = 1;
         }
         return move;
     }
@@ -216,6 +221,8 @@ public class BRSPlus {
         int value = Integer.MAX_VALUE; //MIN
         if (player == ourPlayer) value = Integer.MIN_VALUE; //MAX
         int nextPlayer = (currPlayer % numPlayers) + 1;
+
+        if (player == ourPlayer) count = 0;
 
         if (count >= 2 && player != ourPlayer) {
            value = searchMove(nextPlayer, ourPlayerNum, specialBoard, specialMove, count,

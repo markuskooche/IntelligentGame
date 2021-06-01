@@ -22,6 +22,10 @@ public class SearchNode {
         cutOffs = 0;
     }
 
+    public void killCutOff() {
+        cutOffs += 1000;
+    }
+
     public void addCutOff() {
         cutOffs++;
     }

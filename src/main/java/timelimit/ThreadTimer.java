@@ -1,4 +1,4 @@
-package heuristic;
+package timelimit;
 
 public class ThreadTimer implements Runnable {
 

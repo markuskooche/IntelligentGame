@@ -7,6 +7,7 @@ import map.Move;
 import map.Player;
 import map.Transition;
 import mapanalyze.MapAnalyzer;
+import timelimit.TimeExceededException;
 
 import java.util.*;
 
@@ -30,6 +31,7 @@ public class Game {
     private Heuristics heuristics;
     private HeuristicsBRS heuristicsBRS;
     private BRSPlus brsPlus;
+    private HeuristicKiller heuristicKiller;
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
@@ -42,6 +44,7 @@ public class Game {
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         heuristicsBRS = new HeuristicsBRS(board, players, mapAnalyzer, analyzeParser);
         brsPlus = new BRSPlus(board, players, mapAnalyzer, analyzeParser);
+        heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
         this.ourPlayerNumber = 1;
         //System.out.println(mapAnalyzer.getBoardValues());
@@ -66,9 +69,10 @@ public class Game {
 
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-//        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+//        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
 //        Move move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+//        Move move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -80,6 +84,7 @@ public class Game {
         Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
 //        Move move = heuristicsBRS.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
 //        Move move = brsPlus.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+//        Move move = heuristicKiller.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
