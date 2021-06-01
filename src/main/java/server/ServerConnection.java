@@ -25,6 +25,7 @@ public class ServerConnection {
 
     private String host = "127.0.0.1";
     private int port = 7777;
+    private Socket socket;
 
     private boolean alphaBeta = true;
     private boolean moveSorting = true;
@@ -34,7 +35,6 @@ public class ServerConnection {
 
     private Game game;
     private byte ourPlayer;
-    private Socket socket;
     private boolean running = true;
     private boolean bomb = false;
 
@@ -96,8 +96,10 @@ public class ServerConnection {
      * @throws IOException throws an IOException if this socket is closed or the socket is not connected
      */
     private void receiveMessage() throws IOException {
-        BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-        DataInputStream inputStream = new DataInputStream(bis);
+        // FIXME: 'failed to propagate move' tritt trotzdem noch auf
+        // BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+        // DataInputStream inputStream = new DataInputStream(bis);
+        InputStream inputStream = socket.getInputStream();
 
         long stopTime = System.currentTimeMillis();
         byte[] messageHeader = new byte[5];

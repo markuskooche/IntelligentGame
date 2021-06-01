@@ -84,7 +84,7 @@ public class Heuristics {
         if (myMoves.size() == 1) return myMoves.get(0);
 
         move = myMoves.get(0); //Pick the first possible Move
-        if(!createdReachableFields) {
+        if(!createdReachableFields && !mapAnalyzer.failedToSetup()) {
             try {
                 mapAnalyzer.startReachableField(timeLimited, timeToken);
             } catch (TimeExceededException e) { return move; }
@@ -346,6 +346,17 @@ public class Heuristics {
         if (move.isChoice()) {
             value += 70;
         }
+        /*
+        // TODO: idee für eine einfach inversion-heuristik
+        if (move.isInversion()) {
+            int ourValidation = getEvaluationForPlayer(wir);
+            int newValidation = getEvaluationForPlayer(spieler nach uns) + (100.000 wenn noch nicht komplett am ende);
+
+            if (newValidation >= ourValidation) {
+                value += 70;
+            }
+        }
+        */
         return value * MULTIPLIER;
     }
 

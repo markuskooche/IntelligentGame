@@ -1,5 +1,6 @@
 package map;
 
+import mapanalyze.MapAnalyzer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -27,6 +28,8 @@ public class Board {
     private int[] playerScores;
     private int[][] tmpField;
 
+    private int[][] reachableField;
+
     /**
      * Creates a Board class with all information about it.
      *
@@ -48,6 +51,8 @@ public class Board {
         this.height = field.length;
         this.width = field[0].length;
 
+        this.reachableField = new int[height][width];
+        initializeReachableField();
     }
 
     /**
@@ -60,9 +65,18 @@ public class Board {
         this.bombRadius = toCopyBoard.getBombRadius();
         this.field = copyField(toCopyBoard.getField());
         this.playerScores =  copyScores(toCopyBoard.getPlayerScores());
+        this.reachableField = toCopyBoard.getReachableField();
 
         this.height = field.length;
         this.width = field[0].length;
+    }
+
+    private void initializeReachableField() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                reachableField[y][x] = MapAnalyzer.REACHABLE;
+            }
+        }
     }
 
     /**
@@ -170,24 +184,26 @@ public class Board {
         // inserts all legal moves of a player's pieces into a list
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                char piece = field[y][x];
-                // if it is a possible field
-                if ("0bic".indexOf(piece) != -1) {
-                    Move legalMove = checkMove(x, y, player.getNumber(), false);
+                if (reachableField[y][x] == MapAnalyzer.REACHABLE) {
+                    char piece = field[y][x];
+                    // if it is a possible field
+                    if ("0bic".indexOf(piece) != -1) {
+                        Move legalMove = checkMove(x, y, player.getNumber(), false);
 
-                    if (!legalMove.isEmpty()) {
-                        legalMoves.add(legalMove);
+                        if (!legalMove.isEmpty()) {
+                            legalMoves.add(legalMove);
+                        }
                     }
-                }
 
-                // if a player has an overridestone, it is selected and it is a possible field
-                if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
-                    Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
-                    if (!legalOverrideMove.isEmpty()) {
-                        legalMoves.add(legalOverrideMove);
-                        int moveX = legalOverrideMove.getX();
-                        int moveY = legalOverrideMove.getY();
-                        alreadyAdded[moveY][moveX] = true;
+                    // if a player has an overridestone, it is selected and it is a possible field
+                    if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
+                        Move legalOverrideMove = checkMove(x, y, player.getNumber(), true);
+                        if (!legalOverrideMove.isEmpty()) {
+                            legalMoves.add(legalOverrideMove);
+                            int moveX = legalOverrideMove.getX();
+                            int moveY = legalOverrideMove.getY();
+                            alreadyAdded[moveY][moveX] = true;
+                        }
                     }
                 }
             }
@@ -430,6 +446,14 @@ public class Board {
     public Transition getTransition(int x, int y, int direction) {
         int transitionKey = Transition.hash(x, y, direction);
         return transitions.get(transitionKey);
+    }
+
+    public void setReachableField(int[][] reachable) {
+        this.reachableField = reachable;
+    }
+
+    public int[][] getReachableField() {
+        return reachableField;
     }
 
     public int getBombRadius() {
