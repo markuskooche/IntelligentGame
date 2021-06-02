@@ -117,7 +117,11 @@ public class ServerConnection {
 
         // read the remaining input stream (this is the actual message)
         byte[] byteMessage = new byte[messageLength];
+        System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
+        System.out.println("BYTE ARRAY: " + byteMessage.length);
         int endOfStream = inputStream.read(byteMessage, 0, messageLength);
+        System.out.println("READ BYTES: " + endOfStream);
+        System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
         MemoryChecker.printHeapStatistic("RECEIVED");
 
         // execute the corresponding received message
