@@ -5,6 +5,7 @@ import map.Board;
 import map.Move;
 import map.Player;
 import mapanalyze.MapAnalyzer;
+import server.MemoryChecker;
 
 import java.util.*;
 
@@ -48,13 +49,19 @@ public class Heuristics {
     public Move getMoveByDepth(Player ourPlayer, int searchDepth, boolean orderMoves, boolean alphaBeta) {
         timeLimited = false;
         this.maxSearchDepth = searchDepth;
-        return getMove(ourPlayer, orderMoves, alphaBeta);
+        Move selectedMove = getMove(ourPlayer, orderMoves, alphaBeta);
+
+        MemoryChecker.printHeapStatistic("MOVE");
+        return selectedMove;
     }
 
     public Move getMoveByTime(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
         timeLimited = true;
         this.maxTimeForMove = maxTimeForMove;
-        return getMove(ourPlayer, orderMoves, alphaBeta);
+        Move selectedMove = getMove(ourPlayer, orderMoves, alphaBeta);
+
+        MemoryChecker.printHeapStatistic("MOVE");
+        return selectedMove;
     }
 
     private void startTimer(long maxTimeForMove) {
