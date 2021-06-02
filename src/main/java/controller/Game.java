@@ -9,6 +9,7 @@ import map.Move;
 import map.Player;
 import map.Transition;
 import mapanalyze.MapAnalyzer;
+import server.MemoryChecker;
 
 import java.util.*;
 
@@ -64,6 +65,7 @@ public class Game {
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        MemoryChecker.printHeapStatistic("MOVE");
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -73,6 +75,7 @@ public class Game {
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        MemoryChecker.printHeapStatistic("MOVE");
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);

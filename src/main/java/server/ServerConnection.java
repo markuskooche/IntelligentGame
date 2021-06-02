@@ -118,6 +118,7 @@ public class ServerConnection {
         // read the remaining input stream (this is the actual message)
         byte[] byteMessage = new byte[messageLength];
         int endOfStream = inputStream.read(byteMessage, 0, messageLength);
+        MemoryChecker.printHeapStatistic("RECEIVED");
 
         // execute the corresponding received message
         switch (messageHeader[0]) {
