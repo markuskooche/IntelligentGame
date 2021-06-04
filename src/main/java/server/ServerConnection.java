@@ -114,16 +114,16 @@ public class ServerConnection {
 
         // create an integer from the byte array which contains the length
         int messageLength = get32Integer(messageHeader, 1);
-        System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
-        System.out.println("ALLOCATE: " + messageLength);
+        //System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
+        //System.out.println("ALLOCATE: " + messageLength);
 
         // read the remaining input stream (this is the actual message)
         byte[] byteMessage = new byte[messageLength];
-        System.out.println("BYTE ARRAY: " + byteMessage.length);
+        //System.out.println("BYTE ARRAY: " + byteMessage.length);
         int endOfStream = inputStream.read(byteMessage, 0, messageLength);
-        System.out.println("READ BYTES: " + endOfStream);
-        System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
-        MemoryChecker.printHeapStatistic("RECEIVED");
+        //System.out.println("READ BYTES: " + endOfStream);
+        //System.out.println("-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-");
+        //MemoryChecker.printHeapStatistic("RECEIVED");
 
         // execute the corresponding received message
         switch (messageHeader[0]) {
