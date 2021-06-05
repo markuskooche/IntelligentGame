@@ -29,7 +29,7 @@ public class Heuristics {
     //prevent dead-moves in start positions
     //((int) (1 / ((double) 1.5 * numPlayers))); (MARKUS)
     private static final int SMALL_OPPONENT_PIECES_LIMIT = 15;
-    private static final int DANGEROUS_COINPARITY_PERCENTAGE = 15 * MULTIPLIER;
+    private static final int DANGEROUS_COINPARITY_PERCENTAGE = 15 * 1000;
 
     private boolean createdReachableFields = false;
 
@@ -122,7 +122,7 @@ public class Heuristics {
             int searchDepth = 2;
             while(!timeToken.timeExceeded()) {
                 mapsAnalyzed = 0;
-                if (searchDepth == numPlayers * 3) return move;
+                if (searchDepth == numPlayers * 2 + 1) return move;
                 Move tmpMove;
                 try {
                     tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum,
