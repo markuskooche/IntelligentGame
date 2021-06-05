@@ -18,6 +18,8 @@ public class Main {
         System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
         System.out.println("  -n <0 or 1>       enable/disable move sorting");
         System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
+        System.out.println("  -m <0 or 1>       enable/disable monte carlo");
+        System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
         System.out.println("  -q <0 or 1>       enable/disable console output");
         System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
         System.out.println("  -r <0 or 1>       enable/disable reduce output");
@@ -55,6 +57,11 @@ public class Main {
                 case "-n":
                     String moveSorting = args[i+1];
                     server.setMoveSorting(moveSorting);
+                    break;
+                // here you can switch monte carlo on and off
+                case "-m":
+                    String monteCarlo = args[i+1];
+                    server.setMonteCarlo(monteCarlo);
                     break;
                 // here you can switch console output completely on and off
                 case "-q":

@@ -3,6 +3,7 @@ package controller;
 import heuristic.BombPosition;
 import heuristic.Heuristics;
 import heuristic.TimeExceededException;
+import heuristic.montecarlo.MonteCarlo;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
@@ -26,6 +27,7 @@ public class Game {
 
     private static final int ADDITIONAL_OVERRIDE = 21;
     private static AnalyzeParser analyzeParser;
+    private MonteCarlo monteCarlo;
 
     private Player[] players;
     private Board board;
@@ -41,7 +43,8 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
-        this.ourPlayerNumber = 1;
+        //this.ourPlayerNumber = 1;
+
         //System.out.println(mapAnalyzer.getBoardValues());
     }
 
@@ -60,11 +63,22 @@ public class Game {
 
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
+        monteCarlo = new MonteCarlo(players, ourPlayerNumber);
     }
 
-    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
+    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting, boolean mcts) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        Move move;
+
+        if (mcts) {
+            if (time > 6000) time = 6000;
+            System.out.println("MonteCarlo [" + time + "]");
+            move = monteCarlo.getMove(board, time);
+        } else {
+            move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        }
+
+        System.out.println(move);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);

@@ -20,6 +20,8 @@ import java.util.*;
  */
 public class ServerConnection {
 
+    private int globalCounter = 0;
+
     private static final byte GROUP = 1;
     private AnalyzeParser analyzeParser;
 
@@ -28,6 +30,7 @@ public class ServerConnection {
 
     private boolean alphaBeta = true;
     private boolean moveSorting = true;
+    private boolean monteCarlo = false;
 
     private boolean consoleOutput = true;
     private boolean reduceOutput = true;
@@ -152,6 +155,8 @@ public class ServerConnection {
                     analyzeParser.loggingBoard(game.getBoard(), printPlayer);
                 }
 
+                globalCounter++;
+
                 // if you should send a normal move (phase 1)
                 if (!bomb) {
                     // selects the best move
@@ -163,7 +168,13 @@ public class ServerConnection {
                     }
                     // when the game is played with time limit
                     else {
-                        executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting);
+                        System.out.println("allowed time: " + allowedTime);
+                        System.out.println("global count: " + globalCounter);
+                        if (globalCounter >= 120) {
+                            executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, true);
+                        } else {
+                            executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, false);
+                        }
                     }
 
                     // sends the best move to the server
@@ -378,6 +389,23 @@ public class ServerConnection {
             this.moveSorting = true;
         } else {
             System.err.println("ERROR: Please set move sorting to 0 or 1!");
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Turn monte carlo on or off.
+     *
+     * @param monteCarlo ON = 1 || OFF = 0
+     */
+    public void setMonteCarlo(String monteCarlo) {
+        // only on (= 1) and off (= 0) is allowed
+        if (monteCarlo.equals("0")) {
+            this.monteCarlo = false;
+        } else if (monteCarlo.equals("1")) {
+            this.monteCarlo = true;
+        } else {
+            System.err.println("ERROR: Please set monte carlo to 0 or 1!");
             System.exit(1);
         }
     }
