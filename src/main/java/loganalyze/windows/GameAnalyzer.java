@@ -610,7 +610,7 @@ public class GameAnalyzer extends JFrame {
         try {
             line = Integer.parseInt(input);
 
-            if (line >= 0 && line < (gameController.getGameLength())) {
+            if (line >= 0 && line <= (gameController.getGameLength())) {
                 counter = line;
                 updateGameAnalyzer();
 

@@ -5,6 +5,7 @@ import loganalyze.colorize.BackgroundPoint;
 import loganalyze.colorize.PlayerPoint;
 import loganalyze.tablemodel.PlayerInformation;
 import map.Transition;
+import mapanalyze.MapAnalyzer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,14 +68,15 @@ public class MenuBarPanelManager {
         int height = game.getBoard().getHeight();
         int width = game.getBoard().getWidth();
 
+        game.startReachableField();
         int[][] field = game.getReachableField();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int piece = field[y][x];
-                if (piece == 4) {
+                if (piece == MapAnalyzer.REACHABLE) {
                     reachableField.add(new BackgroundPoint(x, y, 'R'));
-                } else if (piece == 0) {
+                } else if (piece == MapAnalyzer.UNREACHABLE) {
                     if (game.getBoard().getField()[y][x] == '-') {
                         reachableField.add(new BackgroundPoint(x, y, '-'));
                     } else {

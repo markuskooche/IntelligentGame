@@ -61,6 +61,14 @@ public class Game {
         }
     }
 
+    public void startReachableField() {
+        try {
+            mapAnalyzer.startReachableField(false, null);
+        } catch (TimeExceededException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
         monteCarlo = new MonteCarlo(players, ourPlayerNumber);
