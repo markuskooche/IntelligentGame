@@ -84,12 +84,13 @@ public class MonteCarlo {
     }
 
     private Node treePolicy(Node node) throws TimeExceededException {
+        int count = 0;
         while (!node.isTerminal()) {
             if (timeToken.timeExceeded()) {
                 System.out.println("Tree Policy Counter (Exception): " + count);
                 throw new TimeExceededException();
             }
-
+            count++;
             if (!node.isFullyExpanded()) {
                 return expand(node);
             } else {
@@ -102,6 +103,7 @@ public class MonteCarlo {
 
             }
         }
+        //System.out.println("Tree Policy Counter: " + count);
         return node;
     }
 
@@ -160,7 +162,6 @@ public class MonteCarlo {
 
     private Node bestChild(Node node, double cp) {
         List<Node> children = node.getChildren();
-
         if (children.size() != 0) {
             Node bestChild = children.get(0);
             double maxValue = Double.MIN_VALUE;
@@ -185,11 +186,14 @@ public class MonteCarlo {
     }
 
     private State defaultPolicy(State state) throws TimeExceededException {
+        int counter = 0;
+
         while (!state.isTerminal()) {
             if (timeToken.timeExceeded()) {
                 System.out.println("Counter DefaultPolicy (exception): " + counter);
                 throw new TimeExceededException();
             }
+            counter++;
 
             // select current player, board and additionalInfo
             Board board = state.getBoard();
@@ -220,6 +224,7 @@ public class MonteCarlo {
         }
         */
 
+        //System.out.println("Counter DefaultPolicy: " + counter);
         return state;
     }
 
