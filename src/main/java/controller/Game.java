@@ -45,7 +45,7 @@ public class Game {
         mapAnalyzer.createVisibleField('1');
         //this.ourPlayerNumber = 1;
 
-        //System.out.println(mapAnalyzer.getBoardValues());
+        System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public Game(Game game) {
@@ -82,6 +82,10 @@ public class Game {
             if (time > 6000) time = 6000;
             System.out.println("MonteCarlo [" + time + "]");
             move = monteCarlo.getMove(board, time);
+
+            if (move.isOverride()) {
+                System.out.println(board);
+            }
         } else {
             move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         }

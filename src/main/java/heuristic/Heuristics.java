@@ -31,6 +31,13 @@ public class Heuristics {
     private static final int SMALL_OPPONENT_PIECES_LIMIT = 15;
     private static final int DANGEROUS_COINPARITY_PERCENTAGE = 15 * 1000;
 
+    /*
+     0 0 0 0 0 0
+     0 1 2 2 2 0
+     0 2 1 0 0 0
+     0 0 0 0 0 0
+     */
+
     private boolean createdReachableFields = false;
 
     public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {

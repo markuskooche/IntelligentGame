@@ -10,43 +10,6 @@ import map.Player;
 
 import java.util.List;
 import java.util.Timer;
-/*
-------- MIT 1 -------
-      0 1 2 3 4 5 6 7
-    /----------------
-  0 | 0 1 0 0 0 0 0 1
-  1 | 2 1 2 0 0 0 1 0
-  2 | 0 1 0 0 1 1 1 0
-  3 | 0'1 1 1 1 1 1 0
-  4 | 0 0 0 1 1 1 0 0
-  5 | 0 0 1 1 1 0 0 0
-  6 | 0 0 0 1 0 1 0 0
-  7 | 0 0 0 0 0 0 1 0
-
-------- MIT 5 -------
-      0 1 2 3 4 5 6 7
-    /----------------
-  0 | 2 2 2 1 1 1 1 1
-  1 | 2 2 2 1 1 1 1 1
-  2 | 2 2 2 2 1 1 1 1
-  3 | 2 2 1 2 1 1 1 1
-  4 | 2 1 2 2 2 2 1 1
-  5 | 1 2 1 2 1 2 1 1
-  6 | 1 1 2 2 2 2 1 1
-  7 | 1 1 1 1 1 1 1 1
-
-------- MIT 10 ------
-      0 1 2 3 4 5 6 7
-    /----------------
-  0 | 1 1 1 2 1 1 1 1
-  1 | 2 2 2 2 2 2 1 1
-  2 | 1 2 1 2 2 2 1 1
-  3 | 1 2 1 2 1 1 1 1
-  4 | 1 2 1 1 1 2 1 1
-  5 | 1 2 1 2 2 2 1 1
-  6 | 1 1 2 1 1 1 2 1
-  7 | 1 2 2 2 2 2 2 2
- */
 
 public class MonteCarlo {
 
@@ -57,12 +20,16 @@ public class MonteCarlo {
     private final int playerAmount;
     private int currentPlayer;
 
+    private Player[] tmpPlayers;
+    private double cp = 5.0;
+
     public MonteCarlo(Player[] players, int ourPlayerNumber) {
         this.players = players;
         this.ourPlayerNumber = ourPlayerNumber;
         this.currentPlayer = ourPlayerNumber;
         this.playerAmount = players.length;
         this.timeToken = new Token();
+        this.tmpPlayers = new Player[playerAmount];
     }
 
     private void startTimer(long maxTimeForMove) {
@@ -92,23 +59,34 @@ public class MonteCarlo {
             }*/
 
             try {
+                copyPlayers();
                 count++;
                 Node node = treePolicy(rootNode);
+                /*
+                if (count <= 4) {
+                    System.out.println(node.getState().getBoard());
+                }*/
                 State state = defaultPolicy(node.getState());
                 int[] evaluation = getEvaluation(state.getBoard());
                 backup(node, evaluation);
             } catch (TimeExceededException e) {
-                System.out.println("Visited Nodes: " + count);
+                System.out.println("Turns calculated: " + count);
                 Node selectedNode = bestChild(rootNode, 0);
                 return selectedNode.getState().getMove();
             }
         }
     }
 
+    private void copyPlayers() {
+        for (int i = 0; i < players.length; i++) {
+            tmpPlayers[i] = new Player(players[i]);
+        }
+    }
+
     private Node treePolicy(Node node) throws TimeExceededException {
         while (!node.isTerminal()) {
             if (timeToken.timeExceeded()) {
-                System.out.println("treePolicy Exception");
+                System.out.println("Tree Policy Counter (Exception): " + count);
                 throw new TimeExceededException();
             }
 
@@ -117,7 +95,7 @@ public class MonteCarlo {
             } else {
                 // TODO: make Cp dynamic
                 if (!timeToken.timeExceeded()) {
-                    node = bestChild(node, (1 / Math.sqrt(2)));
+                    node = bestChild(node, cp);
                 } else {
                     throw new TimeExceededException();
                 }
@@ -136,11 +114,24 @@ public class MonteCarlo {
         Player player = getNextPlayer(board);
         int additionalInfo = getAdditionalInfo(move, player, board);
 
-        // execute selected move
-        board.colorizeMove(move, player, additionalInfo);
+        if (move != null) {
+            /* TODO: ??????
+            if (move.isOverride()) {
+                player.increaseOverrideStone();
+            }*/
+
+            // execute selected move
+            board.colorizeMove(move, player, additionalInfo);
+        }
 
         //create new State with the altered board
-        State state = new State(/*node, */board, move, players, ourPlayerNumber);
+        State state = new State(/*node, */board, move, tmpPlayers, ourPlayerNumber);
+
+        /*
+        if (player.getIntNumber() == ourPlayerNumber && state.noNormalMoves(player)) {
+            cp = (1 / Math.sqrt(2));
+        }
+        */
 
         //create new Node and add the child node to the childNodeList of the Parent node
         Node newChildNode = new Node(state, node, playerAmount);
@@ -151,17 +142,20 @@ public class MonteCarlo {
 
     private int getAdditionalInfo(Move move, Player player, Board board) {
         int info = 0;
-        if (move.isBonus()) info = 21;
-        if (move.isChoice()) {
-            // TODO: info = getBestPlayer(player.getIntNumber(), board);
-            info = player.getIntNumber();
+
+        if (move != null) {
+            if (move.isBonus()) info = 21;
+            if (move.isChoice()) {
+                // TODO: info = getBestPlayer(player.getIntNumber(), board);
+                info = player.getIntNumber();
+            }
         }
         return info;
     }
 
     private Player getNextPlayer(Board board) {
         currentPlayer = ((currentPlayer % playerAmount) + 1);
-        return players[currentPlayer - 1];
+        return tmpPlayers[currentPlayer - 1];
     }
 
     private Node bestChild(Node node, double cp) {
@@ -193,7 +187,7 @@ public class MonteCarlo {
     private State defaultPolicy(State state) throws TimeExceededException {
         while (!state.isTerminal()) {
             if (timeToken.timeExceeded()) {
-                System.out.println("timeTokenException");
+                System.out.println("Counter DefaultPolicy (exception): " + counter);
                 throw new TimeExceededException();
             }
 
@@ -201,31 +195,50 @@ public class MonteCarlo {
             Board board = state.getBoard();
             Player player = getNextPlayer(board);
             Move randomMove = state.getRandomMove(player);
+            //System.out.println(randomMove);
 
             if (randomMove != null) {
                 int additionalInfo = getAdditionalInfo(randomMove, player, board);
 
+                /*
+                if (randomMove.isOverride()) {
+                    player.increaseOverrideStone();
+                }
+                */
+
                 board.colorizeMove(randomMove, player, additionalInfo);
-                state = new State(/*null, */board, randomMove, players, ourPlayerNumber);
+                state = new State(/*null, */board, randomMove, tmpPlayers, ourPlayerNumber);
             } else {
-                state = new State(/*null, */board, new Move(), players, ourPlayerNumber);
+                state = new State(/*null, */board, new Move(), tmpPlayers, ourPlayerNumber);
             }
         }
+
+        /*
+        if (state.isTerminal() && counter == 0 && globalD > 1) {
+            System.out.println(state.getBoard());
+            System.exit(1);
+        }
+        */
 
         return state;
     }
 
     private void backup(Node node, int[] evaluation) throws TimeExceededException {
+        int counter = 0;
+
         while (node.getParent() != null) {
             if (timeToken.timeExceeded()) {
-                System.out.println("Backup Exeption");
+                System.out.println("Counter Backup (Exception): " + counter);
                 throw new TimeExceededException();
             }
 
             node.increaseN();
             node.increaseQ(evaluation);
             node = node.getParent();
+            counter++;
         }
+
+        //System.out.println("Counter Backup: " + counter);
     }
 
     public int[] getEvaluation(Board board) {

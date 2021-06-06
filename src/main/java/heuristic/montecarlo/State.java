@@ -38,11 +38,21 @@ public class State {
     }
 
     public List<Move> getPlayerMoves() {
+        List<Move> normalMoves = board.getLegalMoves(ourPlayer, false);
+
+        if (!normalMoves.isEmpty()) {
+            return normalMoves;
+        }
+
         return board.getLegalMoves(ourPlayer, true);
     }
 
     public Move getRandomMove(Player player) {
-        List<Move> playerMoves = board.getLegalMoves(player, true);
+        List<Move> playerMoves = board.getLegalMoves(player, false);
+
+        if (playerMoves.isEmpty()) {
+            playerMoves = board.getLegalMoves(player, true);
+        }
 
         if (!playerMoves.isEmpty()) {
             int radomNumber = random.nextInt(playerMoves.size());
@@ -58,5 +68,9 @@ public class State {
 
     public Move getMove() {
         return move;
+    }
+
+    public boolean noNormalMoves(Player player) {
+        return board.getLegalMoves(player, false).isEmpty();
     }
 }

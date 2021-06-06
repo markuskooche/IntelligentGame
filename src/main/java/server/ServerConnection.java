@@ -32,7 +32,7 @@ public class ServerConnection {
     private boolean moveSorting = true;
     private boolean monteCarlo = false;
 
-    private boolean consoleOutput = true;
+    private boolean consoleOutput = false;
     private boolean reduceOutput = true;
 
     private Game game;
@@ -170,7 +170,7 @@ public class ServerConnection {
                     else {
                         System.out.println("allowed time: " + allowedTime);
                         System.out.println("global count: " + globalCounter);
-                        if (globalCounter >= 120) {
+                        if (globalCounter >= 18) {
                             executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, true);
                         } else {
                             executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, false);
