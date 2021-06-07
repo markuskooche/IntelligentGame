@@ -9,6 +9,7 @@ import map.Transition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class MapAnalyzer {
@@ -28,6 +29,7 @@ public class MapAnalyzer {
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
+    private List<int[]> interestingFieldList;
     private int[][] visibleField;
     private int[][] tmpField;
     private int playerNumber;
@@ -73,6 +75,8 @@ public class MapAnalyzer {
         initialField = new int[height][width];
         // init the visibleFiled: all 1's are Fields that are near our stones.
         visibleField = new int[height][width];
+        // init the interestingFieldList. It contains interesting fields like corners or the position of special stones
+        interestingFieldList = new ArrayList<>();
     }
 
     /**
@@ -120,16 +124,27 @@ public class MapAnalyzer {
                         field[i][j] += newValue * multiplier *2;
                         createWaves(j, i, waveLength, newValue);
                     }
+                    boolean fieldIsBonus = false;
                     // to make them more appealing the current field gets a bonus value if the field is a bonus, choice or inversion field
                     if (currField == 'c') {
+                        fieldIsBonus = true;
                         field[i][j] += 10000;
                         createWaves(j, i, waveLength, 25);
                     } else if (currField == 'b') {
+                        fieldIsBonus = true;
                         field[i][j] += 8000;
                         createWaves(j, i, waveLength, 20);
                     } else if (currField == 'i') {
+                        fieldIsBonus = true;
                         field[i][j] += 9000;
                         createWaves(j, i, waveLength, 22);
+                    }
+                    //Mark the field as interesting
+                    if(fieldIsBonus){
+                        int[] position = new int[2];
+                        position[0] = i; //set x position
+                        position[1] = j; //set y position
+                        interestingFieldList.add(position);
                     }
                 }
             }
@@ -892,6 +907,7 @@ public class MapAnalyzer {
 
         int[] currentDirection;
         int currNumbers = 0;
+        StringBuilder sb = new StringBuilder();
 
         for (int[] direction : Direction.getList()) {
             currentDirection = direction;
@@ -906,17 +922,63 @@ public class MapAnalyzer {
                 Transition transition = board.getTransition(x, y, directionValue);
 
                 if (transition != null) {
+                    sb.append('.');
                     continue;
                 }
+                sb.append('-');
                 currNumbers++;
             } else {
                 //if the adjacent field is not reachable increase currNumbers
                 if(board.getField()[nextY][nextX] == '-' || field[nextY][nextX] == Integer.MIN_VALUE){
+                    sb.append('-');
                     currNumbers++;
+                }else{
+                    sb.append('.');
                 }
             }
         }
+        //if the field is a real Corner add id to the interesting Field list.
+        if(isCorner(sb.toString()) && currNumbers >= 5){
+            int[] position = new int[2];
+            position[0] = x; //set x position
+            position[1] = y; //set y position
+            interestingFieldList.add(position);
+        }
         return currNumbers;
+    }
+
+    public boolean isCorner(String cornerString) {
+        boolean isBroken = false;
+        boolean isStarted = false;
+        boolean lastLife = false;
+        //   ----..-
+
+        for (char letter : cornerString.toCharArray()) {
+            if (letter == '-') {
+
+                if (!isStarted) {
+                    isStarted = true;
+                }
+
+                if (isStarted && isBroken) {
+                    lastLife = true;
+                }
+            } else {
+           //     if (isBroken && !isStarted) {
+           //         return false;
+            //    }
+                if(lastLife){
+                    return false;
+                }
+
+                if (isStarted) {
+                    isBroken = true;
+                    isStarted = false;
+                }
+            }
+        }
+
+    return true;
     }
 
     /**
