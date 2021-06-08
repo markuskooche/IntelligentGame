@@ -62,6 +62,7 @@ public class Node {
             }
         }
         //TODO weiter verfeinern: nicht 2ter platz ist besser als 6ter (hier nicht beachtet)
+        //     hier könnte man auch hohen abstand noch besser bewerten
         if (bestPlayer == player) {
             return 1;
         } else {

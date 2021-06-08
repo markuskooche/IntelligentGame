@@ -17,7 +17,7 @@ public class State {
     private final Move move;
     private final Random random;
 
-    public State(/*Node parent, */Board board, Move move, Player[] players, int ourPlayerNumber) {
+    public State(Board board, Move move, Player[] players, int ourPlayerNumber) {
         //this.parent = parent;
         this.board = board;
         this.players = players;
@@ -30,6 +30,7 @@ public class State {
         List<Move> allMoves = new LinkedList<>();
 
         for (Player player : players) {
+            // TODO: man kann hier beim ersten erhaltenen zug abbrechen und false zurückliefern
             List<Move> playerMoves = board.getLegalMoves(player, true);
             allMoves.addAll(playerMoves);
         }
@@ -38,6 +39,7 @@ public class State {
     }
 
     public List<Move> getPlayerMoves() {
+        // TODO: eventuell kann man das auch zwischenspeichern um zeit und speicher zu sparen
         List<Move> normalMoves = board.getLegalMoves(ourPlayer, false);
 
         if (!normalMoves.isEmpty()) {

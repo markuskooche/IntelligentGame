@@ -182,6 +182,7 @@ public class MonteCarlo {
 
             // select current player, board and additionalInfo
             Board board = state.getBoard();
+            // TODO: man kann auch hier züge berechnen und die weiterreichen
             Player player = getNextPlayer();
             Move randomMove = state.getRandomMove(player);
             //System.out.println(randomMove);

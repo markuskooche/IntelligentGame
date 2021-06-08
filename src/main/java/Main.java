@@ -10,7 +10,20 @@ import server.ServerConnection;
  */
 public class Main {
 
-    public static void printHelp() {
+    private static void printClient() {
+        System.out.println(" ______          _    __  __             _       ");
+        System.out.println("|___  /         | |  |  \\/  |           | |      ");
+        System.out.println("   / / ___   ___| | _| \\  / | ___  _ __ | |_ ___ ");
+        System.out.println("  / / / _ \\ / __| |/ / |\\/| |/ _ \\| '_ \\| __/ _ \\");
+        System.out.println(" / /_| (_) | (__|   <| |  | | (_) | | | | ||  __/");
+        System.out.println("/_____\\___/ \\___|_|\\_\\_|  |_|\\___/|_| |_|\\__\\___|");
+        System.out.println();
+        System.out.println("   Created by: Benedikt Halbritter");
+        System.out.println("               Iwan Eckert");
+        System.out.println("               Markus Koch");
+    }
+
+    private static void printHelp() {
         System.out.println();
         System.out.println("  -i <IP>           change to a specific ip\n");
         System.out.println("  -p <PORT>         change to a specific port\n");
@@ -29,6 +42,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        //printClient();
         ServerConnection server = new ServerConnection();
 
         // parameter transfers are intercepted here and processed accordingly
