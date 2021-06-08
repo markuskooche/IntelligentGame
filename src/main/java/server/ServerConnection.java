@@ -124,7 +124,7 @@ public class ServerConnection {
 
             // read the new message from the stream (it is readable if result != -1)
             if (dataInputStream.read(byteMessage, 0, messageLength) != -1) {
-                MemoryChecker.printHeapStatistic("RECEIVED");
+                //MemoryChecker.printHeapStatistic("RECEIVED");
                 // execute the corresponding received message
                 switch (messageHeader[0]) {
                     // receive the map

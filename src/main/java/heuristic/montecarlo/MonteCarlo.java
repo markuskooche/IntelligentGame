@@ -1,9 +1,9 @@
 package heuristic.montecarlo;
 
-import heuristic.ThreadTimer;
-import heuristic.TimeExceededException;
-import heuristic.TimeOutTask;
-import heuristic.Token;
+import timelimit.ThreadTimer;
+import timelimit.TimeExceededException;
+import timelimit.TimeOutTask;
+import timelimit.Token;
 import map.Board;
 import map.Move;
 import map.Player;
