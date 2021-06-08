@@ -35,7 +35,6 @@ public class ServerConnection {
 
     private Game game;
     private byte ourPlayer;
-    private Socket socket;
     private boolean running = true;
     private boolean bomb = false;
 
