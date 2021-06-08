@@ -9,7 +9,6 @@ import map.Transition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class MapAnalyzer {
@@ -947,11 +946,19 @@ public class MapAnalyzer {
         return currNumbers;
     }
 
-    public boolean isCorner(String cornerString) {
+    public static boolean isCorner(String cornerString) {
         boolean isBroken = false;
         boolean isStarted = false;
         boolean lastLife = false;
-        //   ----..-
+        boolean startedWithDot = false;
+
+        if(cornerString.length() == 0){
+            return false;
+        }
+
+        if(cornerString.charAt(0) == '.'){
+            startedWithDot = true;
+        }
 
         for (char letter : cornerString.toCharArray()) {
             if (letter == '-') {
@@ -963,10 +970,13 @@ public class MapAnalyzer {
                 if (isStarted && isBroken) {
                     lastLife = true;
                 }
+
+                if(isStarted && isBroken && startedWithDot){
+                    return false;
+                }
+
             } else {
-           //     if (isBroken && !isStarted) {
-           //         return false;
-            //    }
+
                 if(lastLife){
                     return false;
                 }
@@ -977,8 +987,7 @@ public class MapAnalyzer {
                 }
             }
         }
-
-    return true;
+        return true;
     }
 
     /**
@@ -1046,6 +1055,14 @@ public class MapAnalyzer {
     public void setPlayerNumber(int playerNumber){
         this.playerNumber = playerNumber;
         createField();
+    }
+
+    public List<int[]> getInterestingFieldList() {
+        return interestingFieldList;
+    }
+
+    public void setInterestingFieldList(List<int[]> interestingFieldList) {
+        this.interestingFieldList = interestingFieldList;
     }
 
     public int[][] getReachableField() {

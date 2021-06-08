@@ -111,12 +111,12 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/game121.map");
-        System.out.println(game.toString());
+        Game game = createGame("maps/otherMaps/g03_2021/normal.map");
+        //System.out.println(game.toString());
 
         Player player = game.getPlayer(PLAYER_NUMBER);
 
-        // EXECUTE NORMAL MOVE
+         //EXECUTE NORMAL MOVE
         printLegalMoves(game, player);
         selectMove(game, player);
 
