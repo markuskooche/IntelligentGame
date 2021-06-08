@@ -51,8 +51,8 @@ public class Game {
         heuristicsBRS = new HeuristicsBRS(board, players, mapAnalyzer, analyzeParser);
         brsPlus = new BRSPlus(board, players, mapAnalyzer, analyzeParser);
         heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
-        mapAnalyzer.createVisibleField('1');
-        this.ourPlayerNumber = 1;
+        //mapAnalyzer.createVisibleField('1');
+        //this.ourPlayerNumber = 1;
         //System.out.println(mapAnalyzer.getBoardValues());
     }
 
