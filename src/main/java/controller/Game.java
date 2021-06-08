@@ -1,6 +1,7 @@
 package controller;
 
 import heuristic.*;
+import heuristic.montecarlo.MonteCarlo;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
