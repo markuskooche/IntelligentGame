@@ -28,6 +28,10 @@ public class MapAnalyzer {
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
+    private List<int[]> interestingBonusFieldList;
+    private List<int[]> interestingChoiceFieldList;
+    private List<int[]> interestingInversionFieldList;
+    private List<int[]> interestingCornerFieldList;
     private int[][] visibleField;
     private int[][] tmpField;
     private int playerNumber;
@@ -76,6 +80,11 @@ public class MapAnalyzer {
         initialField = new int[height][width];
         // init the visibleFiled: all 1's are Fields that are near our stones.
         visibleField = new int[height][width];
+        // init the interestingFieldList. It contains interesting fields like corners or the position of special stones
+        interestingBonusFieldList = new ArrayList<>();
+        interestingCornerFieldList = new ArrayList<>();
+        interestingChoiceFieldList = new ArrayList<>();
+        interestingInversionFieldList = new ArrayList<>();
     }
 
     /**
@@ -123,16 +132,22 @@ public class MapAnalyzer {
                         field[i][j] += newValue * multiplier * 4;
                         createWaves(j, i, waveLength, newValue/3);
                     }
+                    int[] position = new int[2];
+                    position[0] = j; //set x position
+                    position[1] = i; //set y position
                     // to make them more appealing the current field gets a bonus value if the field is a bonus, choice or inversion field
                     if (currField == 'c') {
                         field[i][j] += 10000;
                         createWaves(j, i, waveLength, 25);
+                        interestingChoiceFieldList.add(new int[]{j,i});
                     } else if (currField == 'b') {
                         field[i][j] += 8000;
                         createWaves(j, i, waveLength, 20);
+                        interestingBonusFieldList.add(new int[]{j,i});
                     } else if (currField == 'i') {
                         field[i][j] += 9000;
                         createWaves(j, i, waveLength, 22);
+                        interestingInversionFieldList.add(new int[]{j,i});
                     }
                 }
             }
@@ -895,6 +910,7 @@ public class MapAnalyzer {
 
         int[] currentDirection;
         int currNumbers = 0;
+        StringBuilder sb = new StringBuilder();
 
         for (int[] direction : Direction.getList()) {
             currentDirection = direction;
@@ -909,17 +925,73 @@ public class MapAnalyzer {
                 Transition transition = board.getTransition(x, y, directionValue);
 
                 if (transition != null) {
+                    sb.append('.');
                     continue;
                 }
+                sb.append('-');
                 currNumbers++;
             } else {
                 //if the adjacent field is not reachable increase currNumbers
                 if(board.getField()[nextY][nextX] == '-' || field[nextY][nextX] == Integer.MIN_VALUE){
+                    sb.append('-');
                     currNumbers++;
+                }else{
+                    sb.append('.');
                 }
             }
         }
+        //if the field is a real Corner add id to the interesting Field list.
+        if(isCorner(sb.toString()) && currNumbers >= 5){
+            int[] position = new int[2];
+            position[0] = x; //set x position
+            position[1] = y; //set y position
+            interestingCornerFieldList.add(position);
+        }
         return currNumbers;
+    }
+
+    public static boolean isCorner(String cornerString) {
+        boolean isBroken = false;
+        boolean isStarted = false;
+        boolean lastLife = false;
+        boolean startedWithDot = false;
+
+        if(cornerString.length() == 0){
+            return false;
+        }
+
+        if(cornerString.charAt(0) == '.'){
+            startedWithDot = true;
+        }
+
+        for (char letter : cornerString.toCharArray()) {
+            if (letter == '-') {
+
+                if (!isStarted) {
+                    isStarted = true;
+                }
+
+                if (isStarted && isBroken) {
+                    lastLife = true;
+                }
+
+                if(isStarted && isBroken && startedWithDot){
+                    return false;
+                }
+
+            } else {
+
+                if(lastLife){
+                    return false;
+                }
+
+                if (isStarted) {
+                    isBroken = true;
+                    isStarted = false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -987,6 +1059,22 @@ public class MapAnalyzer {
     public void setPlayerNumber(int playerNumber){
         this.playerNumber = playerNumber;
         createField();
+    }
+
+    public List<int[]> getInterestingBonusFieldList() {
+        return interestingBonusFieldList;
+    }
+
+    public void setInterestingBonusFieldList(List<int[]> interestingBonusFieldList) {
+        this.interestingBonusFieldList = interestingBonusFieldList;
+    }
+
+    public List<int[]> getInterestingCornerFieldList() {
+        return interestingCornerFieldList;
+    }
+
+    public void setInterestingCornerFieldList(List<int[]> interestingCornerFieldList) {
+        this.interestingCornerFieldList = interestingCornerFieldList;
     }
 
     public int[][] getReachableField() {
