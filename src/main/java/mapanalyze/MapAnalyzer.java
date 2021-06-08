@@ -141,15 +141,15 @@ public class MapAnalyzer {
                     // to make them more appealing the current field gets a bonus value if the field is a bonus, choice or inversion field
                     if (currField == 'c') {
                         field[i][j] += 10000;
-                        createWaves(j, i, waveLength, 25);
+                        createWaves(j, i, waveLength, 250);
                         interestingChoiceFieldList.add(new int[]{j,i});
                     } else if (currField == 'b') {
                         field[i][j] += 8000;
-                        createWaves(j, i, waveLength, 20);
+                        createWaves(j, i, waveLength, 200);
                         interestingBonusFieldList.add(new int[]{j,i});
                     } else if (currField == 'i') {
                         field[i][j] += 9000;
-                        createWaves(j, i, waveLength, 22);
+                        createWaves(j, i, waveLength, 220);
                         interestingInversionFieldList.add(new int[]{j,i});
                     }
                 }
@@ -168,13 +168,13 @@ public class MapAnalyzer {
 
         if (type == 'c') {
             field[y][x] -= 10000;
-            createWaves(x, y, waveLength, -25);
+            createWaves(x, y, waveLength, -250);
         } else if (type == 'b') {
             field[y][x] -= 8000;
-            createWaves(x, y, waveLength, -20);
+            createWaves(x, y, waveLength, -200);
         } else if (type == 'i') {
             field[y][x] -= 9000;
-            createWaves(x, y, waveLength, -22);
+            createWaves(x, y, waveLength, -220);
         }
     }
 
