@@ -247,7 +247,7 @@ public class Move {
 
         if (list.size() != 0) {
             moveString.append("(" + getX() + ", " + getY() + ")\t | {I: " + inversion + " C: " + choice + " B: " + bonus + " O: " + override + "}");
-            moveString.append("\t -> [");
+            moveString.append(" \t-> [");
 
             for (int i = 0; i < list.size(); i++) {
                 moveString.append("(" + list.get(i)[0] + ", " + list.get(i)[1] + ")");
