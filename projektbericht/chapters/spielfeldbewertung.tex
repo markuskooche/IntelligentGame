@@ -142,7 +142,7 @@ Es wird aus folgenden Gr\"unden die Karte aus Abbildung~\ref{fig:statistic-map} 
 \vspace{1em}
 \begin{minipage}{\linewidth}
     \centering
-    \includegraphics[width=0.9\linewidth]{statistic/Test-D5-01/ST-01-D5-LD}
+    \includegraphics[width=0.9\linewidth]{statistic/ORIGINAL-D5-01/ST-01-D5-LD}
     \captionof{figure}[Statistik für Tiefe 5]{Diese Statistik wurde bei einem Spiel der Tiefe 5 aufgenommen.}
     \label{fig:statistic-screen}
 \end{minipage}
@@ -195,19 +195,41 @@ Jedoch bewirkt das Alpha-Beta-Pruning eine gestauchtere Kurve als der Minimax-Al
 Bei gleicher Anzahl an bewerteten Feldern wird mit Alpha-Beta-Pruning der Suchbaum tiefer analysiert und dadurch mehr Z\"uge miteinander verglichen.
 Das f\"uhrt dazu, dass bei gleichem Zeitaufwand (\corresponds gleiche Anzahl an analysierten Spielzust\"anden) das beste Ergebnis einer \underline{tieferen} Suchbaumebene gefunden wird.
 
-Um diese Aussage adequate zu best\"atigen werden vier weitere Karten aufgef\"uhrt, bei denen erneut Tests durchgef\"uhrt werden.
+\newpage
+
+Um diese Aussage adequate zu best\"atigen sind vier weitere Karten (siehe Abbildung~\ref{fig:additional-statistic-maps}) aufgef\"uhrt, bei denen erneut Tests durchgef\"uhrt werden.
+Die Statistiken zum Vergleich der Algorithmen befindet sich jeweils unterhalb der textuellen Vorstellung der einzelnen Karten.
+Die blaue Linie stellt hierbei immer den Minimax-Algorithmus und die orange Linie das Alpha-Beta-Pruning dar.
+
+\textbf{Reversi Cuboid:}
+Diese Map basiert auf dem Grundspiel von Reversi, jedoch sind hier vier Bereiche angeordnet.
+Durch diese Anordnung ist diese Map fair und es gibt einige Spezialfelder, die jedoch erst im sp\"ateren Verlauf des Spieles erreichbar sind.
+Durch diese Karte soll getestet werden wie sich 8-Spieler-Karten auf die beiden Algorithmen auswirkt.
+Diese Karte wird aufgrund vieler Spieler auf Tiefe 4 durchlaufen.
+Dabei wird als erster und zweiter Spieler der Client zum Testen der Algorithmen verwendet.
+Die anderen Spieler verwenden den triviale Client, welcher zu Beginn des Semesters jedem Team ausgeh\"andigt wird.
+
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{statistic/CUBOID-01/ST-01-D4-LD}
+    \captionof{figure}{Vergleich der Algorithmen auf der Karte Reversi Cuboid}
+    \label{fig:statistic-graph-cuboid}
+\end{minipage}
+\vspace{1em}
 
 \textbf{Cupcake:}
 Diese Map hat bereits zu Beginn sehr viele unterschiedliche Startpositionen.
 Was dazu f\"uhrt, dass der Suchbaum bereits zu Beginn sehr breit ist und somit sehr stark anw\"achst.
 Er beeinhaltet jedoch keine Transitionen oder Sonstige Spezialfelder, wodurch die Anzahl damit jedoch zu einem gewissen Teil eingeschr\"ankt werden.
-Die Karte wird auf Tiefe 5 durchlaufen.
+Die Karte wird auf Tiefe 4 durchlaufen.
 
-\textbf{QR:}
-Diese Map ist zu einem sehr gro"sen Bestandteil nicht bespielbar, wodurch die Berechnungen zu einem hohen Teil eigentlich hinf\"allig ist, sofern man diese Stellen mit ber\"ucksichtigt.
-Viele Bereiche k\"onnen zum Teil gar nicht erreicht werden oder nur unter ganz bestimmten Umst\"anden, was dazu f\"uhrt, dass die Mobilit\"at hier extrem eingeschr\"ankt wird.
-Durch diese Karte soll getestet werden wie sich die Mobilit\"at auf die beiden Algorithmen auswirkt.
-Diese Karte wird aufgrund wenig erreichbarer Felder auf Tiefe 6 durchlaufen.
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{statistic/CUP-01/ST-01-D4-LD}
+    \captionof{figure}{Vergleich der Algorithmen auf der Karte Cupcake}
+    \label{fig:statistic-graph-cupcake}
+\end{minipage}
+\vspace{1em}
 
 \textbf{Dog Extended:}
 Bei der Dog Extended Karte handelt es sich um die Karte, die f\"ur alle Abgaben w\"ahrend dem Semester verwendet wird.
@@ -215,10 +237,66 @@ Aus diesem Grund wird auch die Map Dog Extended bei diesem Test \"uberpr\"uft.
 In dieser Karte sind Transitionen sowie alle m\"oglichen Spezialsteine integriert um alle Abh\"anigkeiten zu testen.
 Diese Karte wird auf Tiefe 5 durchlaufen.
 
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{statistic/DOG-02/ST-01-D4-LD}
+    \captionof{figure}{Vergleich der Algorithmen auf der Karte Dog Extended}
+    \label{fig:statistic-graph-dog}
+\end{minipage}
+\vspace{1em}
+
 \textbf{Europa:}
 Die Europa Karte ist eine sehr gro\"se Map bei der jedoch viele Stellen aus L\"ochern bestehen und es zudem eine Menge an Kanten und Ecken gibt.
 Dadurch wird die Spielfeldgewichtung unter Probe gestellt um zu testen ob es hierbei zu starken Abweichungen kommt, da die Gewichtung hier oft gleiche Ergebnise liefern k\"onnte und somit wenig weggek\"urzt werden kann.
-Diese Karte wird auf Tiefe 5 durchlaufen.
+Diese Karte wird auf Tiefe 3 durchlaufen, da es eine sehr gro"se Karte mit drei Spielern ist.
+Dabei wird als erster Spieler der triviale Client verwendet.
+
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{statistic/EUROPA-02/ST-01-D3-LD}
+    \captionof{figure}{Vergleich der Algorithmen auf der Karte Europa}
+    \label{fig:statistic-graph-europa}
+\end{minipage}
+\vspace{1em}
+
+\vspace{1em}
+\begin{table}[!h]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+        \hline
+        \textbf{Karte} & \textbf{Tiefe} & \textbf{Alpha-Beta} & \textbf{Minimax}\\
+        \hline
+        Cupcake & 4 & 30.142 & 281.694\\
+        \hline
+        Reversi Cuboid & 6 & 11.459 & 48.656\\
+        \hline
+        Dog Extended & 5 & 978.310,5 & 4.357.785\\
+        \hline
+        Europa & 3 & 34.365 & 64.316,5\\
+        \hline
+    \end{tabular}
+    \caption{Tabellarischer Vergleich der aufgef\"uhrten Statistiken (Ergebnisse wurden geglättet)}
+    \label{tab:additional-search-depth}
+\end{table}
+
+Betrachtet man nun alle aufgef\"uhrten Karten kann man zwar jeweils einen Unterschied in der G\"ute des Alpha-Beta Prunings feststellen, jedoch wird hier klar ersichtlich, dass sich bei jeder getesteten Karte ein gewisser Leistungsvorteil ergibt.
+Das Team hat sich genau aus diesen Gr\"unden dazu entschieden, auf jeder Karte standardm\"a"sig Alpha-Beta Purning zu aktivieren.
+
+\vspace{1em}
+\begin{figure}
+    \centering
+    \subfloat[Karte: Reversi Cuboid]{ \includegraphics[width=0.5\linewidth]{pics/maps/reversi-cuboid} }
+    \qquad
+    \subfloat[Karte: Cupcake]{ \includegraphics[width=0.4\linewidth]{pics/maps/cupcake} }
+    \qquad
+    \subfloat[Karte: Dog Extended]{ \includegraphics[width=0.4\linewidth]{pics/maps/dog-extended} }
+    \qquad
+    \subfloat[Karte: Europa]{ \includegraphics[width=0.5\linewidth]{pics/maps/europa} }
+
+    \caption{Weitere Karten die f\"ur die Statistik verwendet werden}
+    \label{fig:additional-statistic-maps}
+\end{figure}
+
 
 \bigskip
 \newpage
