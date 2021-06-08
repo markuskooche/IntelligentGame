@@ -170,6 +170,7 @@ public class Heuristics {
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
         depth++;
+
         if(depth > maxDepth) return getEvaluationForPlayer(ourPlayer, board, move);
 
         // Get all possible moves for this depth
@@ -235,6 +236,7 @@ public class Heuristics {
             }
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
         }
+
         return value;
     }
 

@@ -34,9 +34,11 @@ public class ServerConnection {
 
     private Game game;
     private byte ourPlayer;
-    private Socket socket;
     private boolean running = true;
     private boolean bomb = false;
+
+    private DataInputStream dataInputStream;
+    private DataOutputStream dataOutputStream;
 
     /**
      * This method tries to establish a connection and, if necessary,
@@ -49,7 +51,19 @@ public class ServerConnection {
 
         // try to establish a socket connection
         try {
-            socket = new Socket(InetAddress.getByName(host), port);
+            Socket socket = new Socket(InetAddress.getByName(host), port);
+
+            // initialize the (BufferedInput- and) DataInputStream
+            // INFO: A BufferedInputStream has performance improvements if you know the buffer size.
+            //       We can first get a fixed 5 bits and then determine the length of the rest.
+            BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
+            dataInputStream = new DataInputStream(bis);
+
+            // initialize the (Output- and) DataOutputStream
+            // INFO: BufferedInputStream is not supported by a server, because of unknown length.
+            //       Therefore no BufferedOutputStream can be used.
+            OutputStream os = socket.getOutputStream();
+            dataOutputStream = new DataOutputStream(os);
 
             // sending the group number to the server
             byte[] message = new byte[] {1, 0, 0, 0, 1, GROUP};
@@ -86,8 +100,7 @@ public class ServerConnection {
      * @throws IOException throws an IOException if server is closed or client is disqualified
      */
     private void sendMessage(byte[] message) throws IOException {
-        OutputStream outputStream = socket.getOutputStream();
-        outputStream.write(message);
+        dataOutputStream.write(message);
     }
 
     /**
@@ -96,177 +109,174 @@ public class ServerConnection {
      * @throws IOException throws an IOException if this socket is closed or the socket is not connected
      */
     private void receiveMessage() throws IOException {
-        //BufferedInputStream bis = new BufferedInputStream(socket.getInputStream());
-        //DataInputStream inputStream = new DataInputStream(bis);
-        InputStream inputStream = socket.getInputStream();
-
         long stopTime = System.currentTimeMillis();
         byte[] messageHeader = new byte[5];
 
-        // storage the length of read bytes
-        int readBytes = inputStream.read(messageHeader, 0, 5);
+        // check if there is a new message sent (it is readable if result != -1)
+        if (dataInputStream.read(messageHeader, 0, 5) != -1) {
+            // create an integer from the byte array which contains the length
+            int messageLength = get32Integer(messageHeader, 1);
 
-        // if length == -1, not bytes could be read
-        // this happens with a closed socket connection
-        if (readBytes == -1) {
-            throw new IOException();
+            // read the remaining input stream (this is the actual message)
+            byte[] byteMessage = new byte[messageLength];
+
+            // read the new message from the stream (it is readable if result != -1)
+            if (dataInputStream.read(byteMessage, 0, messageLength) != -1) {
+                MemoryChecker.printHeapStatistic("RECEIVED");
+                // execute the corresponding received message
+                switch (messageHeader[0]) {
+                    // receive the map
+                    case 2:
+                        // print the received map to the console
+                        analyzeParser.parseBoard(byteMessage);
+
+                        // create a new game
+                        List<String> receivedMap = MapParser.createMap(byteMessage);
+                        game = new Game(receivedMap, analyzeParser);
+                        break;
+                    // receive your player number
+                    case 3:
+                        // set our player number
+                        ourPlayer = byteMessage[0];
+                        game.setOurPlayerNumber(ourPlayer);
+
+                        // print our player number to the console
+                        analyzeParser.setPlayer(ourPlayer);
+                        break;
+                    // receive a move request and sending a move
+                    case 4:
+                        // get the time- or depth-limit
+                        int allowedTime = get32Integer(byteMessage, 0);
+                        byte allowedDepth = byteMessage[4];
+
+                        // when console output is on and reduce is off,
+                        // the map is output to the console
+                        if (analyzeParser.isPrintable()) {
+                            Player printPlayer = game.getPlayer(ourPlayer);
+                            analyzeParser.loggingBoard(game.getBoard(), printPlayer);
+                        }
+
+                        // if you should send a normal move (phase 1)
+                        if (!bomb) {
+                            // selects the best move
+                            int[] executedMove;
+
+                            // when the game is played with depth limit
+                            if (allowedTime == 0) {
+                                executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta, moveSorting);
+                            }
+                            // when the game is played with time limit
+                            else {
+                                executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting);
+                            }
+
+                            // sends the best move to the server
+                            byte[] move = prepareMove(executedMove);
+                            sendMessage(move);
+
+                            stopTime = System.currentTimeMillis() - stopTime;
+                            analyzeParser.spentTimeForMove(stopTime);
+
+                            // print the selected bomb move to the console
+                            analyzeParser.sendMove(executedMove[0], executedMove[1], ourPlayer, executedMove[2]);
+                        }
+                        // if you should send a bomb move (phase 2)
+                        else {
+                            // selects the best bomb move and sends it to the server
+                            int[] executedBombMove = game.executeOurBomb();
+                            byte[] move = prepareMove(executedBombMove);
+                            sendMessage(move);
+
+                            // print the selected bomb move to the console
+                            analyzeParser.sendMove(executedBombMove[0], executedBombMove[1], ourPlayer, 0);
+                        }
+                        break;
+                    // receive a move of a player (also from itself)
+                    case 6:
+                        // composes the x coordinate
+                        int x = byteMessage[0] << 8;
+                        x += byteMessage[1];
+
+                        // composes the y coordinate
+                        int y = byteMessage[2] << 8;
+                        y += byteMessage[3];
+
+                        // stores the player and additional operation
+                        int additionalOperation = byteMessage[4];
+                        int player = byteMessage[5];
+
+                        // prints the current time to the console
+                        analyzeParser.printCurrentTime(player);
+
+                        // if it is a move from an opponent
+                        if (player != ourPlayer) {
+                            Player opponentPlayer = game.getPlayer(player);
+
+                            // when console output is on and reduce is off,
+                            // the map is output to the console
+                            if (analyzeParser.isPrintable()) {
+                                analyzeParser.loggingBoard(game.getBoard(), opponentPlayer);
+                            }
+
+                            // // execute the selected move from the opponent (phase 1)
+                            if (!bomb) {
+                                game.executeMove(x, y, player, additionalOperation);
+                            }
+                            // execute the selected bomb move from the opponent (phase 2)
+                            else {
+                                game.executeBomb(x, y);
+                                opponentPlayer.decreaseBomb();
+                            }
+                        }
+
+                        // print the selected move to the console
+                        analyzeParser.parseMove(x, y, player, additionalOperation);
+                        break;
+                    // receive a disqualified player
+                    case 7:
+                        // remove the disqualified player
+                        Player disqualifiedPlayer = game.getPlayer(byteMessage[0]);
+                        disqualifiedPlayer.setDisqualified();
+                        game.decreasePlayerNumber();
+
+                        // terminate in case our client was disqualified
+                        if (byteMessage[0] == ourPlayer) {
+                            analyzeParser.disqualifiedSelf(ourPlayer, game.getBoard());
+                            System.exit(1);
+                        }
+                        // else print the information to the console
+                        else {
+                            analyzeParser.disqualifyPlayer(byteMessage[0]);
+                        }
+                        break;
+                    // receive that phase 2 has started
+                    case 8:
+                        // set the bomb mode and print this information
+                        analyzeParser.startBombPhase();
+                        bomb = true;
+                        break;
+                    // receive that the game has finished
+                    case 9:
+                        // stop the game
+                        running = false;
+                        analyzeParser.endGame();
+
+                        // when console output is on and reduce is off,
+                        // the map is output to the console
+                        if (analyzeParser.isPrintable()) {
+                            char[][] field = game.getBoard().getField();
+                            analyzeParser.loggingBoard(field);
+                        }
+                        System.exit(0);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
-
-        // create an integer from the byte array which contains the length
-        int messageLength = get32Integer(messageHeader, 1);
-
-        // read the remaining input stream (this is the actual message)
-        byte[] byteMessage = new byte[messageLength];
-        int endOfStream = inputStream.read(byteMessage, 0, messageLength);
-
-        // execute the corresponding received message
-        switch (messageHeader[0]) {
-            // receive the map
-            case 2:
-                // print the received map to the console
-                analyzeParser.parseBoard(byteMessage);
-
-                // create a new game
-                List<String> receivedMap = MapParser.createMap(byteMessage);
-                game = new Game(receivedMap, analyzeParser);
-                break;
-            // receive your player number
-            case 3:
-                // set our player number
-                ourPlayer = byteMessage[0];
-                game.setOurPlayerNumber(ourPlayer);
-
-                // print our player number to the console
-                analyzeParser.setPlayer(ourPlayer);
-                break;
-            // receive a move request and sending a move
-            case 4:
-                // get the time- or depth-limit
-                int allowedTime = get32Integer(byteMessage, 0);
-                byte allowedDepth = byteMessage[4];
-
-                // when console output is on and reduce is off,
-                // the map is output to the console
-                if (analyzeParser.isPrintable()) {
-                    Player printPlayer = game.getPlayer(ourPlayer);
-                    analyzeParser.loggingBoard(game.getBoard(), printPlayer);
-                }
-
-                // if you should send a normal move (phase 1)
-                if (!bomb) {
-                    // selects the best move
-                    int[] executedMove;
-
-                    // when the game is played with depth limit
-                    if (allowedTime == 0) {
-                        executedMove = game.executeOurMoveDepth(allowedDepth, alphaBeta, moveSorting);
-                    }
-                    // when the game is played with time limit
-                    else {
-                        executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting);
-                    }
-
-                    // sends the best move to the server
-                    byte[] move = prepareMove(executedMove);
-                    sendMessage(move);
-
-                    stopTime = System.currentTimeMillis() - stopTime;
-                    analyzeParser.spentTimeForMove(stopTime);
-
-                    // print the selected bomb move to the console
-                    analyzeParser.sendMove(executedMove[0],executedMove[1], ourPlayer, executedMove[2]);
-                }
-                // if you should send a bomb move (phase 2)
-                else {
-                    // selects the best bomb move and sends it to the server
-                    int[] executedBombMove = game.executeOurBomb();
-                    byte[] move = prepareMove(executedBombMove);
-                    sendMessage(move);
-
-                    // print the selected bomb move to the console
-                    analyzeParser.sendMove(executedBombMove[0] ,executedBombMove[1], ourPlayer,0);
-                }
-                break;
-            // receive a move of a player (also from itself)
-            case 6:
-                // composes the x coordinate
-                int x = byteMessage[0] << 8;
-                x += byteMessage[1];
-
-                // composes the y coordinate
-                int y = byteMessage[2] << 8;
-                y += byteMessage[3];
-
-                // stores the player and additional operation
-                int player = byteMessage[5];
-                int additionalOperation = byteMessage[4];
-
-                // prints the current time to the console
-                analyzeParser.printCurrentTime(player);
-
-                // if it is a move from an opponent
-                if (player != ourPlayer) {
-                    Player opponentPlayer = game.getPlayer(player);
-
-                    // when console output is on and reduce is off,
-                    // the map is output to the console
-                    if (analyzeParser.isPrintable()) {
-                        analyzeParser.loggingBoard(game.getBoard(), opponentPlayer);
-                    }
-
-                    // // execute the selected move from the opponent (phase 1)
-                    if (!bomb) {
-                        game.executeMove(x, y, player, additionalOperation);
-                    }
-                    // execute the selected bomb move from the opponent (phase 2)
-                    else {
-                        game.executeBomb(x, y);
-                        opponentPlayer.decreaseBomb();
-                    }
-                }
-
-                // print the selected move to the console
-                analyzeParser.parseMove(x, y, player, additionalOperation);
-                break;
-            // receive a disqualified player
-            case 7:
-                // remove the disqualified player
-                Player disqualifiedPlayer = game.getPlayer(byteMessage[0]);
-                disqualifiedPlayer.setDisqualified();
-                game.decreasePlayerNumber();
-
-                // terminate in case our client was disqualified
-                if (byteMessage[0] == ourPlayer) {
-                    analyzeParser.disqualifiedSelf(ourPlayer, game.getBoard());
-                    System.exit(1);
-                }
-                // else print the information to the console
-                else {
-                    analyzeParser.disqualifyPlayer(byteMessage[0]);
-                }
-                break;
-            // receive that phase 2 has started
-            case 8:
-                // set the bomb mode and print this information
-                analyzeParser.startBombPhase();
-                bomb = true;
-                break;
-            // receive that the game has finished
-            case 9:
-                // stop the game
-                running = false;
-                analyzeParser.endGame();
-
-                // when console output is on and reduce is off,
-                // the map is output to the console
-                if (analyzeParser.isPrintable()) {
-                    char[][] field = game.getBoard().getField();
-                    analyzeParser.loggingBoard(field);
-                }
-                System.exit(0);
-                break;
-            default:
-                break;
+        // the InputStream is closed
+        else {
+            throw new IOException();
         }
     }
 
