@@ -97,8 +97,8 @@ public class Game {
             move = monteCarlo.getMove(board, time);
         } else {
             //move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            //move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
             //move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         }
 
@@ -112,9 +112,9 @@ public class Game {
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-//        Move move = heuristicsBRS.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-//        Move move = brsPlus.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-//        Move move = heuristicKiller.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        //Move move = heuristicsBRS.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        //Move move = brsPlus.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        //Move move = heuristicKiller.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
