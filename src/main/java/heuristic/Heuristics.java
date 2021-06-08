@@ -1,9 +1,7 @@
 package heuristic;
 
 import loganalyze.additional.AnalyzeParser;
-import map.Board;
-import map.Move;
-import map.Player;
+import map.*;
 import mapanalyze.MapAnalyzer;
 import timelimit.ThreadTimer;
 import timelimit.TimeExceededException;
@@ -88,25 +86,28 @@ public class Heuristics {
 
         boolean override = false;
         //if (ourMoveCount > 15 && ourPlayer.getOverrideStone() > 0) override = true;
-        List<Move> myMoves = board.getLegalMoves(ourPlayer, override);
+        List<Move> ourMoves = board.getLegalMoves(ourPlayer, override);
 
         //No normal moves found, check for overrideStone-Moves
-        if(myMoves.isEmpty()) {
-            myMoves = board.getLegalMoves(ourPlayer, true);
-            return onlyOverrideStones(startBoard, ourPlayer, myMoves);
+        if(ourMoves.isEmpty()) {
+            ourMoves = board.getLegalMoves(ourPlayer, true);
+            return onlyOverrideStones(startBoard, ourPlayer, ourMoves);
         }
 
         //We have only one normal Move (maybe a lot OverrideStones Moves)
-        if (myMoves.size() == 1) return myMoves.get(0);
+        if (ourMoves.size() == 1) return ourMoves.get(0);
 
-        move = myMoves.get(0); //Pick the first possible Move
+        move = ourMoves.get(0); //Pick the first possible Move
+        removeBadMoves(ourMoves, startBoard, ourPlayer);
 
         //MapAnalyzer: Try to create reachable fields
         try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
 
+        //if(alphaBeta) return move;
+
         //Get all possible Boards with out possible moves
         List<BoardMove> executedStartMoves;
-        try { executedStartMoves = executeAllMoves(ourPlayer,startBoard, myMoves); }
+        try { executedStartMoves = executeAllMoves(ourPlayer,startBoard, ourMoves); }
         catch (TimeExceededException e) { return move; }
 
         //Sort all possible moves
@@ -184,6 +185,7 @@ public class Heuristics {
             }
         }
         List<Move> playerMoves = board.getLegalMoves(player, override);
+        //if (!override) removeBadMoves(playerMoves, board, player);
 
         // No moves for given player -> another player should move
         // Or the player is disqualified
@@ -238,6 +240,94 @@ public class Heuristics {
         }
 
         return value;
+    }
+
+    private void sortMovesGreedy(List<Move> moves) {
+        moves.sort((m1, m2) -> m2.compareTo(m1));
+    }
+
+    private void removeBadMoves(List<Move> moves, Board board, Player ourPlayer) {
+        int size = moves.size();
+        char ourNumber = ourPlayer.getCharNumber();
+        for (int i = 0; i < size; i++) {
+
+            Move move = moves.get(i);
+            char field = board.getField()[move.getY()][move.getX()];
+            Map<int[],int[]> myStone = move.getPlayerDirections();
+            if (myStone.size() > 1 || "bic".indexOf(field) > -1) continue;
+
+            int[] pos = new int[2];
+            int[] direction = new int[2];
+            for (Map.Entry<int[], int[]> entry : myStone.entrySet()) {
+                pos = entry.getKey();
+                direction[0] = entry.getValue()[0];
+                direction[1] = entry.getValue()[1];
+            }
+
+            List<Character> lines = new ArrayList<>();
+            for (int j = 0; j <= move.getList().size(); j++) {
+                lines.add(ourNumber);
+            }
+
+            //Check the front stone
+            int xFront = move.getX();
+            int yFront = move.getY();
+            int [] dirFront = {direction[0] * (-1), direction[1] * (-1)};
+            int [] dirBack = {direction[0], direction[1]};
+
+            boolean wall = buildLine(xFront, yFront, dirFront, board, lines, true, ourPlayer);
+            if (wall) continue; // we hit a wall -> safe move
+            buildLine(pos[0], pos[1], dirBack, board, lines, false, ourPlayer);
+            int lastInLines = lines.size() - 1;
+            if (lines.get(0) == ourNumber && lines.get(lastInLines) == ourNumber) continue;
+
+            if (size - 1 > 0) {
+                moves.remove(i);
+                size--;
+                i--;
+            }
+        }
+        sortMovesGreedy(moves);
+    }
+
+    private boolean buildLine(int x, int y, int[] direction, Board board, List<Character> lines,  boolean front, Player ourPlayer) {
+        char [][] boardField = board.getField();
+        int maxX  = board.getWidth() - 1;
+        int maxY = board.getHeight() - 1;
+        char stone = boardField[y][x];
+
+        int xStart = x;
+        int yStart = y;
+        while ("-0bic".indexOf(stone) == -1) {
+            x += direction [0];
+            y += direction [1];
+            if (xStart == x && yStart == y) break; // Loop
+
+            if (x > maxX || y > maxY || x < 0 || y < 0) { //Check for transition
+                x = x - direction[0];
+                y = y - direction[1];
+                Transition transition = board.getTransition(x, y, Direction.indexOf(direction));
+                if (transition == null) {
+                    if (front) lines.add(boardField[y][x]);
+                    else lines.add(0, boardField[y][x]);
+
+                    if (stone == ourPlayer.getCharNumber()) return true;
+                    return false;
+                } else {
+                    // Get new direction and new position
+                    direction = Direction.valueOf(transition.getR());
+                    direction[0] *= -1;
+                    direction[1] *= -1;
+                    x = transition.getX();
+                    y = transition.getY();
+                }
+            }
+            stone = boardField[y][x];
+            if ("-0bic".indexOf(stone) > -1) break;
+            if (front)  lines.add(stone);
+            else lines.add(0, stone);
+        }
+        return false;
     }
 
     private boolean isStable(Move initMove, Move justExecuted) {
@@ -347,10 +437,12 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayer(Player player, Board board, Move move) {
-        int mapValue = getMapValue(player, board);
+        int mapValue = getMapValue2(player, board);
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
         int specialField = getSpecialFieldValue(move);
+//        System.out.println("MapValue " + mapValue + " CoinParity: " + coinParity +
+//                " Mobility " + mobility + " specialfield: " + specialField);
         return mapValue + coinParity + mobility + specialField;
     }
 
@@ -395,6 +487,11 @@ public class Heuristics {
         double tmpMapValue = ((double) myMapValue) / mapValueAll;
         return (int) (tmpMapValue * MULTIPLIER);
     }
+
+    public int getMapValue2(Player player, Board tmpBoard) {
+        return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, MULTIPLIER);
+    }
+
 
     public int getCoinParity(Player player, Board board) {
         List<int[]> myStones = new ArrayList<>();

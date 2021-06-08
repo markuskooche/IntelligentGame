@@ -1,5 +1,6 @@
 
 package mapanalyze;
+import map.Player;
 import timelimit.TimeExceededException;
 import timelimit.Token;
 import loganalyze.additional.AnalyzeParser;
@@ -33,6 +34,7 @@ public class MapAnalyzer {
     private int playerNumber;
     private int width;
     private int height;
+    private int minFieldValue;
 
     private Token timeToken = new Token();
     private boolean timeLimited = false;
@@ -47,6 +49,7 @@ public class MapAnalyzer {
         initAllFields();
         reachableFinished = false;
         createField();
+        minFieldValue = getMinFieldValue();
     }
 
     public void startReachableField(boolean timeLimited, Token timeToken) throws TimeExceededException {
@@ -86,7 +89,7 @@ public class MapAnalyzer {
         }
 
         //waveLength is the number of Fields a calculated Field influenced adjacent Fields
-        int waveLength = playerNumber + 1;
+        int waveLength = 1 + 1;
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -683,6 +686,49 @@ public class MapAnalyzer {
         }
         return playerScore;
     }
+
+    public int calculateScoreForPlayers(Player ourPlayer, Board tmpBoard, Player[] players, int factor) {
+        String playersNum = "";
+        for(Player p : players) {
+            playersNum += p.getCharNumber();
+        }
+
+        char tmpBoardfield[][] = tmpBoard.getField();
+        double playerScore = 0;
+        double allPlayerScore = 0;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+
+                char currField = tmpBoardfield[i][j];
+                if (currField == ourPlayer.getCharNumber()) {
+                    playerScore += (field[i][j] + minFieldValue);
+                }
+                if (playersNum.indexOf(currField) != -1) {
+                    allPlayerScore += (field[i][j] + minFieldValue);
+                }
+            }
+        }
+
+        double tmpMapValue =  playerScore / allPlayerScore;
+        return (int) (tmpMapValue * factor);
+    }
+
+    private int getMinFieldValue() {
+        int minFieldValue = Integer.MAX_VALUE;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if(minFieldValue > field[i][j]){
+                    minFieldValue = field[i][j];
+                }
+            }
+        }
+
+        if(minFieldValue < 0){
+            minFieldValue *= (-1);
+        }
+        return minFieldValue;
+    }
+
 
     //TODO Board hat playerScores as attribute this is way faster than the currently method
 

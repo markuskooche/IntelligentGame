@@ -1,7 +1,9 @@
 package map;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Move class creates an allowed move in one direction. If there is a valid position with several playing
@@ -20,6 +22,7 @@ public class Move {
     private boolean choice;
     private boolean bonus;
     private Player player = null;
+    private Map<int[], int[]> playerDirection;
 
     /**
      * Creates a Move class that contains all information about a legal move.
@@ -29,6 +32,7 @@ public class Move {
         inversion = false;
         override = false;
         choice = false;
+        playerDirection = new HashMap<>();
     }
 
     /**
@@ -43,6 +47,7 @@ public class Move {
         inversion = false;
         override = true;
         choice = false;
+        playerDirection = new HashMap<>();
     }
 
     /**
@@ -60,6 +65,14 @@ public class Move {
         this.override = move.isOverride();
         this.choice = move.isChoice();
         this.bonus = move.isBonus();
+    }
+
+    public void addPlayerDirection(int [] direction, int x, int y) {
+        playerDirection.put(new int[] {x, y}, direction);
+    }
+
+    public Map<int[], int[]> getPlayerDirections() {
+        return playerDirection;
     }
 
     /**
@@ -258,5 +271,14 @@ public class Move {
         }
 
         return moveString.toString();
+    }
+
+    public int compareTo(Move m) {
+        if (list.size() > m.getList().size()) return 1;
+        if (list.size() < m.getList().size()) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }

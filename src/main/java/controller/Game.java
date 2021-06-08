@@ -45,9 +45,10 @@ public class Game {
         heuristicsBRS = new HeuristicsBRS(board, players, mapAnalyzer, analyzeParser);
         brsPlus = new BRSPlus(board, players, mapAnalyzer, analyzeParser);
         heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
-        mapAnalyzer.createVisibleField('1');
-        this.ourPlayerNumber = 1;
-        //System.out.println(mapAnalyzer.getBoardValues());
+        //mapAnalyzer.createVisibleField('1');
+        //this.ourPlayerNumber = 2;
+
+        System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public Game(Game game) {
@@ -69,8 +70,8 @@ public class Game {
 
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-//        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+//        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
 //        Move move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
 //        Move move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         int additional = getAdditional(move);
@@ -88,6 +89,8 @@ public class Game {
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
+
+        System.out.println(board.toString());
         return new int[] {move.getX(), move.getY(), additional};
     }
 
@@ -201,6 +204,7 @@ public class Game {
         for (Move legalMove : legalMoves) {
             // colorize board if it is the correct move
             if (legalMove.isMove(selectedMove)) {
+                System.out.println("Player : " + currentPlayer + " " + legalMove.getX() + " / " + legalMove.getY());
                 board.colorizeMove(legalMove, currentPlayer, additionalOperation);
                 break;
             }
