@@ -28,7 +28,8 @@ public class MapAnalyzer {
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
-    private List<int[]> interestingFieldList;
+    private List<int[]> interestingBonusFieldList;
+    private List<int[]> interestingCornerFieldList;
     private int[][] visibleField;
     private int[][] tmpField;
     private int playerNumber;
@@ -75,7 +76,8 @@ public class MapAnalyzer {
         // init the visibleFiled: all 1's are Fields that are near our stones.
         visibleField = new int[height][width];
         // init the interestingFieldList. It contains interesting fields like corners or the position of special stones
-        interestingFieldList = new ArrayList<>();
+        interestingBonusFieldList = new ArrayList<>();
+        interestingCornerFieldList = new ArrayList<>();
     }
 
     /**
@@ -141,9 +143,9 @@ public class MapAnalyzer {
                     //Mark the field as interesting
                     if(fieldIsBonus){
                         int[] position = new int[2];
-                        position[0] = i; //set x position
-                        position[1] = j; //set y position
-                        interestingFieldList.add(position);
+                        position[0] = j; //set x position
+                        position[1] = i; //set y position
+                        interestingBonusFieldList.add(position);
                     }
                 }
             }
@@ -941,7 +943,7 @@ public class MapAnalyzer {
             int[] position = new int[2];
             position[0] = x; //set x position
             position[1] = y; //set y position
-            interestingFieldList.add(position);
+            interestingCornerFieldList.add(position);
         }
         return currNumbers;
     }
@@ -1057,12 +1059,20 @@ public class MapAnalyzer {
         createField();
     }
 
-    public List<int[]> getInterestingFieldList() {
-        return interestingFieldList;
+    public List<int[]> getInterestingBonusFieldList() {
+        return interestingBonusFieldList;
     }
 
-    public void setInterestingFieldList(List<int[]> interestingFieldList) {
-        this.interestingFieldList = interestingFieldList;
+    public void setInterestingBonusFieldList(List<int[]> interestingBonusFieldList) {
+        this.interestingBonusFieldList = interestingBonusFieldList;
+    }
+
+    public List<int[]> getInterestingCornerFieldList() {
+        return interestingCornerFieldList;
+    }
+
+    public void setInterestingCornerFieldList(List<int[]> interestingCornerFieldList) {
+        this.interestingCornerFieldList = interestingCornerFieldList;
     }
 
     public int[][] getReachableField() {
