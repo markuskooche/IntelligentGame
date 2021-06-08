@@ -9,11 +9,21 @@ public class BoardMove {
     private Board board;
     private Move move;
     private Player player;
+    private int cutOff;
 
     public BoardMove(Board board, Move move, Player player) {
         this.board = board;
         this.move = move;
         this.player = player;
+        cutOff = 0;
+    }
+
+    public void addCutOff() {
+        this.cutOff ++;
+    }
+
+    public int getCutOff() {
+        return cutOff;
     }
 
     public Board getBoard() {

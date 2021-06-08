@@ -153,7 +153,7 @@ public class GameControlWindow extends JDialog {
             for (int x = 0; x < width; x++) {
                 if (!alreadyAdded[y][x]) {
                     if (field[y][x] == player.getCharNumber()) {
-                        int playerNumber = player.getIntNumber();
+                        int playerNumber = player.getCharNumber() - '0';
                         playerPoints.add(new PlayerPoint(x, y, playerNumber));
                     } else if ("12345678".indexOf(field[y][x]) != -1) {
                         playerPoints.add(new PlayerPoint(x, y, 11));

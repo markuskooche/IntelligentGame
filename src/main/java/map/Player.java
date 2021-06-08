@@ -15,8 +15,8 @@ public class Player {
 
     private int bomb;
     private int overrideStone;
-    private final char charNumber;
     private final int intNumber;
+    private final char charNumber;
 
     /**
      * Creates a player with his number, bombs and override stones.
@@ -38,11 +38,15 @@ public class Player {
      * @param player player instance
      */
     public Player(Player player) {
-        this.intNumber = player.getIntNumber();
+        this.intNumber = player.intNumber;
         this.charNumber = player.getCharNumber();
         this.bomb = player.getBomb();
         this.overrideStone = player.getOverrideStone();
         this.disqualified = player.isDisqualified();
+    }
+
+    public int getIntNumber() {
+        return intNumber;
     }
 
     /**
@@ -52,10 +56,6 @@ public class Player {
      */
     public char getCharNumber() {
         return charNumber;
-    }
-
-    public int getIntNumber() {
-        return intNumber;
     }
 
     /**

@@ -1,4 +1,4 @@
-package heuristic;
+package timelimit;
 
 import java.util.Timer;
 import java.util.TimerTask;

@@ -1,15 +1,18 @@
 package controller;
 
-import heuristic.BombPosition;
-import heuristic.Heuristics;
-import heuristic.TimeExceededException;
+import heuristic.*;
+import heuristic.bestreply.BRSPlus;
+import heuristic.bestreply.HeuristicsBRS;
+import heuristic.bombposition.BombPosition;
+import heuristic.killermove.HeuristicKiller;
+import heuristic.montecarlo.MonteCarlo;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
 import map.Player;
 import map.Transition;
 import mapanalyze.MapAnalyzer;
-import server.MemoryChecker;
+import timelimit.TimeExceededException;
 
 import java.util.*;
 
@@ -27,10 +30,14 @@ public class Game {
 
     private static final int ADDITIONAL_OVERRIDE = 21;
     private static AnalyzeParser analyzeParser;
+    private MonteCarlo monteCarlo;
 
     private Player[] players;
     private Board board;
     private Heuristics heuristics;
+    private HeuristicsBRS heuristicsBRS;
+    private BRSPlus brsPlus;
+    private HeuristicKiller heuristicKiller;
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
@@ -41,7 +48,11 @@ public class Game {
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
-        mapAnalyzer.createVisibleField('1');
+        heuristicsBRS = new HeuristicsBRS(board, players, mapAnalyzer, analyzeParser);
+        brsPlus = new BRSPlus(board, players, mapAnalyzer, analyzeParser);
+        heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
+        //mapAnalyzer.createVisibleField('1');
+        //this.ourPlayerNumber = 1;
         //System.out.println(mapAnalyzer.getBoardValues());
     }
 
@@ -58,14 +69,40 @@ public class Game {
         }
     }
 
+    public void startReachableField() {
+        try {
+            mapAnalyzer.startReachableField(false, null);
+        } catch (TimeExceededException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
-    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
+    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting, boolean mcts) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-        //MemoryChecker.printHeapStatistic("MOVE");
+        Move move;
+
+        if (mcts) {
+            if (monteCarlo == null) {
+                monteCarlo = new MonteCarlo(players, ourPlayerNumber);
+            }
+
+            if (time > 6000) {
+                // TODO: maybe safe some time for the last override moves
+                time = 6000;
+            }
+            move = monteCarlo.getMove(board, time);
+        } else {
+            //move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        }
+
+        //System.out.println(move);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -75,7 +112,9 @@ public class Game {
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-        //MemoryChecker.printHeapStatistic("MOVE");
+        //Move move = heuristicsBRS.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        //Move move = brsPlus.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
+        //Move move = heuristicKiller.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -92,7 +131,7 @@ public class Game {
         int additional = 0;
 
         if (move.isChoice()) {
-            additional = heuristics.getBestPlayer(ourPlayerNumber);
+            additional = heuristics.getBestPlayer(ourPlayerNumber, board);
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone

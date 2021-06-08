@@ -1,4 +1,4 @@
-package heuristic;
+package timelimit;
 
 public class TimeExceededException extends Exception{
 }

@@ -19,6 +19,7 @@ public class Move {
     private boolean override;
     private boolean choice;
     private boolean bonus;
+    private Player player = null;
 
     /**
      * Creates a Move class that contains all information about a legal move.
@@ -232,13 +233,21 @@ public class Move {
         }
     }
 
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
     @Override
     public String toString() {
         StringBuilder moveString = new StringBuilder();
 
         if (list.size() != 0) {
             moveString.append("(" + getX() + ", " + getY() + ")\t | {I: " + inversion + " C: " + choice + " B: " + bonus + " O: " + override + "}");
-            moveString.append("\t -> [");
+            moveString.append(" \t-> [");
 
             for (int i = 0; i < list.size(); i++) {
                 moveString.append("(" + list.get(i)[0] + ", " + list.get(i)[1] + ")");

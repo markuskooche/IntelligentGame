@@ -5,6 +5,10 @@ import map.Board;
 import map.Move;
 import map.Player;
 import mapanalyze.MapAnalyzer;
+import timelimit.ThreadTimer;
+import timelimit.TimeExceededException;
+import timelimit.TimeOutTask;
+import timelimit.Token;
 
 import java.util.*;
 
@@ -23,38 +27,47 @@ public class Heuristics {
     private boolean timeLimited;
     private int maxSearchDepth;
     private long maxTimeForMove;
+    private boolean orderMoves;
+    private boolean alphaBeta;
+
+    private int ourMoveCount;
+    private boolean createdReachableFields = false;
 
     private static final int MULTIPLIER = 100000;
     //If opponent has less then 15 pieces, then check also for override stones
     //prevent dead-moves in start positions
     //((int) (1 / ((double) 1.5 * numPlayers))); (MARKUS)
     private static final int SMALL_OPPONENT_PIECES_LIMIT = 15;
-    private static final int DANGEROUS_COINPARITY_PERCENTAGE = 15 * MULTIPLIER;
-
-    private boolean createdReachableFields = false;
+    private static final int DANGEROUS_COINPARITY_PERCENTAGE = (int) (0.15 * MULTIPLIER);
 
     public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
         this.board = board;
         this.players = players;
-        numPlayers = players.length;
+        this.numPlayers = players.length;
         this.mapAnalyzer = mapAnalyzer;
         this.height = board.getHeight();
         this.width = board.getWidth();
         this.timeLimited = false;
         timeToken = new Token();
         Heuristics.analyzeParser = analyzeParser;
+
+        ourMoveCount = 0;
     }
 
     public Move getMoveByDepth(Player ourPlayer, int searchDepth, boolean orderMoves, boolean alphaBeta) {
         timeLimited = false;
         this.maxSearchDepth = searchDepth;
-        return getMove(ourPlayer, orderMoves, alphaBeta);
+        this.orderMoves = orderMoves;
+        this.alphaBeta = alphaBeta;
+        return getMove(ourPlayer);
     }
 
     public Move getMoveByTime(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
         timeLimited = true;
         this.maxTimeForMove = maxTimeForMove;
-        return getMove(ourPlayer, orderMoves, alphaBeta);
+        this.orderMoves = orderMoves;
+        this.alphaBeta = alphaBeta;
+        return getMove(ourPlayer);
     }
 
     private void startTimer(long maxTimeForMove) {
@@ -65,14 +78,17 @@ public class Heuristics {
         t.start();
     }
 
-    private Move getMove(Player ourPlayer, boolean orderMoves, boolean alphaBeta) {
+    private Move getMove(Player ourPlayer) {
         if (timeLimited) startTimer(maxTimeForMove);
+        ourMoveCount++;
         Move move;
         int ourPlayerNum = ourPlayer.getIntNumber();
         int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
         Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
-        List<Move> myMoves = board.getLegalMoves(ourPlayer, false);
+        boolean override = false;
+        //if (ourMoveCount > 15 && ourPlayer.getOverrideStone() > 0) override = true;
+        List<Move> myMoves = board.getLegalMoves(ourPlayer, override);
 
         //No normal moves found, check for overrideStone-Moves
         if(myMoves.isEmpty()) {
@@ -84,76 +100,48 @@ public class Heuristics {
         if (myMoves.size() == 1) return myMoves.get(0);
 
         move = myMoves.get(0); //Pick the first possible Move
-        if(!createdReachableFields) {
-            try {
-                mapAnalyzer.startReachableField(timeLimited, timeToken);
-            } catch (TimeExceededException e) { return move; }
-            createdReachableFields = true;
-        }
 
+        //MapAnalyzer: Try to create reachable fields
+        try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
 
         //Get all possible Boards with out possible moves
         List<BoardMove> executedStartMoves;
-        try {
-            executedStartMoves = executeAllMoves(ourPlayer,startBoard, myMoves, false);
-        } catch (TimeExceededException e) { return move; }
+        try { executedStartMoves = executeAllMoves(ourPlayer,startBoard, myMoves); }
+        catch (TimeExceededException e) { return move; }
 
         //Sort all possible moves
         if (orderMoves) {
-            try {
-                sortExecutedMoves(executedStartMoves, ourPlayer, ourPlayer);
-            } catch (TimeExceededException e) { return move; }
+            try { sortExecutedMoves(executedStartMoves, ourPlayer, ourPlayer); }
+            catch (TimeExceededException e) { return move; }
+            move = executedStartMoves.get(0).getMove(); //Get best Move for depth 1
         }
 
-        //Get best Move for depth 1
-        int pickedBoardValue = Integer.MIN_VALUE;
-        for (BoardMove boardMove : executedStartMoves) {
-            if (timeLimited && timeToken.timeExceeded()) return move;
-            Board b = boardMove.getBoard();
-            Move m = boardMove.getMove();
-            int tmpValue = getEvaluationForPlayer(ourPlayer, b, m);
-            if (tmpValue > pickedBoardValue) {
-                pickedBoardValue = tmpValue;
-                move = boardMove.getMove();
-            }
-        }
-
-        if (move.isEmpty()) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
         if (timeLimited) {
             int searchDepth = 2;
             while(!timeToken.timeExceeded()) {
                 mapsAnalyzed = 0;
-                if (searchDepth == numPlayers * 3) {
-                    if (move.isEmpty()) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
-                    return move;
-                }
+                if (searchDepth == numPlayers * 2 + 1) return move;
                 Move tmpMove;
                 try {
-                    tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum,
-                            alphaBeta, orderMoves);
+                    tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum);
                     searchDepth ++;
                     analyzeParser.searchDepth(searchDepth);
-                } catch (TimeExceededException e) {
-                    if (move.isEmpty()) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
-                    return move;
-                }
+                } catch (TimeExceededException e) { return move; }
+
                 if (tmpMove != null) move = tmpMove;
             }
         } else {
             if (maxSearchDepth >= 2) {
                 try {
-                    move = startSearching(executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum,
-                            alphaBeta, orderMoves);
+                    move = startSearching(executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum);
                 } catch (TimeExceededException e) { }
             }
         }
-
-        if (move.isEmpty()) analyzeParser.searchException(board, executedStartMoves, ourPlayer, false);
         return move;
     }
 
-    private Move startSearching(List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum, int ourPlayerNum,
-                                boolean alphaBeta, boolean orderMoves) throws TimeExceededException {
+    private Move startSearching(List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum,
+                                int ourPlayerNum) throws TimeExceededException {
         Move move = new Move();
         int depth = 1;
         int value = Integer.MIN_VALUE;
@@ -163,7 +151,7 @@ public class Heuristics {
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
             int tmpValue = searchMove(nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, searchDepth, maxLoop,
-                    alpha, beta, alphaBeta, orderMoves);
+                    alpha, beta);
             if (tmpValue > value) {
                 value = tmpValue;
                 move = boardMove.getMove();
@@ -175,7 +163,7 @@ public class Heuristics {
     }
 
     private int searchMove(int currPlayer, int ourPlayerNum, Board board, Move move, int depth, int maxDepth, int maxLoop,
-                           int alpha , int beta, boolean alphaBeta, boolean orderMoves) throws TimeExceededException {
+                           int alpha , int beta) throws TimeExceededException {
 
         if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
@@ -187,64 +175,63 @@ public class Heuristics {
 
         // Get all possible moves for this depth
         List<BoardMove> executedMoves;
-        if(player != ourPlayer && getAmountStones(player, board) < SMALL_OPPONENT_PIECES_LIMIT) {
-            List<Move> myMoves = board.getLegalMoves(ourPlayer, true);
-            executedMoves = executeAllMoves(player, board, myMoves, true);
-        } else if(player != ourPlayer && getCoinParity(ourPlayer, board) < DANGEROUS_COINPARITY_PERCENTAGE){
-            List<Move> myMoves = board.getLegalMoves(ourPlayer, true);
-            executedMoves = executeAllMoves(player, board, myMoves, true);
-        } else{
-            List<Move> myMoves = board.getLegalMoves(ourPlayer, false);
-            executedMoves = executeAllMoves(player, board, myMoves, false);
+        boolean override = false;
+        if (player != ourPlayer) {
+            //Prevent dead because of not considered overridestone moves
+            if (getAmountStones(player, board) < SMALL_OPPONENT_PIECES_LIMIT
+                    || getCoinParity(ourPlayer, board) < DANGEROUS_COINPARITY_PERCENTAGE) {
+                override = true;
+            }
         }
+        List<Move> playerMoves = board.getLegalMoves(player, override);
 
         // No moves for given player -> another player should move
         // Or the player is disqualified
-        if (executedMoves.isEmpty() || player.isDisqualified()) {
-            if (player == ourPlayer && getAmountStones(ourPlayer, board) == 0) {
-                return Integer.MIN_VALUE; //In this situation we are dead
+        if (playerMoves.isEmpty() || player.isDisqualified()) {
+            //We are dead
+            if (player == ourPlayer && getAmountStones(ourPlayer, board) == 0) return -80000;
+
+            //Maybe the Player can do overridestone moves
+            boolean noMoves = true;
+            if(player.getOverrideStone() > 0){
+                playerMoves = board.getLegalMoves(player, true);
+                if (!playerMoves.isEmpty()) noMoves = false;
             }
-            int nextPlayer = (currPlayer % numPlayers) + 1;
-            if(maxLoop < numPlayers) {
-                maxLoop++;
-                return searchMove(nextPlayer, ourPlayerNum, board, move,depth - 1, maxDepth, maxLoop,
-                        alpha, beta, alphaBeta, orderMoves);
-            } else {
-                return 0; //No player has any move (perhaps only override)
+
+            if (noMoves) {
+                int nextPlayer = (currPlayer % numPlayers) + 1;
+                if(maxLoop < numPlayers) {
+                    maxLoop++;
+                    return searchMove(nextPlayer, ourPlayerNum, board, move,depth - 1, maxDepth, maxLoop,
+                            alpha, beta);
+                } else { return 0; } //No player has any moves
             }
         }
+        executedMoves = executeAllMoves(player, board, playerMoves);
 
         if (orderMoves && depth < (maxDepth - 1)) sortExecutedMoves(executedMoves, ourPlayer, player);
 
-        int value;
-        if (player == ourPlayer) {
-            value = Integer.MIN_VALUE; //MAX
-        } else {
-            value = Integer.MAX_VALUE; //MIN
-        }
+        int value = Integer.MAX_VALUE; //MIN
+        if (player == ourPlayer) value = Integer.MIN_VALUE; //MAX
 
-        int tmpValue;
         int nextPlayer = (currPlayer % numPlayers) + 1;
         for (BoardMove boardMove : executedMoves) {
+
             mapsAnalyzed++;
-            tmpValue = searchMove(nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, maxDepth, maxLoop,
-                    alpha, beta, alphaBeta, orderMoves);
+            int tmpValue = searchMove(nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, maxDepth, maxLoop,
+                    alpha, beta);
 
             if (player == ourPlayer) { //MAX
                 if (tmpValue > value) value = tmpValue;
                 if (alphaBeta) {
                     if (tmpValue > alpha) alpha = tmpValue;
-                    if (tmpValue >= beta) {
-                        return value; //Cut off
-                    }
+                    if (tmpValue >= beta) return value; //Cut off
                 }
             } else { //MIN
                 if (tmpValue < value) value = tmpValue;
                 if (alphaBeta) {
                     if (tmpValue < beta) beta = tmpValue;
-                    if (tmpValue <= alpha) {
-                        return value; // Cut off
-                    }
+                    if (tmpValue <= alpha) return value; // Cut off
                 }
             }
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
@@ -253,11 +240,31 @@ public class Heuristics {
         return value;
     }
 
+    private boolean isStable(Move initMove, Move justExecuted) {
+        List<int[]> initMoves = initMove.getList();
+        int newStone = initMoves.size();
+        List<int[]> executedMoves = justExecuted.getList();
+        int lost = 0;
+
+        if (!initMove.isBonus() && !initMove.isChoice() && !initMove.isInversion()) {
+            for (int[] initM : initMoves) {
+                for (int[] executedM : executedMoves) {
+                    if(initM[0] == executedM[0] && initM[1] == executedM[1]) {
+                        lost++;
+                        break;
+                    }
+                }
+            }
+            if(lost == newStone) return false;
+        }
+        return true;
+    }
+
     private Move onlyOverrideStones(Board board, Player player, List<Move> myMoves) {
         Move move = myMoves.get(0); //Pick the first possible Move
         List<BoardMove> executedStartMoves;
         try {
-            executedStartMoves = executeAllMoves(player,board, myMoves, true);
+            executedStartMoves = executeAllMoves(player,board, myMoves);
         } catch (TimeExceededException e) { return move; }
 
         int value = Integer.MIN_VALUE;
@@ -271,7 +278,6 @@ public class Heuristics {
             }
         }
 
-        if (move == null) analyzeParser.searchException(board, executedStartMoves, player, true);
         return move;
     }
 
@@ -302,18 +308,18 @@ public class Heuristics {
         }
     }
 
-    private List<BoardMove> executeAllMoves(Player player, Board board, List<Move> myMoves, boolean overrideMoves) throws TimeExceededException {
+    private List<BoardMove> executeAllMoves(Player player, Board board, List<Move> myMoves) throws TimeExceededException {
         List<BoardMove> executedMoves = new ArrayList<>();
         for (Move m : myMoves) {
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
             Board newBoard = new Board(board);
-            int additionalInformation = getAdditionalInfo(m, player);
+            int additionalInformation = getAdditionalInfo(m, player, newBoard);
             newBoard.colorizeMove(m, player, additionalInformation);
 
             //executeMove() will decrease if override = true -> but this is only an assumption
             // similar with bonus
-            if(overrideMoves) player.increaseOverrideStone();
+            if(m.isOverride()) player.increaseOverrideStone();
             if(m.isBonus()) player.decreaseOverrideStone();
             //-------------------------------------------------
             executedMoves.add(new BoardMove(newBoard, m, player));
@@ -321,13 +327,22 @@ public class Heuristics {
         return executedMoves;
     }
 
+    private void createReachableFiled() throws TimeExceededException {
+        if(!createdReachableFields && !mapAnalyzer.failedToSetup()) {
+            mapAnalyzer.startReachableField(timeLimited, timeToken);
+        }
+        createdReachableFields = true;
+    }
+
     /**
      * Special field decision
      */
-    private int getAdditionalInfo(Move move, Player player) {
+    private int getAdditionalInfo(Move move, Player player, Board board) {
         int info = 0;
         if (move.isBonus()) info = 21; // we take allways a OverrideStone
-        if (move.isChoice()) info = player.getIntNumber(); //Current: never Change our Colour
+        if (move.isChoice()) {
+           info =  getBestPlayer(player.getIntNumber(), board);
+        }
         return info;
     }
 
@@ -354,6 +369,17 @@ public class Heuristics {
         if (move.isChoice()) {
             value += 70;
         }
+        /*
+        // TODO: idee für eine einfach inversion-heuristik
+        if (move.isInversion()) {
+            int ourValidation = getEvaluationForPlayer(wir);
+            int newValidation = getEvaluationForPlayer(spieler nach uns) + (100.000 wenn noch nicht komplett am ende);
+
+            if (newValidation >= ourValidation) {
+                value += 70;
+            }
+        }
+        */
         return value * MULTIPLIER;
     }
 
@@ -424,7 +450,7 @@ public class Heuristics {
         double myMovesAmount = myMoves.size();
         double result = myMovesAmount / allMoves;
 
-        return (int) (result * MULTIPLIER * 0.7);
+        return (int) (result * MULTIPLIER);
     }
 
     private int getAmountStones(Player player, Board board) {
@@ -441,7 +467,7 @@ public class Heuristics {
         return myStones.size();
     }
 
-    public int getBestPlayer(int ourPlayer) {
+    public int getBestPlayer(int ourPlayer, Board board) {
         int bestPlayer = ourPlayer;
         int bestEvaluation = Integer.MIN_VALUE;
 
