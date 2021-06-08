@@ -25,6 +25,7 @@ public class Game {
 
     private static final int ADDITIONAL_OVERRIDE = 21;
     private static AnalyzeParser analyzeParser;
+    private MonteCarlo monteCarlo;
 
     private Player[] players;
     private Board board;
@@ -63,16 +64,40 @@ public class Game {
         }
     }
 
+    public void startReachableField() {
+        try {
+            mapAnalyzer.startReachableField(false, null);
+        } catch (TimeExceededException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
     }
 
-    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting) {
+    public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting, boolean mcts) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
-//        Move move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-        Move move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-//        Move move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-//        Move move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        Move move;
+
+        if (mcts) {
+            if (monteCarlo == null) {
+                monteCarlo = new MonteCarlo(players, ourPlayerNumber);
+            }
+
+            if (time > 6000) {
+                // TODO: maybe safe some time for the last override moves
+                time = 6000;
+            }
+            move = monteCarlo.getMove(board, time);
+        } else {
+            //move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+        }
+
+        //System.out.println(move);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);

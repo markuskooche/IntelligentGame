@@ -10,13 +10,28 @@ import server.ServerConnection;
  */
 public class Main {
 
-    public static void printHelp() {
+    private static void printClient() {
+        System.out.println(" ______          _    __  __             _       ");
+        System.out.println("|___  /         | |  |  \\/  |           | |      ");
+        System.out.println("   / / ___   ___| | _| \\  / | ___  _ __ | |_ ___ ");
+        System.out.println("  / / / _ \\ / __| |/ / |\\/| |/ _ \\| '_ \\| __/ _ \\");
+        System.out.println(" / /_| (_) | (__|   <| |  | | (_) | | | | ||  __/");
+        System.out.println("/_____\\___/ \\___|_|\\_\\_|  |_|\\___/|_| |_|\\__\\___|");
+        System.out.println();
+        System.out.println("   Created by: Benedikt Halbritter");
+        System.out.println("               Iwan Eckert");
+        System.out.println("               Markus Koch");
+    }
+
+    private static void printHelp() {
         System.out.println();
         System.out.println("  -i <IP>           change to a specific ip\n");
         System.out.println("  -p <PORT>         change to a specific port\n");
         System.out.println("  -a <0 or 1>       enable/disable set alpha beta pruning");
         System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
         System.out.println("  -n <0 or 1>       enable/disable move sorting");
+        System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
+        System.out.println("  -m <0 or 1>       enable/disable monte carlo");
         System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
         System.out.println("  -q <0 or 1>       enable/disable console output");
         System.out.println("                    0 = DISABLE   |   1 = ENABLE\n");
@@ -27,6 +42,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        //printClient();
         ServerConnection server = new ServerConnection();
 
         // parameter transfers are intercepted here and processed accordingly
@@ -55,6 +71,11 @@ public class Main {
                 case "-n":
                     String moveSorting = args[i+1];
                     server.setMoveSorting(moveSorting);
+                    break;
+                // here you can switch monte carlo on and off
+                case "-m":
+                    String monteCarlo = args[i+1];
+                    server.setMonteCarlo(monteCarlo);
                     break;
                 // here you can switch console output completely on and off
                 case "-q":

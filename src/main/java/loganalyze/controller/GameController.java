@@ -221,7 +221,7 @@ public class GameController {
     }
 
     public String[] getExportMap(int index) {
-        if (index < counter) {
+        if (index <= counter) {
             PlayerInformation info = playerTableManager.getPlayerInformation(0).get(0);
             int height = game.getBoard().getHeight();
 

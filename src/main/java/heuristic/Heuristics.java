@@ -38,7 +38,7 @@ public class Heuristics {
     //prevent dead-moves in start positions
     //((int) (1 / ((double) 1.5 * numPlayers))); (MARKUS)
     private static final int SMALL_OPPONENT_PIECES_LIMIT = 15;
-    private static final int DANGEROUS_COINPARITY_PERCENTAGE = 15 * MULTIPLIER;
+    private static final int DANGEROUS_COINPARITY_PERCENTAGE = (int) (0.15 * MULTIPLIER);
 
     public Heuristics(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
         this.board = board;

@@ -28,12 +28,14 @@ public class ServerConnection {
 
     private boolean alphaBeta = true;
     private boolean moveSorting = true;
+    private boolean monteCarlo = false;
 
     private boolean consoleOutput = true;
     private boolean reduceOutput = true;
 
     private Game game;
     private byte ourPlayer;
+    private Socket socket;
     private boolean running = true;
     private boolean bomb = false;
 
@@ -167,7 +169,7 @@ public class ServerConnection {
                             }
                             // when the game is played with time limit
                             else {
-                                executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting);
+                                executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, monteCarlo);
                             }
 
                             // sends the best move to the server
@@ -388,6 +390,23 @@ public class ServerConnection {
             this.moveSorting = true;
         } else {
             System.err.println("ERROR: Please set move sorting to 0 or 1!");
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Turn monte carlo on or off.
+     *
+     * @param monteCarlo ON = 1 || OFF = 0
+     */
+    public void setMonteCarlo(String monteCarlo) {
+        // only on (= 1) and off (= 0) is allowed
+        if (monteCarlo.equals("0")) {
+            this.monteCarlo = false;
+        } else if (monteCarlo.equals("1")) {
+            this.monteCarlo = true;
+        } else {
+            System.err.println("ERROR: Please set monte carlo to 0 or 1!");
             System.exit(1);
         }
     }

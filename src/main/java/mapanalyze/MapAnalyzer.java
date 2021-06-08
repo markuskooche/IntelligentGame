@@ -42,7 +42,10 @@ public class MapAnalyzer {
         MapAnalyzer.analyzeParser = analyzeParser;
 
         board = b;
-        playerNumber = pNumber;
+        playerNumber = pNumber/2;
+        if(playerNumber < 2){
+            playerNumber = 2;
+        }
 
         initAllFields();
         reachableFinished = false;
@@ -104,21 +107,21 @@ public class MapAnalyzer {
                         //set multiplier
                         multiplier = 25;
                         //set the value of the current evaluated field
-                        field[i][j] += newValue * multiplier * 2;
+                        field[i][j] += newValue * multiplier * 4;
                         // set the values of the Fields adjacent to the current evaluated field
-                        createWaves(j, i, waveLength, (newValue * multiplier)/4);
+                        createWaves(j, i, waveLength, (newValue * multiplier)/8);
                     } else if (newValue == 6) {
                         multiplier = 15;
-                        field[i][j] += newValue * multiplier * 2;
-                        createWaves(j, i, waveLength, (newValue * multiplier)/4);
+                        field[i][j] += newValue * multiplier * 4;
+                        createWaves(j, i, waveLength, (newValue * multiplier)/8);
                     } else if (newValue == 5) {
                         multiplier = 10;
-                        field[i][j] += newValue * multiplier * 2;
-                        createWaves(j, i, waveLength, (newValue * multiplier)/4);
+                        field[i][j] += newValue * multiplier * 4;
+                        createWaves(j, i, waveLength, (newValue * multiplier)/8);
                     }else {
                         multiplier = 8;
-                        field[i][j] += newValue * multiplier *2;
-                        createWaves(j, i, waveLength, newValue);
+                        field[i][j] += newValue * multiplier * 4;
+                        createWaves(j, i, waveLength, newValue/3);
                     }
                     // to make them more appealing the current field gets a bonus value if the field is a bonus, choice or inversion field
                     if (currField == 'c') {
