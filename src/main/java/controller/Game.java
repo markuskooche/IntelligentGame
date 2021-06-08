@@ -43,9 +43,8 @@ public class Game {
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
         mapAnalyzer.createVisibleField('1');
-        //this.ourPlayerNumber = 1;
 
-        System.out.println(mapAnalyzer.getBoardValues());
+        //System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public Game(Game game) {
@@ -71,7 +70,6 @@ public class Game {
 
     public void setOurPlayerNumber(int ourPlayerNumber) {
         this.ourPlayerNumber = ourPlayerNumber;
-        monteCarlo = new MonteCarlo(players, ourPlayerNumber);
     }
 
     public int[] executeOurMoveTime(int time, boolean alphaBeta, boolean moveSorting, boolean mcts) {
@@ -79,18 +77,20 @@ public class Game {
         Move move;
 
         if (mcts) {
-            if (time > 6000) time = 6000;
-            System.out.println("MonteCarlo [" + time + "]");
-            move = monteCarlo.getMove(board, time);
-
-            if (move.isOverride()) {
-                System.out.println(board);
+            if (monteCarlo == null) {
+                monteCarlo = new MonteCarlo(players, ourPlayerNumber);
             }
+
+            if (time > 6000) {
+                // TODO: maybe safe some time for the last override moves
+                time = 6000;
+            }
+            move = monteCarlo.getMove(board, time);
         } else {
             move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         }
 
-        System.out.println(move);
+        //System.out.println(move);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);

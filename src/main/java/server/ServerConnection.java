@@ -20,8 +20,6 @@ import java.util.*;
  */
 public class ServerConnection {
 
-    private int globalCounter = 0;
-
     private static final byte GROUP = 1;
     private AnalyzeParser analyzeParser;
 
@@ -155,8 +153,6 @@ public class ServerConnection {
                     analyzeParser.loggingBoard(game.getBoard(), printPlayer);
                 }
 
-                globalCounter++;
-
                 // if you should send a normal move (phase 1)
                 if (!bomb) {
                     // selects the best move
@@ -168,13 +164,7 @@ public class ServerConnection {
                     }
                     // when the game is played with time limit
                     else {
-                        System.out.println("allowed time: " + allowedTime);
-                        System.out.println("global count: " + globalCounter);
-                        if (globalCounter >= 18) {
-                            executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, true);
-                        } else {
-                            executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, false);
-                        }
+                        executedMove = game.executeOurMoveTime(allowedTime, alphaBeta, moveSorting, monteCarlo);
                     }
 
                     // sends the best move to the server

@@ -44,33 +44,21 @@ public class MonteCarlo {
         startTimer(time);
 
         Board startBoard = new Board(board);
-        State rootState = new State(/*null, */startBoard, null, players,  ourPlayerNumber);
+        State rootState = new State(startBoard, null, players,  ourPlayerNumber);
         Node rootNode = new Node(rootState, null, playerAmount);
 
-        int count = 0;
+        //int count = 0;
 
         while (true) {
-            /*
-            if (timeToken.timeExceeded()) {
-                System.out.println("getMove OBEN");
-                System.out.println("Count : " + count);
-                Node selectedNode = bestChild(rootNode, 0);
-                return selectedNode.getState().getMove();
-            }*/
-
             try {
+                //count++;
                 copyPlayers();
-                count++;
                 Node node = treePolicy(rootNode);
-                /*
-                if (count <= 4) {
-                    System.out.println(node.getState().getBoard());
-                }*/
                 State state = defaultPolicy(node.getState());
                 int[] evaluation = getEvaluation(state.getBoard());
                 backup(node, evaluation);
             } catch (TimeExceededException e) {
-                System.out.println("Turns calculated: " + count);
+                //System.out.println("Turns calculated: " + count);
                 Node selectedNode = bestChild(rootNode, 0);
                 return selectedNode.getState().getMove();
             }
@@ -84,13 +72,14 @@ public class MonteCarlo {
     }
 
     private Node treePolicy(Node node) throws TimeExceededException {
-        int count = 0;
+        //int count = 0;
+
         while (!node.isTerminal()) {
             if (timeToken.timeExceeded()) {
-                System.out.println("Tree Policy Counter (Exception): " + count);
+                //System.out.println("Tree Policy Counter (Exception): " + count);
                 throw new TimeExceededException();
             }
-            count++;
+            //count++;
             if (!node.isFullyExpanded()) {
                 return expand(node);
             } else {
@@ -103,6 +92,7 @@ public class MonteCarlo {
 
             }
         }
+
         //System.out.println("Tree Policy Counter: " + count);
         return node;
     }
@@ -113,21 +103,16 @@ public class MonteCarlo {
 
         // select current player, board and additionalInfo
         Board board = new Board(node.getState().getBoard());
-        Player player = getNextPlayer(board);
+        Player player = getNextPlayer();
         int additionalInfo = getAdditionalInfo(move, player, board);
 
+        // execute selected move
         if (move != null) {
-            /* TODO: ??????
-            if (move.isOverride()) {
-                player.increaseOverrideStone();
-            }*/
-
-            // execute selected move
             board.colorizeMove(move, player, additionalInfo);
         }
 
         //create new State with the altered board
-        State state = new State(/*node, */board, move, tmpPlayers, ourPlayerNumber);
+        State state = new State(board, move, tmpPlayers, ourPlayerNumber);
 
         /*
         if (player.getIntNumber() == ourPlayerNumber && state.noNormalMoves(player)) {
@@ -155,7 +140,7 @@ public class MonteCarlo {
         return info;
     }
 
-    private Player getNextPlayer(Board board) {
+    private Player getNextPlayer() {
         currentPlayer = ((currentPlayer % playerAmount) + 1);
         return tmpPlayers[currentPlayer - 1];
     }
@@ -186,61 +171,47 @@ public class MonteCarlo {
     }
 
     private State defaultPolicy(State state) throws TimeExceededException {
-        int counter = 0;
+        //int counter = 0;
 
         while (!state.isTerminal()) {
             if (timeToken.timeExceeded()) {
-                System.out.println("Counter DefaultPolicy (exception): " + counter);
+                //System.out.println("Counter DefaultPolicy (exception): " + counter);
                 throw new TimeExceededException();
             }
-            counter++;
+            //counter++;
 
             // select current player, board and additionalInfo
             Board board = state.getBoard();
-            Player player = getNextPlayer(board);
+            Player player = getNextPlayer();
             Move randomMove = state.getRandomMove(player);
             //System.out.println(randomMove);
 
             if (randomMove != null) {
                 int additionalInfo = getAdditionalInfo(randomMove, player, board);
 
-                /*
-                if (randomMove.isOverride()) {
-                    player.increaseOverrideStone();
-                }
-                */
-
                 board.colorizeMove(randomMove, player, additionalInfo);
-                state = new State(/*null, */board, randomMove, tmpPlayers, ourPlayerNumber);
+                state = new State(board, randomMove, tmpPlayers, ourPlayerNumber);
             } else {
-                state = new State(/*null, */board, new Move(), tmpPlayers, ourPlayerNumber);
+                state = new State(board, new Move(), tmpPlayers, ourPlayerNumber);
             }
         }
 
-        /*
-        if (state.isTerminal() && counter == 0 && globalD > 1) {
-            System.out.println(state.getBoard());
-            System.exit(1);
-        }
-        */
-
-        //System.out.println("Counter DefaultPolicy: " + counter);
         return state;
     }
 
     private void backup(Node node, int[] evaluation) throws TimeExceededException {
-        int counter = 0;
+        //int counter = 0;
 
         while (node.getParent() != null) {
             if (timeToken.timeExceeded()) {
-                System.out.println("Counter Backup (Exception): " + counter);
+                //System.out.println("Counter Backup (Exception): " + counter);
                 throw new TimeExceededException();
             }
 
             node.increaseN();
             node.increaseQ(evaluation);
             node = node.getParent();
-            counter++;
+            //counter++;
         }
 
         //System.out.println("Counter Backup: " + counter);

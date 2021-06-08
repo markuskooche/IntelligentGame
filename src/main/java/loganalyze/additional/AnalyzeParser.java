@@ -170,15 +170,13 @@ public class AnalyzeParser {
     }
 
     public void searchDepth(int depth) {
-        // TODO: change to (output && !reduce)
-        if (output) {
+        if (output && !reduce) {
             System.out.println("Search Depth: " + depth);
         }
     }
 
     public void spentTimeForMove(long time) {
-        // TODO: change to (output && !reduce)
-        if (output) {
+        if (output && !reduce) {
             System.out.println("Time for Move: " + time);
         }
     }
