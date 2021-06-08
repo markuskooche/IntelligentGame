@@ -1,6 +1,10 @@
 package controller;
 
 import heuristic.*;
+import heuristic.bestreply.BRSPlus;
+import heuristic.bestreply.HeuristicsBRS;
+import heuristic.bombposition.BombPosition;
+import heuristic.killermove.HeuristicKiller;
 import heuristic.montecarlo.MonteCarlo;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;

@@ -1,4 +1,4 @@
-package heuristic;
+package heuristic.bombposition;
 
 /**
  * The BombPosition class searches for the best position of a bomb. This class uses a greedy approach.

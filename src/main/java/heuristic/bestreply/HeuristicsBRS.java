@@ -1,5 +1,6 @@
-package heuristic;
+package heuristic.bestreply;
 
+import heuristic.BoardMove;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
@@ -12,7 +13,8 @@ import timelimit.Token;
 
 import java.util.*;
 
-public class HeuristicKiller {
+public class HeuristicsBRS {
+
     private Board board;
     private Player[] players;
     private int mapsAnalyzed;
@@ -26,45 +28,38 @@ public class HeuristicKiller {
     private boolean timeLimited;
     private int maxSearchDepth;
     private long maxTimeForMove;
-    private boolean orderMoves;
-    private boolean alphaBeta;
 
     private static final int MULTIPLIER = 100000;
     private static final int SMALL_OPPONENT_PIECES_LIMIT = 15;
     private static final int DANGEROUS_COINPARITY_PERCENTAGE = 15 * MULTIPLIER;
 
     private boolean createdReachableFields = false;
+    private int coinParityHazard = 3000;
 
-    private List<List<Move>> killerMoves;
 
-    public HeuristicKiller(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
+    public HeuristicsBRS(Board board, Player[] players, MapAnalyzer mapAnalyzer, AnalyzeParser analyzeParser) {
         this.board = board;
         this.players = players;
-        this.numPlayers = players.length;
+        numPlayers = players.length;
         this.mapAnalyzer = mapAnalyzer;
         this.height = board.getHeight();
         this.width = board.getWidth();
         this.timeLimited = false;
         timeToken = new Token();
-        HeuristicKiller.analyzeParser = analyzeParser;
-
-        killerMoves = new ArrayList<>();
+        HeuristicsBRS.analyzeParser = analyzeParser;
     }
+
 
     public Move getMoveByDepth(Player ourPlayer, int searchDepth, boolean orderMoves, boolean alphaBeta) {
         timeLimited = false;
         this.maxSearchDepth = searchDepth;
-        this.orderMoves = orderMoves;
-        this.alphaBeta = alphaBeta;
-        return getMove(ourPlayer);
+        return getMove(ourPlayer, orderMoves, alphaBeta);
     }
 
     public Move getMoveByTime(Player ourPlayer, long maxTimeForMove, boolean orderMoves, boolean alphaBeta) {
         timeLimited = true;
         this.maxTimeForMove = maxTimeForMove;
-        this.orderMoves = orderMoves;
-        this.alphaBeta = alphaBeta;
-        return getMove(ourPlayer);
+        return getMove(ourPlayer, orderMoves, alphaBeta);
     }
 
     private void startTimer(long maxTimeForMove) {
@@ -75,17 +70,23 @@ public class HeuristicKiller {
         t.start();
     }
 
-    private Move getMove(Player ourPlayer) {
+    private Move getMove(Player ourPlayer, boolean orderMoves, boolean alphaBeta) {
         if (timeLimited) startTimer(maxTimeForMove);
-        killerMoves = new ArrayList<>();
         Move move;
         int ourPlayerNum = ourPlayer.getIntNumber();
         int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
         Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
-        boolean override = false;
-        //if (ourMoveCount > 15 && ourPlayer.getOverrideStone() > 0) override = true;
-        List<Move> myMoves = board.getLegalMoves(ourPlayer, override);
+        List<Move> myMoves;
+        int coinparity = getCoinParity(ourPlayer, board);
+        if (ourPlayer.getOverrideStone() > 0 && coinparity < coinParityHazard) {
+            System.out.println("Coinparity: " + coinparity );
+            coinParityHazard += 2000;
+            if (coinParityHazard > 24000) coinParityHazard = 6000;
+            myMoves = board.getLegalMoves(ourPlayer, true);
+        } else {
+            myMoves = board.getLegalMoves(ourPlayer, false);
+        }
 
         //No normal moves found, check for overrideStone-Moves
         if(myMoves.isEmpty()) {
@@ -97,9 +98,13 @@ public class HeuristicKiller {
         if (myMoves.size() == 1) return myMoves.get(0);
 
         move = myMoves.get(0); //Pick the first possible Move
+        if(!createdReachableFields) {
+            try {
+                mapAnalyzer.startReachableField(timeLimited, timeToken);
+            } catch (TimeExceededException e) { return move; }
+            createdReachableFields = true;
+        }
 
-        //MapAnalyzer: Try to create reachable fields
-        try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
 
         //Get all possible Boards with out possible moves
         List<BoardMove> executedStartMoves;
@@ -113,7 +118,6 @@ public class HeuristicKiller {
             move = executedStartMoves.get(0).getMove(); //Get best Move for depth 1
         }
 
-        SearchNode root = new SearchNode(null, new Move(), 1);
 
         if (timeLimited) {
             int searchDepth = 2;
@@ -122,26 +126,28 @@ public class HeuristicKiller {
                 if (searchDepth == numPlayers * 2 + 1) return move;
                 Move tmpMove;
                 try {
-                    tmpMove = startSearching(root, executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum);
+                    tmpMove = startSearching(executedStartMoves, searchDepth, nextPlayerNum, ourPlayerNum,
+                            alphaBeta, orderMoves);
                     searchDepth ++;
                     analyzeParser.searchDepth(searchDepth);
-                } catch (TimeExceededException e) { return move; }
-
+                } catch (TimeExceededException e) {
+                    return move;
+                }
                 if (tmpMove != null) move = tmpMove;
-                root = new SearchNode(null, new Move(), 1);
             }
         } else {
             if (maxSearchDepth >= 2) {
                 try {
-                    move = startSearching(root, executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum);
+                    move = startSearching(executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum,
+                            alphaBeta, orderMoves);
                 } catch (TimeExceededException e) { }
             }
         }
         return move;
     }
 
-    private Move startSearching(SearchNode root, List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum,
-                                int ourPlayerNum) throws TimeExceededException {
+    private Move startSearching(List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum, int ourPlayerNum,
+                                boolean alphaBeta, boolean orderMoves) throws TimeExceededException {
         Move move = new Move();
         int depth = 1;
         int value = Integer.MIN_VALUE;
@@ -150,8 +156,8 @@ public class HeuristicKiller {
         int beta = Integer.MAX_VALUE;
         for (BoardMove boardMove : executedStartMoves) {
             mapsAnalyzed++;
-            int tmpValue = searchMove(root, nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, searchDepth, maxLoop,
-                    alpha, beta);
+            int tmpValue = searchMove(nextPlayerNum, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), boardMove.getMove(), depth, searchDepth, maxLoop,
+                    alpha, beta, alphaBeta, orderMoves);
             if (tmpValue > value) {
                 value = tmpValue;
                 move = boardMove.getMove();
@@ -162,22 +168,21 @@ public class HeuristicKiller {
         return move;
     }
 
-    private int searchMove(SearchNode root, int currPlayer, int ourPlayerNum, Board board, Move move, int depth, int maxDepth, int maxLoop,
-                           int alpha , int beta) throws TimeExceededException {
+    private int searchMove(int currPlayer, int ourPlayerNum, Board board, Move move, Move firstMove, int depth, int maxDepth, int maxLoop,
+                           int alpha , int beta, boolean alphaBeta, boolean orderMoves) throws TimeExceededException {
 
         if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
         Player player = players[currPlayer - 1];
         Player ourPlayer = players[ourPlayerNum - 1];
-        SearchNode node = null;
         depth++;
         if(depth > maxDepth) {
-            if (player == ourPlayer && getAmountStones(ourPlayer, board) == 0) {
-                root.killCutOff();
-                return -80000;
+            if (getAmountStones(ourPlayer, board) == 0) {
+                return -80000; //In this situation we are dead
             }
             return getEvaluationForPlayer(ourPlayer, board, move);
         }
+
 
         // Get all possible moves for this depth
         List<BoardMove> executedMoves;
@@ -189,70 +194,72 @@ public class HeuristicKiller {
                 override = true;
             }
         }
-        List<Move> playerMoves = board.getLegalMoves(player, override);
 
-
-        // Get Killer Moves for this depth
-        if (!root.getNextChilds().isEmpty()) {
-            List<SearchNode> nextChilds = root.getNextChilds();
-            for (SearchNode child: nextChilds) {
-                if (child.getMove() == move) {
-                    node = child;
-                    break;
-                }
-            }
+        List<Move> playerMoves;
+        if (player == ourPlayer) {
+            playerMoves = board.getLegalMoves(player, override);
+        } else {
+            playerMoves = getAllEnemyMoves(ourPlayer, override);
         }
-        if (!root.getNextChilds().isEmpty()) sortKillerMoves(playerMoves, root);
 
 
         // No moves for given player -> another player should move
         // Or the player is disqualified
-        if (playerMoves.isEmpty() || player.isDisqualified()) {
-            //We are dead
+        if (playerMoves.isEmpty()) {
             if (player == ourPlayer && getAmountStones(ourPlayer, board) == 0) {
-                root.killCutOff();
-                return -80000;
+                return -80000; //In this situation we are dead
             }
 
             //Maybe the Player can do overridestone moves
             boolean noMoves = true;
-            if(player.getOverrideStone() > 0){
-                playerMoves = board.getLegalMoves(player, true);
-                if (!playerMoves.isEmpty()) noMoves = false;
+            if (player != ourPlayer) {
+                playerMoves = getAllEnemyMoves(player, true);
+            } else {
+                if(player.getOverrideStone() > 0){
+                    playerMoves = board.getLegalMoves(player, true);
+                }
             }
+            if (!playerMoves.isEmpty()) noMoves = false;
 
             if (noMoves) {
                 int nextPlayer = (currPlayer % numPlayers) + 1;
+                if (player != ourPlayer) nextPlayer = ourPlayerNum;
                 if(maxLoop < numPlayers) {
                     maxLoop++;
-                    return searchMove(root, nextPlayer, ourPlayerNum, board, move,depth - 1, maxDepth, maxLoop,
-                            alpha, beta);
-                } else { return 0; } //No player has any moves
+                    return searchMove(nextPlayer, ourPlayerNum, board, move, firstMove,depth - 1, maxDepth, maxLoop,
+                            alpha, beta, alphaBeta, orderMoves);
+                } else {
+                    return 0; //No player has any move (perhaps only override)
+                }
             }
         }
+
         executedMoves = executeAllMoves(player, board, playerMoves);
 
-        if (node == null) {
-            node = new SearchNode(root, move, depth);
-            root.addNextChild(node);
+        if (orderMoves && depth < maxDepth) sortExecutedMoves(executedMoves, ourPlayer, player);
+
+        int value;
+        if (player == ourPlayer) {
+            value = Integer.MIN_VALUE; //MAX
+        } else {
+            value = Integer.MAX_VALUE; //MIN
         }
 
-        int value = Integer.MAX_VALUE; //MIN
-        if (player == ourPlayer) value = Integer.MIN_VALUE; //MAX
-
+        int tmpValue;
         int nextPlayer = (currPlayer % numPlayers) + 1;
+        if (player != ourPlayer) nextPlayer = ourPlayerNum;
+
         for (BoardMove boardMove : executedMoves) {
 
             mapsAnalyzed++;
-            int tmpValue = searchMove(node, nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(), depth, maxDepth, maxLoop,
-                    alpha, beta);
+            tmpValue = searchMove(nextPlayer, ourPlayerNum, boardMove.getBoard(), boardMove.getMove(),firstMove, depth, maxDepth, maxLoop,
+                    alpha, beta, alphaBeta, orderMoves);
 
             if (player == ourPlayer) { //MAX
                 if (tmpValue > value) value = tmpValue;
                 if (alphaBeta) {
                     if (tmpValue > alpha) alpha = tmpValue;
                     if (tmpValue >= beta) {
-                        root.addCutOff();
                         return value; //Cut off
                     }
                 }
@@ -261,7 +268,6 @@ public class HeuristicKiller {
                 if (alphaBeta) {
                     if (tmpValue < beta) beta = tmpValue;
                     if (tmpValue <= alpha) {
-                        root.addCutOff();
                         return value; // Cut off
                     }
                 }
@@ -272,45 +278,21 @@ public class HeuristicKiller {
         return value;
     }
 
-    private void sortKillerMoves(List<Move> playerMoves, SearchNode root) throws TimeExceededException {
-        List<SearchNode> childs = new ArrayList<>();
-
-        for (SearchNode child : root.getNextChilds()) {
-            for (SearchNode childChild : child.getNextChilds()) {
-                childs.add(childChild);
-            }
-        }
-
-        if (childs.isEmpty()) return;
-
-        Map<Move, Integer> evaluatedBoards = new LinkedHashMap<>();
-        int size = playerMoves.size();
-        for (int i = 0; i < size; i++) {
-            Move m = playerMoves.get(i);
-            for (SearchNode child : childs) {
-                if (m.getX() == child.getMove().getX() && m.getY() == child.getMove().getY()) {
-                    evaluatedBoards.put(m, child.getCutOffs());
-                    playerMoves.remove(i);
-                    size--;
-                    i--;
-                    break;
+    private List<Move> getAllEnemyMoves(Player ourPlayer, boolean override) throws TimeExceededException {
+        List<Move> playerMoves = new ArrayList<>();
+        for (Player player : players) {
+            if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
+            if (player.isDisqualified()) continue;
+            if (player != ourPlayer) {
+                if (player.getOverrideStone() < 0 && override) continue;
+                List<Move> tmp = board.getLegalMoves(player, override);
+                for (Move move : tmp) {
+                    move.setPlayer(player);
+                    playerMoves.add(move);
                 }
             }
         }
-
-        List<Move> rest = new ArrayList<>();
-        rest.addAll(playerMoves);
-
-        List<Map.Entry<Move, Integer>> boardEntryList = new ArrayList<>(evaluatedBoards.entrySet());
-        boardEntryList.sort(Map.Entry.comparingByValue()); //Sorting ascending
-
-        playerMoves.clear();
-        for (Map.Entry<Move, Integer> entry : boardEntryList) {
-            if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
-            playerMoves.add(0, entry.getKey());
-        }
-
-        playerMoves.addAll(rest);
+        return playerMoves;
     }
 
     private boolean isStable(Move initMove, Move justExecuted) {
@@ -387,24 +369,26 @@ public class HeuristicKiller {
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
 
             Board newBoard = new Board(board);
-            int additionalInformation = getAdditionalInfo(m, player, newBoard);
-            newBoard.colorizeMove(m, player, additionalInformation);
+            int additionalInformation;
+            //Take player from Move
+            if (m.getPlayer() != null) {
+                additionalInformation = getAdditionalInfo(m, m.getPlayer(), newBoard);
+                newBoard.colorizeMove(m, m.getPlayer(), additionalInformation);
 
-            //executeMove() will decrease if override = true -> but this is only an assumption
-            // similar with bonus
-            if(m.isOverride()) player.increaseOverrideStone();
-            if(m.isBonus()) player.decreaseOverrideStone();
-            //-------------------------------------------------
-            executedMoves.add(new BoardMove(newBoard, m, player));
+                if(m.isOverride()) m.getPlayer().increaseOverrideStone();
+                if(m.isBonus()) m.getPlayer().decreaseOverrideStone();
+                executedMoves.add(new BoardMove(newBoard, m, m.getPlayer()));
+
+            } else {
+                additionalInformation = getAdditionalInfo(m, player, newBoard);
+                newBoard.colorizeMove(m, player, additionalInformation);
+
+                if(m.isOverride()) player.increaseOverrideStone();
+                if(m.isBonus()) player.decreaseOverrideStone();
+                executedMoves.add(new BoardMove(newBoard, m, player));
+            }
         }
         return executedMoves;
-    }
-
-    private void createReachableFiled() throws TimeExceededException {
-        if(!createdReachableFields) {
-            mapAnalyzer.startReachableField(timeLimited, timeToken);
-        }
-        createdReachableFields = true;
     }
 
     /**
@@ -547,4 +531,5 @@ public class HeuristicKiller {
 
         return bestPlayer;
     }
+
 }

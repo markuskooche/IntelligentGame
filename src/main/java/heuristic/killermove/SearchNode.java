@@ -1,8 +1,6 @@
-package heuristic;
+package heuristic.killermove;
 
-import map.Board;
 import map.Move;
-import map.Player;
 
 import java.util.ArrayList;
 import java.util.List;

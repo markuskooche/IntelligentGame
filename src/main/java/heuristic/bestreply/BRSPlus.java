@@ -1,5 +1,6 @@
-package heuristic;
+package heuristic.bestreply;
 
+import heuristic.BoardMove;
 import loganalyze.additional.AnalyzeParser;
 import map.Board;
 import map.Move;
