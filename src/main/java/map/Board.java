@@ -390,7 +390,7 @@ public class Board {
                     if (!checkMove.isEmpty()) {
                         if (legalMove.isEmpty()) {
                             legalMove.add(new int[] {x, y});
-                            legalMove.addPlayerDirection(direction, nextX, nextY);
+                            legalMove.addPlayerDirection(new int[]{direction[0], direction[1]}, nextX, nextY);
                         }
                         legalMove.merge(checkMove);
                     }
