@@ -1077,6 +1077,22 @@ public class MapAnalyzer {
         this.interestingCornerFieldList = interestingCornerFieldList;
     }
 
+    public List<int[]> getInterestingChoiceFieldList() {
+        return interestingChoiceFieldList;
+    }
+
+    public void setInterestingChoiceFieldList(List<int[]> interestingChoiceFieldList) {
+        this.interestingChoiceFieldList = interestingChoiceFieldList;
+    }
+
+    public List<int[]> getInterestingInversionFieldList() {
+        return interestingInversionFieldList;
+    }
+
+    public void setInterestingInversionFieldList(List<int[]> interestingInversionFieldList) {
+        this.interestingInversionFieldList = interestingInversionFieldList;
+    }
+
     public int[][] getReachableField() {
         return reachableField;
     }
