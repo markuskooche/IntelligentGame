@@ -29,6 +29,8 @@ public class MapAnalyzer {
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
     private List<int[]> interestingBonusFieldList;
+    private List<int[]> interestingChoiceFieldList;
+    private List<int[]> interestingInversionFieldList;
     private List<int[]> interestingCornerFieldList;
     private int[][] visibleField;
     private int[][] tmpField;
@@ -78,6 +80,8 @@ public class MapAnalyzer {
         // init the interestingFieldList. It contains interesting fields like corners or the position of special stones
         interestingBonusFieldList = new ArrayList<>();
         interestingCornerFieldList = new ArrayList<>();
+        interestingChoiceFieldList = new ArrayList<>();
+        interestingInversionFieldList = new ArrayList<>();
     }
 
     /**
@@ -125,27 +129,22 @@ public class MapAnalyzer {
                         field[i][j] += newValue * multiplier *2;
                         createWaves(j, i, waveLength, newValue);
                     }
-                    boolean fieldIsBonus = false;
+                    int[] position = new int[2];
+                    position[0] = j; //set x position
+                    position[1] = i; //set y position
                     // to make them more appealing the current field gets a bonus value if the field is a bonus, choice or inversion field
                     if (currField == 'c') {
-                        fieldIsBonus = true;
                         field[i][j] += 10000;
                         createWaves(j, i, waveLength, 25);
+                        interestingChoiceFieldList.add(new int[]{j,i});
                     } else if (currField == 'b') {
-                        fieldIsBonus = true;
                         field[i][j] += 8000;
                         createWaves(j, i, waveLength, 20);
+                        interestingBonusFieldList.add(new int[]{j,i});
                     } else if (currField == 'i') {
-                        fieldIsBonus = true;
                         field[i][j] += 9000;
                         createWaves(j, i, waveLength, 22);
-                    }
-                    //Mark the field as interesting
-                    if(fieldIsBonus){
-                        int[] position = new int[2];
-                        position[0] = j; //set x position
-                        position[1] = i; //set y position
-                        interestingBonusFieldList.add(position);
+                        interestingInversionFieldList.add(new int[]{j,i});
                     }
                 }
             }
