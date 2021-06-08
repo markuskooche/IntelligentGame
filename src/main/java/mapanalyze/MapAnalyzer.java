@@ -40,6 +40,7 @@ public class MapAnalyzer {
 
     private Token timeToken = new Token();
     private boolean timeLimited = false;
+    private boolean failedToSetup = false;
 
 
     public MapAnalyzer(Board b, int pNumber, AnalyzeParser analyzeParser) {
@@ -62,8 +63,10 @@ public class MapAnalyzer {
         try {
             createReachableField();
             reachableFinished = true;
-        } catch (StackOverflowError | OutOfMemoryError e) {
+            board.setReachableField(reachableField);
+        } catch (Exception e) {
             analyzeParser.mapAnalyzerError();
+            failedToSetup = true;
         }
     }
 
@@ -1103,5 +1106,9 @@ public class MapAnalyzer {
 
     public void setReachableField(int[][] reachableField) {
         this.reachableField = reachableField;
+    }
+
+    public boolean failedToSetup() {
+        return failedToSetup;
     }
 }

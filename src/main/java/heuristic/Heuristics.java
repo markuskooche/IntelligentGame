@@ -328,7 +328,7 @@ public class Heuristics {
     }
 
     private void createReachableFiled() throws TimeExceededException {
-        if(!createdReachableFields) {
+        if(!createdReachableFields && !mapAnalyzer.failedToSetup()) {
             mapAnalyzer.startReachableField(timeLimited, timeToken);
         }
         createdReachableFields = true;
@@ -369,6 +369,17 @@ public class Heuristics {
         if (move.isChoice()) {
             value += 70;
         }
+        /*
+        // TODO: idee für eine einfach inversion-heuristik
+        if (move.isInversion()) {
+            int ourValidation = getEvaluationForPlayer(wir);
+            int newValidation = getEvaluationForPlayer(spieler nach uns) + (100.000 wenn noch nicht komplett am ende);
+
+            if (newValidation >= ourValidation) {
+                value += 70;
+            }
+        }
+        */
         return value * MULTIPLIER;
     }
 
