@@ -98,12 +98,13 @@ public class Heuristics {
         if (ourMoves.size() == 1) return ourMoves.get(0);
 
         move = ourMoves.get(0); //Pick the first possible Move
-        removeBadMoves(ourMoves, startBoard, ourPlayer);
+        LineList lineList = analyzeMoves(ourMoves, startBoard, ourPlayer);
+        filterMoves(lineList, ourMoves);
 
         //MapAnalyzer: Try to create reachable fields
         try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
 
-        //if(alphaBeta) return move;
+
 
         //Get all possible Boards with out possible moves
         List<BoardMove> executedStartMoves;
@@ -116,6 +117,13 @@ public class Heuristics {
             catch (TimeExceededException e) { return move; }
             move = executedStartMoves.get(0).getMove(); //Get best Move for depth 1
         }
+
+        try {
+            move = getStableMove(executedStartMoves, ourPlayer);
+        } catch (TimeExceededException e) {
+            return move;
+        }
+        if(alphaBeta) return move;
 
         if (timeLimited) {
             int searchDepth = 2;
@@ -185,7 +193,7 @@ public class Heuristics {
             }
         }
         List<Move> playerMoves = board.getLegalMoves(player, override);
-        //if (!override) removeBadMoves(playerMoves, board, player);
+        if (!override) analyzeMoves(playerMoves, board, player);
 
         // No moves for given player -> another player should move
         // Or the player is disqualified
@@ -242,18 +250,100 @@ public class Heuristics {
         return value;
     }
 
-    private void sortMovesGreedy(List<Move> moves) {
-        moves.sort((m1, m2) -> m2.compareTo(m1));
+    private Move getStableMove(List<BoardMove> executedStartMoves, Player ourPlayer) throws TimeExceededException {
+
+        int open = 0;
+        int control = 0;
+        Move move = new Move();
+        for (BoardMove boardMove : executedStartMoves) {
+            List<Player> myEnemys = new ArrayList<>();
+            Board board = boardMove.getBoard();
+            List<Move> enemyMoves = getAllEnemyMoves(ourPlayer, board, false);
+            List<Move> againsMe = new ArrayList<>();
+            for (Move enemyMove : enemyMoves) {
+                if (enemyMove.getAims().indexOf(ourPlayer.getCharNumber()) > -1) {
+                    againsMe.add(enemyMove);
+                    Player enemy = enemyMove.getPlayer();
+                    if (!myEnemys.contains(enemy)) myEnemys.add(enemy);
+                }
+            }
+
+            for (Player p : myEnemys) {
+                List<Move> tmp = new ArrayList<>();
+                for (Move m : againsMe) {
+                    if (m.getPlayer() == p) tmp.add(m);
+                }
+
+                LineList lineList = analyzeMoves(tmp, board, p);
+                int numBadMoves = lineList.getOpenLines().size();
+                if (numBadMoves > open) {
+                    open = numBadMoves;
+                    move = boardMove.getMove();
+                }
+
+            }
+
+        }
+        return move;
     }
 
-    private void removeBadMoves(List<Move> moves, Board board, Player ourPlayer) {
+    private List<Move> getAllEnemyMoves(Player ourPlayer, Board board, boolean override) throws TimeExceededException {
+        List<Move> playerMoves = new ArrayList<>();
+        for (Player player : players) {
+            if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
+            if (player.isDisqualified()) continue;
+            if (player != ourPlayer) {
+                if (player.getOverrideStone() < 0 && override) continue;
+                List<Move> tmp = board.getLegalMoves(player, override);
+                for (Move move : tmp) {
+                    move.setPlayer(player);
+                    playerMoves.add(move);
+                }
+            }
+        }
+        return playerMoves;
+    }
+
+    private void filterMoves(LineList lineList, List<Move> moves) {
+
+        //We take always Bonus when possible
+        List<Move> bonus = lineList.getBonusMoves();
+        if (!bonus.isEmpty()) {
+            moves.clear();
+            moves.addAll(bonus);
+            return;
+        }
+
+        //Remove bad Moves
+        List<Move> badMoves = new ArrayList<>();
+        List<Line> badLines = new ArrayList<>();
+        badLines.addAll(lineList.getOpenLines());
+        if (badLines.size() + lineList.getControllLines().size() < moves.size())
+        {
+            badLines.addAll(lineList.getControllLines());
+        }
+
+        for (Line line : badLines) {
+            badMoves.add(line.getMove());
+        }
+        if (badMoves.size() < moves.size()) moves.removeAll(badMoves);
+        moves.sort((m1, m2) -> m2.compareTo(m1)); //Sort Greedy the left moves
+    }
+
+    private LineList analyzeMoves(List<Move> moves, Board board, Player ourPlayer) {
         int size = moves.size();
         char ourNumber = ourPlayer.getCharNumber();
+        LineList lineList = new LineList();
         for (int i = 0; i < size; i++) {
 
             Move move = moves.get(i);
             char field = board.getField()[move.getY()][move.getX()];
             Map<int[],int[]> myStone = move.getPlayerDirections();
+
+            if (field == 'b') lineList.addBonus(move);
+            if (field == 'c') lineList.addChoice(move);
+            if (field == 'i') lineList.addInversion(move);
+
             if (myStone.size() > 1 || "bic".indexOf(field) > -1) continue;
 
             int[] pos = new int[2];
@@ -264,9 +354,9 @@ public class Heuristics {
                 direction[1] = entry.getValue()[1];
             }
 
-            List<Character> lines = new ArrayList<>();
+            List<Character> stoneRow = new ArrayList<>();
             for (int j = 0; j <= move.getList().size(); j++) {
-                lines.add(ourNumber);
+                stoneRow.add(ourNumber);
             }
 
             //Check the front stone
@@ -275,19 +365,33 @@ public class Heuristics {
             int [] dirFront = {direction[0] * (-1), direction[1] * (-1)};
             int [] dirBack = {direction[0], direction[1]};
 
-            boolean wall = buildLine(xFront, yFront, dirFront, board, lines, true, ourPlayer);
-            if (wall) continue; // we hit a wall -> safe move
-            buildLine(pos[0], pos[1], dirBack, board, lines, false, ourPlayer);
-            int lastInLines = lines.size() - 1;
-            if (lines.get(0) == ourNumber && lines.get(lastInLines) == ourNumber) continue;
+            //build the line
+            boolean wall = buildLine(xFront, yFront, dirFront, board, stoneRow, true, ourPlayer);
+            buildLine(pos[0], pos[1], dirBack, board, stoneRow, false, ourPlayer);
 
-            if (size - 1 > 0) {
-                moves.remove(i);
-                size--;
-                i--;
+
+            if (wall) {
+                lineList.add(new Line(move, stoneRow), LineState.WALL);
+                continue; // We will get crner/wall place -> safe
             }
+            int lastInLines = stoneRow.size() - 1;
+            if (stoneRow.get(0) == ourNumber && stoneRow.get(lastInLines) == ourNumber) {
+                //We will control this line, we are first and last player
+                lineList.add(new Line(move, stoneRow), LineState.CONTROLL);
+                continue;
+            }
+
+            if (stoneRow.get(0) == stoneRow.get(lastInLines)) {
+                //We are trapped between the enemy but can safely move in between
+                lineList.add(new Line(move, stoneRow), LineState.CAUGHT);
+                continue;
+            }
+
+            lineList.add(new Line(move, stoneRow), LineState.OPEN);
         }
-        sortMovesGreedy(moves);
+
+
+        return lineList;
     }
 
     private boolean buildLine(int x, int y, int[] direction, Board board, List<Character> lines,  boolean front, Player ourPlayer) {
@@ -315,9 +419,8 @@ public class Heuristics {
                     return false;
                 } else {
                     // Get new direction and new position
-                    direction = Direction.valueOf(transition.getR());
-                    direction[0] *= -1;
-                    direction[1] *= -1;
+                    direction[0] = Direction.valueOf(transition.getR())[0] * (-1);
+                    direction[1] = Direction.valueOf(transition.getR())[1] * (-1);
                     x = transition.getX();
                     y = transition.getY();
                 }
@@ -516,7 +619,7 @@ public class Heuristics {
         double allStones = playerStones.size();
         double myStonesAmount = myStones.size();
         double result = myStonesAmount / allStones;
-        return (int) (result * MULTIPLIER);
+        return (int) (result * MULTIPLIER*0.5);
     }
 
     public int getMobility(Player player, Board board) {
@@ -536,7 +639,7 @@ public class Heuristics {
         double myMovesAmount = myMoves.size();
         double result = myMovesAmount / allMoves;
 
-        return (int) (result * MULTIPLIER);
+        return (int) (result * MULTIPLIER *0.5);
     }
 
     private int getAmountStones(Player player, Board board) {

@@ -89,8 +89,6 @@ public class Game {
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
-
-        System.out.println(board.toString());
         return new int[] {move.getX(), move.getY(), additional};
     }
 
@@ -204,7 +202,6 @@ public class Game {
         for (Move legalMove : legalMoves) {
             // colorize board if it is the correct move
             if (legalMove.isMove(selectedMove)) {
-                System.out.println("Player : " + currentPlayer + " " + legalMove.getX() + " / " + legalMove.getY());
                 board.colorizeMove(legalMove, currentPlayer, additionalOperation);
                 break;
             }

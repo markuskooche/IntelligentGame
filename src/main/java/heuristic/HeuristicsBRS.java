@@ -188,7 +188,7 @@ public class HeuristicsBRS {
         if (player == ourPlayer) {
             playerMoves = board.getLegalMoves(player, override);
         } else {
-            playerMoves = getAllEnemyMoves(ourPlayer, override);
+            playerMoves = getAllEnemyMoves(ourPlayer, board,  override);
         }
 
         // No moves for given player -> another player should move
@@ -200,7 +200,7 @@ public class HeuristicsBRS {
             //Maybe the Player can do overridestone moves
             boolean noMoves = true;
             if (player != ourPlayer) {
-                playerMoves = getAllEnemyMoves(player, true);
+                playerMoves = getAllEnemyMoves(player, board, true);
             } else {
                 if(player.getOverrideStone() > 0){
                     playerMoves = board.getLegalMoves(player, true);
@@ -252,7 +252,7 @@ public class HeuristicsBRS {
         return value;
     }
 
-    private List<Move> getAllEnemyMoves(Player ourPlayer, boolean override) throws TimeExceededException {
+    private List<Move> getAllEnemyMoves(Player ourPlayer, Board board, boolean override) throws TimeExceededException {
         List<Move> playerMoves = new ArrayList<>();
         for (Player player : players) {
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();

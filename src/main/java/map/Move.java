@@ -23,6 +23,7 @@ public class Move {
     private boolean bonus;
     private Player player = null;
     private Map<int[], int[]> playerDirection;
+    private String aims;
 
     /**
      * Creates a Move class that contains all information about a legal move.
@@ -33,6 +34,7 @@ public class Move {
         override = false;
         choice = false;
         playerDirection = new HashMap<>();
+        aims = "";
     }
 
     /**
@@ -48,6 +50,7 @@ public class Move {
         override = true;
         choice = false;
         playerDirection = new HashMap<>();
+        aims = "";
     }
 
     /**
@@ -65,6 +68,15 @@ public class Move {
         this.override = move.isOverride();
         this.choice = move.isChoice();
         this.bonus = move.isBonus();
+        this.aims = move.getAims();
+    }
+
+    public String getAims() {
+        return aims;
+    }
+
+    public void appendAimes(char enemy) {
+        if (aims.indexOf(enemy) == -1) aims += enemy;
     }
 
     public void addPlayerDirection(int [] direction, int x, int y) {
