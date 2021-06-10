@@ -278,6 +278,7 @@ public class MapAnalyzer {
 
         //Follow this direction until the End of the board
         while (true){
+
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
             //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
             int [] currStone = new int[3];
@@ -364,7 +365,7 @@ public class MapAnalyzer {
                             continue;
                         }
                         //Ignore the transition, if the destination is 0
-                        if(board.getField()[destination[1]][destination[0]] == '0'){
+                        if(board.getField()[destination[1]][destination[0]] == '0' && reachableField[destination[1]][destination[0]] == 0 ){
                             continue;
                         }
 
@@ -386,6 +387,7 @@ public class MapAnalyzer {
 
                         //Follow the transition
                         threeToFour();
+                        reachableField[y][x] = 3;
                         followFields(destination[0], destination[1], Direction.valueOf(oppositeDest));
 
                         //get the opposite directions
@@ -400,22 +402,21 @@ public class MapAnalyzer {
                         if (oppositeX < 0 || oppositeX >= board.getWidth() || oppositeY < 0 || oppositeY >= board.getHeight() || board.getField()[oppositeY][oppositeX] == '-') {
 
                             //Search for transitions
-                            directionValue = Direction.indexOf(oppositeDirection);
-                            transition = board.getTransition(oppositeX, oppositeY, directionValue);
+                            directionValue = Direction.indexOf(oppositeCurrDirection);
+                            transition = board.getTransition(x, y, directionValue);
 
                             if (transition != null) {
 
                                 destination = transition.getDestination();
 
-                                if(oppositeDest == Direction.indexOf(currentDirection) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection)) {
                                     specialFieldListSidePath.add(currStone);
                                     threeToFour();
+                                    reachableField[y][x] = 3;
                                     followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
-                                }
                             }
                         }else{
                             //go in the opposite direction
-                            followFields(oppositeX, oppositeY,oppositeDirection);
+                            followFields(oppositeX, oppositeY,oppositeCurrDirection);
                         }
                     }
 

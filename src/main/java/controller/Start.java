@@ -111,7 +111,7 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/oldMaps/2_player/comp2020_02_2p.map");
+        Game game = createGame("maps/mapsThatDontWork/incorrectReachable.map");
         System.out.println(game.toString());
 
         //Player player = game.getPlayer(PLAYER_NUMBER);
