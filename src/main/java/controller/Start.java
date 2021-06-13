@@ -81,27 +81,12 @@ public class Start {
         return new int[] {x, y, a};
     }
 
-    private static int[] selectBombMove (Game game) {
+    private static int[] executeBombMove (Game game) {
         int height = game.getBoard().getHeight();
         int width = game.getBoard().getWidth();
 
-        int a = 0;
-        int x, y;
-        char piece;
-
-        do {
-            System.out.print("Please select a valid position [x, y]: ");
-            Scanner scanner = new Scanner(System.in);
-
-            x = scanner.nextInt();
-            y = scanner.nextInt();
-
-            piece = game.getBoard().getPiece(x, y);
-
-        } while((x < 0 || x >= width) || (y < 0 && x >= height) || piece == '#');
-
-        game.executeBomb(x, y);
-        return new int[] {x, y, a};
+        int[] position = game.executeOurBomb();
+        return new int[] {position[0], position[1]};
     }
 
     private static void printLegalMoves(Game game, Player player) {
@@ -114,56 +99,18 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        //Game game = createGame("maps/fancyMaps/big_eight.map");
-        //System.out.println(game.toString());
+        Game game = createGame("maps/fancyMaps/big_eight.map");
+        game.setOurPlayerNumber(PLAYER_NUMBER);
+        System.out.println(game);
 
-        //Player player = game.getPlayer(PLAYER_NUMBER);
-        //Player player = game.getPlayer(1);
+        Player player = game.getPlayer(PLAYER_NUMBER);
 
         // EXECUTE NORMAL MOVE
-        //printLegalMoves(game, player);
-        //selectMove(game, player);
+        // printLegalMoves(game, player);
+        // selectMove(game, player);
 
         // EXECUTE BOMB MOVE
-        // selectBombMove(game);
-        // System.out.println(game.getBoard());
-
-        // -------------------------------------------------------------------------------------------------------------
-
-        Game game = createGame("maps/bomb-test.map");
-        char[][] field = game.getBoard().getField();
-        HashMap<Integer, Transition> transitions = game.getBoard().getAllTransitions();
-
-        int height = game.getBoard().getHeight();
-        int width = game.getBoard().getWidth();
-
-        int radius = game.getBoard().getBombRadius();
-        int playerAmount = game.getPlayers().length;
-
-        BombHeuristic bomb = new BombHeuristic(transitions, height, width, playerAmount, '2', radius);
-        System.out.println("BEFORE");
-        int[] position = bomb.getBombPosition(field);
-        //System.out.println("POSITION: [X: " + position[0] + " || Y: " + position[1] + "]");
-
-        boolean printField = true;
-
-        if (printField) System.out.println(game.getBoard());
-        game.executeBomb(position[0], position[1]);
-        if (printField) System.out.println(game.getBoard());
-        System.out.println("\nAFTER");
-        bomb.evaluatePlayers(game.getBoard().getField());
-
-        System.out.println("\n----\n");
-
-        System.out.println("BEFORE");
-        position = bomb.getBombPosition(field);
-        //System.out.println("POSITION: [X: " + position[0] + " || Y: " + position[1] + "]");
-
-        if (printField) System.out.println(game.getBoard());
-        game.executeBomb(position[0], position[1]);
-        if (printField) System.out.println(game.getBoard());
-        System.out.println("\nAFTER");
-        bomb.evaluatePlayers(game.getBoard().getField());
-
+        executeBombMove(game);
+        System.out.println(game.getBoard());
     }
 }

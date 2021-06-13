@@ -108,6 +108,7 @@ public class BombHeuristic {
             }
         }
 
+        /*
         System.out.println(Arrays.toString(coinParities));
         int allCoins = 0;
         for (int i = 0; i < playerAmount; i++) {
@@ -121,7 +122,7 @@ public class BombHeuristic {
         }
         System.out.println(Arrays.toString(percentage));
         System.out.println(Arrays.toString(sortedPlayer));
-        //System.out.println("OUR POSITION: " + ourSortPosition);
+         */
     }
 
     private char getEvaluationSetup() {
