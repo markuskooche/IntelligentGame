@@ -82,9 +82,6 @@ public class Start {
     }
 
     private static int[] executeBombMove (Game game) {
-        int height = game.getBoard().getHeight();
-        int width = game.getBoard().getWidth();
-
         int[] position = game.executeOurBomb();
         return new int[] {position[0], position[1]};
     }
