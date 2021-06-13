@@ -54,6 +54,7 @@ public class Game {
         heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
         //mapAnalyzer.createVisibleField('1');
         //this.ourPlayerNumber = 1;
+        //System.out.println("AUSGABEEEEEE");
         //System.out.println(mapAnalyzer.getBoardValues());
     }
 
