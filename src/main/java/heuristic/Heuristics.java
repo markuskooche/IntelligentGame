@@ -102,7 +102,7 @@ public class Heuristics {
         move = myMoves.get(0); //Pick the first possible Move
 
         //MapAnalyzer: Try to create reachable fields
-        try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
+        try { createReachableField(); } catch (TimeExceededException e) { return move; }
 
         //Get all possible Boards with out possible moves
         List<BoardMove> executedStartMoves;
@@ -327,7 +327,7 @@ public class Heuristics {
         return executedMoves;
     }
 
-    private void createReachableFiled() throws TimeExceededException {
+    private void createReachableField() throws TimeExceededException {
         if(!createdReachableFields && !mapAnalyzer.failedToSetup()) {
             mapAnalyzer.startReachableField(timeLimited, timeToken);
         }

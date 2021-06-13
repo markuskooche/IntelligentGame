@@ -1100,6 +1100,14 @@ public class MapAnalyzer {
         return reachableField;
     }
 
+    public int getReachablePiece(int x, int y) {
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            return reachableField[y][x];
+        }
+
+        return UNREACHABLE;
+    }
+
     public boolean isReachableFinished() {
         return reachableFinished;
     }
@@ -1110,5 +1118,13 @@ public class MapAnalyzer {
 
     public boolean failedToSetup() {
         return failedToSetup;
+    }
+
+    public void resetReachableField() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                reachableField[y][x] = REACHABLE;
+            }
+        }
     }
 }

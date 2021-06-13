@@ -114,15 +114,15 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/fancyMaps/big_eight.map");
+        //Game game = createGame("maps/fancyMaps/big_eight.map");
         //System.out.println(game.toString());
 
         //Player player = game.getPlayer(PLAYER_NUMBER);
-        Player player = game.getPlayer(1);
+        //Player player = game.getPlayer(1);
 
         // EXECUTE NORMAL MOVE
-        printLegalMoves(game, player);
-        selectMove(game, player);
+        //printLegalMoves(game, player);
+        //selectMove(game, player);
 
         // EXECUTE BOMB MOVE
         // selectBombMove(game);
@@ -130,7 +130,6 @@ public class Start {
 
         // -------------------------------------------------------------------------------------------------------------
 
-        /*
         Game game = createGame("maps/bomb-test.map");
         char[][] field = game.getBoard().getField();
         HashMap<Integer, Transition> transitions = game.getBoard().getAllTransitions();
@@ -146,7 +145,7 @@ public class Start {
         int[] position = bomb.getBombPosition(field);
         //System.out.println("POSITION: [X: " + position[0] + " || Y: " + position[1] + "]");
 
-        boolean printField = false;
+        boolean printField = true;
 
         if (printField) System.out.println(game.getBoard());
         game.executeBomb(position[0], position[1]);
@@ -165,6 +164,6 @@ public class Start {
         if (printField) System.out.println(game.getBoard());
         System.out.println("\nAFTER");
         bomb.evaluatePlayers(game.getBoard().getField());
-        */
+
     }
 }

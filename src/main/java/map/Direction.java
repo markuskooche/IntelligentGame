@@ -59,10 +59,10 @@ public class Direction {
      * @return the opposite direction
      */
     public static int[] getOppositeDirection(int[] direction){
-            int[] myDirection = new int[2];
+        int[] myDirection = new int[2];
         myDirection[0] = direction[0] * (-1);
         myDirection[1] = direction[1] * (-1);
-           return myDirection;
+        return myDirection;
     }
 
     /**

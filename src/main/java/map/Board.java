@@ -226,6 +226,23 @@ public class Board {
         return legalMoves;
     }
 
+    public Move getLegalMove(int x, int y, Player player) {
+        Move legalMove = null;
+
+        if ("0bic".indexOf(field[y][x]) != -1) {
+            legalMove = checkMove(x, y, player.getCharNumber(), false);
+        } else if (player.hasOverrideStone() && "x12345678".indexOf(field[y][x]) != -1) {
+            legalMove = checkMove(x, y, player.getCharNumber(), true);
+        }
+
+        // if a player has overridestones and override is selected
+        if (legalMove == null && player.hasOverrideStone() && field[y][x] == 'x') {
+            legalMove = new Move(new int[] {x, y});
+        }
+
+        return legalMove;
+    }
+
     /**
      * creates a tmp int array to help with the bomb execution
      * @return int array where all playable fields are 0 and all unplayable fields are -1

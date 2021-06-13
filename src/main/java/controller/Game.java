@@ -224,16 +224,17 @@ public class Game {
     public void executeMove(int x, int y, int player, int additionalOperation) {
         Player currentPlayer = getPlayer(player);
 
-        // get all legal moves of the player
-        List<Move> legalMoves = board.getLegalMoves(currentPlayer, true);
-        int[] selectedMove = new int[] {x, y};
+        Move move = board.getLegalMove(x, y, currentPlayer);
 
-        // searches for the selected move
-        for (Move legalMove : legalMoves) {
-            // colorize board if it is the correct move
-            if (legalMove.isMove(selectedMove)) {
-                board.colorizeMove(legalMove, currentPlayer, additionalOperation);
-                break;
+        if (move != null) {
+            board.colorizeMove(move, currentPlayer, additionalOperation);
+
+            int moveX = move.getX();
+            int moveY = move.getY();
+
+            if (mapAnalyzer.getReachablePiece(moveX, moveY) != MapAnalyzer.REACHABLE) {
+                System.err.println("WARNING: Incorrect initialization, board has been reset!");
+                mapAnalyzer.resetReachableField();
             }
         }
     }
