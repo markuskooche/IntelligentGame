@@ -3,7 +3,7 @@ package controller;
 import heuristic.*;
 import heuristic.bestreply.BRSPlus;
 import heuristic.bestreply.HeuristicsBRS;
-import heuristic.bombposition.BombPosition;
+import heuristic.bombposition.BombHeuristic;
 import heuristic.killermove.HeuristicKiller;
 import heuristic.montecarlo.MonteCarlo;
 import loganalyze.additional.AnalyzeParser;
@@ -34,6 +34,7 @@ public class Game {
 
     private Player[] players;
     private Board board;
+    private BombHeuristic bombHeuristic;
     private Heuristics heuristics;
     private HeuristicsBRS heuristicsBRS;
     private BRSPlus brsPlus;
@@ -53,7 +54,6 @@ public class Game {
         heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
         //mapAnalyzer.createVisibleField('1');
         //this.ourPlayerNumber = 1;
-        //System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public Game(Game game) {
@@ -96,9 +96,9 @@ public class Game {
             }
             move = monteCarlo.getMove(board, time);
         } else {
-            //move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
             //move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
             //move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         }
 
@@ -223,16 +223,19 @@ public class Game {
     public void executeMove(int x, int y, int player, int additionalOperation) {
         Player currentPlayer = getPlayer(player);
 
-        // get all legal moves of the player
-        List<Move> legalMoves = board.getLegalMoves(currentPlayer, true);
-        int[] selectedMove = new int[] {x, y};
+        Move move = board.getLegalMove(x, y, currentPlayer);
 
-        // searches for the selected move
-        for (Move legalMove : legalMoves) {
-            // colorize board if it is the correct move
-            if (legalMove.isMove(selectedMove)) {
-                board.colorizeMove(legalMove, currentPlayer, additionalOperation);
-                break;
+        if (move != null) {
+            board.colorizeMove(move, currentPlayer, additionalOperation);
+
+            if (mapAnalyzer.isReachableFinished()) {
+                int moveX = move.getX();
+                int moveY = move.getY();
+
+                if (mapAnalyzer.getReachablePiece(moveX, moveY) != MapAnalyzer.REACHABLE) {
+                    System.err.println("WARNING: Incorrect initialization, board has been reset!");
+                    mapAnalyzer.resetReachableField();
+                }
             }
         }
     }
@@ -264,15 +267,28 @@ public class Game {
         board.executeBomb(x, y);
     }
 
+    /**
+     * Find the best bomb position by the BombHeuristic.
+     *
+     * @return the bomb position [x, y]
+     */
     public int[] executeOurBomb() {
-        int radius = board.getBombRadius();
-        Player player = getPlayer(ourPlayerNumber);
-        char playerNumber = player.getCharNumber();
+        Player ourPlayer = getPlayer(ourPlayerNumber);
 
-        BombPosition bomb = new BombPosition(board.getField(), playerNumber, radius);
-        int[] position = bomb.getBestBombPosition();
+        if (bombHeuristic == null) {
+            HashMap<Integer, Transition> transitions = board.getAllTransitions();
+            int height = board.getHeight();
+            int width = board.getWidth();
+            int radius = board.getBombRadius();
+            int playerAmount = board.getPlayerAmount();
+            char ourPlayerChar = ourPlayer.getCharNumber();
+
+            bombHeuristic = new BombHeuristic(transitions, height, width, playerAmount, ourPlayerChar, radius);
+        }
+
+        int[] position = bombHeuristic.getBombPosition(board.getField());
         board.executeBomb(position[0], position[1]);
-        player.decreaseBomb();
+        ourPlayer.decreaseBomb();
 
         return position;
     }

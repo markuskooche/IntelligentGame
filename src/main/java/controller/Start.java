@@ -1,14 +1,17 @@
 package controller;
 
+import heuristic.bombposition.BombHeuristic;
 import loganalyze.additional.AnalyzeParser;
 import map.Move;
 import map.Player;
+import map.Transition;
 import server.MapParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -78,27 +81,9 @@ public class Start {
         return new int[] {x, y, a};
     }
 
-    private static int[] selectBombMove (Game game) {
-        int height = game.getBoard().getHeight();
-        int width = game.getBoard().getWidth();
-
-        int a = 0;
-        int x, y;
-        char piece;
-
-        do {
-            System.out.print("Please select a valid position [x, y]: ");
-            Scanner scanner = new Scanner(System.in);
-
-            x = scanner.nextInt();
-            y = scanner.nextInt();
-
-            piece = game.getBoard().getPiece(x, y);
-
-        } while((x < 0 || x >= width) || (y < 0 && x >= height) || piece == '#');
-
-        game.executeBomb(x, y);
-        return new int[] {x, y, a};
+    private static int[] executeBombMove (Game game) {
+        int[] position = game.executeOurBomb();
+        return new int[] {position[0], position[1]};
     }
 
     private static void printLegalMoves(Game game, Player player) {
@@ -111,17 +96,18 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/oldMaps/2_player/comp2020_02_2p.map");
-        System.out.println(game.toString());
+        Game game = createGame("maps/fancyMaps/big_eight.map");
+        game.setOurPlayerNumber(PLAYER_NUMBER);
+        System.out.println(game);
 
-        //Player player = game.getPlayer(PLAYER_NUMBER);
+        Player player = game.getPlayer(PLAYER_NUMBER);
 
         // EXECUTE NORMAL MOVE
-        //printLegalMoves(game, player);
-        //selectMove(game, player);
+        // printLegalMoves(game, player);
+        // selectMove(game, player);
 
         // EXECUTE BOMB MOVE
-        // selectBombMove(game);
-        // System.out.println(game.getBoard());
+        executeBombMove(game);
+        System.out.println(game.getBoard());
     }
 }

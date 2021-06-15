@@ -146,7 +146,6 @@ public class BombPosition {
         System.out.println();
     }
 
-    /*
     public static void main(String[] args) {
         char[][] field = {
                 {'1', '0', '1', '0', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'},
@@ -174,9 +173,8 @@ public class BombPosition {
         };
 
 
-        BombPosition bomb = new BombPosition(field, '1', 2);
+        BombPosition bomb = new BombPosition(field, '1', 4);
         int[] position = bomb.getBestBombPosition();
         System.out.println("POSITION: [X: " + position[0] + " || Y: " + position[1] + "]");
     }
-     */
 }

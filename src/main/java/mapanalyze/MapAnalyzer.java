@@ -1,5 +1,6 @@
 
 package mapanalyze;
+import map.Player;
 import timelimit.TimeExceededException;
 import timelimit.Token;
 import loganalyze.additional.AnalyzeParser;
@@ -37,6 +38,7 @@ public class MapAnalyzer {
     private int playerNumber;
     private int width;
     private int height;
+    private int minFieldValue;
 
     private Token timeToken = new Token();
     private boolean timeLimited = false;
@@ -55,6 +57,7 @@ public class MapAnalyzer {
         initAllFields();
         reachableFinished = false;
         createField();
+        minFieldValue = getMinFieldValue();
     }
 
     public void startReachableField(boolean timeLimited, Token timeToken) throws TimeExceededException {
@@ -101,7 +104,7 @@ public class MapAnalyzer {
         }
 
         //waveLength is the number of Fields a calculated Field influenced adjacent Fields
-        int waveLength = playerNumber + 1;
+        int waveLength = 1 + 1;
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -278,6 +281,7 @@ public class MapAnalyzer {
 
         //Follow this direction until the End of the board
         while (true){
+
             if (timeLimited && timeToken.timeExceeded()) throw new TimeExceededException();
             //currentStone is the current Stone and Direction, this is needed to prevent infinite loops where transactions are towards another
             int [] currStone = new int[3];
@@ -364,7 +368,7 @@ public class MapAnalyzer {
                             continue;
                         }
                         //Ignore the transition, if the destination is 0
-                        if(board.getField()[destination[1]][destination[0]] == '0'){
+                        if(board.getField()[destination[1]][destination[0]] == '0' && reachableField[destination[1]][destination[0]] == 0 ){
                             continue;
                         }
 
@@ -386,6 +390,7 @@ public class MapAnalyzer {
 
                         //Follow the transition
                         threeToFour();
+                        reachableField[y][x] = 3;
                         followFields(destination[0], destination[1], Direction.valueOf(oppositeDest));
 
                         //get the opposite directions
@@ -400,22 +405,21 @@ public class MapAnalyzer {
                         if (oppositeX < 0 || oppositeX >= board.getWidth() || oppositeY < 0 || oppositeY >= board.getHeight() || board.getField()[oppositeY][oppositeX] == '-') {
 
                             //Search for transitions
-                            directionValue = Direction.indexOf(oppositeDirection);
-                            transition = board.getTransition(oppositeX, oppositeY, directionValue);
+                            directionValue = Direction.indexOf(oppositeCurrDirection);
+                            transition = board.getTransition(x, y, directionValue);
 
                             if (transition != null) {
 
                                 destination = transition.getDestination();
 
-                                if(oppositeDest == Direction.indexOf(currentDirection) || Direction.indexOf(direction) == Direction.indexOf(oppositeCurrDirection)) {
                                     specialFieldListSidePath.add(currStone);
                                     threeToFour();
+                                    reachableField[y][x] = 3;
                                     followFields(destination[0], destination[1], Direction.valueOf(destination[2]));
-                                }
                             }
                         }else{
                             //go in the opposite direction
-                            followFields(oppositeX, oppositeY,oppositeDirection);
+                            followFields(oppositeX, oppositeY,oppositeCurrDirection);
                         }
                     }
 
@@ -670,16 +674,34 @@ public class MapAnalyzer {
         }
     }
 
-    /**
-     * Calculates the Map-Score for the given Player
-     *
-     * @return int with the value of the Player-Score for the given player
-     */
-    public int calculateScoreForPlayerOLD(char playerNumber, Board tmpBoard) {
-        int playerScore = 0;
-        int minFieldValue = Integer.MAX_VALUE;
+    public int calculateScoreForPlayers(Player ourPlayer, Board tmpBoard, Player[] players, int factor) {
+        String playersNum = "";
+        for(Player p : players) {
+            playersNum += p.getCharNumber();
+        }
 
-        //find smallest field value
+        char tmpBoardfield[][] = tmpBoard.getField();
+        double playerScore = 0;
+        double allPlayerScore = 0;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+
+                char currField = tmpBoardfield[i][j];
+                if (currField == ourPlayer.getCharNumber()) {
+                    playerScore += (field[i][j] + minFieldValue);
+                }
+                if (playersNum.indexOf(currField) != -1) {
+                    allPlayerScore += (field[i][j] + minFieldValue);
+                }
+            }
+        }
+
+        double tmpMapValue =  playerScore / allPlayerScore;
+        return (int) (tmpMapValue * factor);
+    }
+
+    private int getMinFieldValue() {
+        int minFieldValue = Integer.MAX_VALUE;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if(minFieldValue > field[i][j]){
@@ -691,19 +713,9 @@ public class MapAnalyzer {
         if(minFieldValue < 0){
             minFieldValue *= (-1);
         }
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-
-                char currField = tmpBoard.getField()[i][j];
-
-                if (currField == playerNumber) {
-                    playerScore += (field[i][j] + minFieldValue);
-                }
-            }
-        }
-        return playerScore;
+        return minFieldValue;
     }
+
 
     //TODO Board hat playerScores as attribute this is way faster than the currently method
 
@@ -1100,6 +1112,14 @@ public class MapAnalyzer {
         return reachableField;
     }
 
+    public int getReachablePiece(int x, int y) {
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            return reachableField[y][x];
+        }
+
+        return UNREACHABLE;
+    }
+
     public boolean isReachableFinished() {
         return reachableFinished;
     }
@@ -1110,5 +1130,13 @@ public class MapAnalyzer {
 
     public boolean failedToSetup() {
         return failedToSetup;
+    }
+
+    public void resetReachableField() {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                reachableField[y][x] = REACHABLE;
+            }
+        }
     }
 }
