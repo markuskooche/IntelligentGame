@@ -225,7 +225,7 @@ public class Game {
 
         Move move = board.getLegalMove(x, y, currentPlayer);
 
-        if (move != null) {
+        if (!move.isEmpty()) {
             board.colorizeMove(move, currentPlayer, additionalOperation);
 
             if (mapAnalyzer.isReachableFinished()) {
