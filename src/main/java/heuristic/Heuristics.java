@@ -8,7 +8,6 @@ import timelimit.TimeExceededException;
 import timelimit.TimeOutTask;
 import timelimit.Token;
 
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.*;
 
 public class Heuristics {
@@ -323,7 +322,7 @@ public class Heuristics {
         //Check for wall moves
         List<Line> wallLines = lineList.getWallLines();
         if (!wallLines.isEmpty()) {
-            //Sort the wall Lines
+            sortWallMoves(wallLines);
             for (Line line : wallLines) moves.add(line.getMove());
         }
         if (!moves.isEmpty()) return;
@@ -331,7 +330,7 @@ public class Heuristics {
         //Check for good moves
         List<Line> goodLines = lineList.getControllLines();
         if (!goodLines.isEmpty()) {
-            //sortGoodLines(goodLines);
+            sortGoodLines(goodLines);
             for (Line line : goodLines) moves.add(line.getMove());
         }
         if (!moves.isEmpty()) return;
@@ -355,35 +354,44 @@ public class Heuristics {
         moves.addAll(tmpMove);
     }
 
-    /**
-     * Check if this move is one away from a wall
-     * @param goodLines
-     */
-    private void sortGoodLines(List<Line> goodLines) {
-        int maxX  = board.getWidth() - 1;
-        int maxY = board.getHeight() - 1;
-        List<Line> badLines = new ArrayList<>();
-        for (Line line : goodLines) {
+    private void sortWallMoves(List<Line> wallLines) {
+        int [][] mapVal = mapAnalyzer.getField();
+
+        int biggest = Integer.MIN_VALUE;
+        for (Line line : wallLines) {
             Move move = line.getMove();
-            int [] direction = move.getFrontDirection();
+            int value = mapVal[move.getY()][move.getX()];
+            if (value > biggest) biggest = value;
+            line.setMoveValue(value);
+        }
 
-            int x = move.getX() + 2 * direction[0];
-            int y = move.getY() + 2 * direction[0];
-
-            if (x > maxX || y > maxY || x < 0 || y < 0) { //Check for transition
-                x = x - direction[0];
-                y = y - direction[1];
-                Transition transition = board.getTransition(x, y, Direction.indexOf(direction));
-                if (transition == null) {
-                    badLines.add(line);
-                } else {
-                    continue;
-                }
-            } else {
-                continue;
+        for (int i = 0; i < wallLines.size(); i++) {
+            Line line = wallLines.get(i);
+            if (line.getMoveValue() < biggest) {
+                wallLines.remove(i);
+                i--;
             }
         }
-        if (badLines.size() < goodLines.size()) goodLines.removeAll(badLines);
+    }
+
+    private void sortGoodLines(List<Line> goodLines) {
+        int [][] mapVal = mapAnalyzer.getField();
+
+        int biggest = Integer.MIN_VALUE;
+        for (Line line : goodLines) {
+            Move move = line.getMove();
+            int value = mapVal[move.getY()][move.getX()];
+            if (value > biggest) biggest = value;
+            line.setMoveValue(value);
+        }
+
+        for (int i = 0; i < goodLines.size(); i++) {
+            Line line = goodLines.get(i);
+            if (line.getMoveValue() < biggest) {
+                goodLines.remove(i);
+                i--;
+            }
+        }
     }
 
     private LineList analyzeMoves(List<Move> moves, Board board, Player ourPlayer) {
@@ -454,6 +462,7 @@ public class Heuristics {
         int maxX  = board.getWidth() - 1;
         int maxY = board.getHeight() - 1;
         char stone = boardField[y][x];
+        char tmp;
         if(front) stone = ourPlayer.getCharNumber();
 
         int xStart = x;
@@ -481,12 +490,16 @@ public class Heuristics {
                     y = transition.getY();
                 }
             }
+            tmp = stone;
             stone = boardField[y][x];
             if (stone == '-') {
                 x = x - direction[0];
                 y = y - direction[1];
                 Transition transition = board.getTransition(x, y, Direction.indexOf(direction));
-                if (transition == null) break;
+                if (transition == null) {
+                    if (tmp == ourPlayer.getCharNumber()) return true;
+                    return false;
+                }
                 direction[0] = Direction.valueOf(transition.getR())[0] * (-1);
                 direction[1] = Direction.valueOf(transition.getR())[1] * (-1);
                 x = transition.getX();
