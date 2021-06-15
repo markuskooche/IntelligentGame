@@ -570,6 +570,8 @@ public class Heuristics {
     private void createReachableField() throws TimeExceededException {
         if(!createdReachableFields && !mapAnalyzer.failedToSetup()) {
             mapAnalyzer.startReachableField(timeLimited, timeToken);
+            //TODO im Auge behalten
+            //System.out.println(mapAnalyzer.getBoardValues());
         }
         createdReachableFields = true;
     }
