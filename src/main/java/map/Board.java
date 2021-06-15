@@ -401,7 +401,7 @@ public class Board {
                     checkMove.add(new int[] {nextX, nextY});
                     currentX = nextX;
                     currentY = nextY;
-                    legalMove.appendAimes(nextPiece);
+                    legalMove.appendAims(nextPiece);
                 }
             }
         }

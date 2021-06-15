@@ -67,4 +67,8 @@ public class LineList {
     public List<Line> getControllLines() {
         return controllLines;
     }
+
+    public List<Line> getCaughtLines() {
+        return caughtLines;
+    }
 }

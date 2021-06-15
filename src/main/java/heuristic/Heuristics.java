@@ -8,6 +8,7 @@ import timelimit.TimeExceededException;
 import timelimit.TimeOutTask;
 import timelimit.Token;
 
+import java.awt.image.AreaAveragingScaleFilter;
 import java.util.*;
 
 public class Heuristics {
@@ -100,6 +101,7 @@ public class Heuristics {
         move = ourMoves.get(0); //Pick the first possible Move
         LineList lineList = analyzeMoves(ourMoves, startBoard, ourPlayer);
         filterMoves(lineList, ourMoves);
+        ourMoves.sort((m1, m2) -> m2.compareTo(m1)); //Sort Greedy the left moves
 
         //MapAnalyzer: Try to create reachable fields
         try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
@@ -118,12 +120,12 @@ public class Heuristics {
             move = executedStartMoves.get(0).getMove(); //Get best Move for depth 1
         }
 
-        try {
-            move = getStableMove(executedStartMoves, ourPlayer);
-        } catch (TimeExceededException e) {
-            return move;
-        }
-        if(alphaBeta) return move;
+//        try {
+//            move = getStableMove(executedStartMoves, ourPlayer);
+//        } catch (TimeExceededException e) {
+//            return move;
+//        }
+        //if(alphaBeta) return move;
 
         if (timeLimited) {
             int searchDepth = 2;
@@ -261,6 +263,7 @@ public class Heuristics {
             List<Move> enemyMoves = getAllEnemyMoves(ourPlayer, board, false);
             List<Move> againsMe = new ArrayList<>();
             for (Move enemyMove : enemyMoves) {
+                //Get all moves against me
                 if (enemyMove.getAims().indexOf(ourPlayer.getCharNumber()) > -1) {
                     againsMe.add(enemyMove);
                     Player enemy = enemyMove.getPlayer();
@@ -270,9 +273,8 @@ public class Heuristics {
 
             for (Player p : myEnemys) {
                 List<Move> tmp = new ArrayList<>();
-                for (Move m : againsMe) {
-                    if (m.getPlayer() == p) tmp.add(m);
-                }
+                //Get all moves of one enemy player
+                for (Move m : againsMe) if (m.getPlayer() == p) tmp.add(m);
 
                 LineList lineList = analyzeMoves(tmp, board, p);
                 int numBadMoves = lineList.getOpenLines().size();
@@ -314,20 +316,75 @@ public class Heuristics {
             return;
         }
 
-        //Remove bad Moves
-        List<Move> badMoves = new ArrayList<>();
-        List<Line> badLines = new ArrayList<>();
-        badLines.addAll(lineList.getOpenLines());
-        if (badLines.size() + lineList.getControllLines().size() < moves.size())
-        {
-            badLines.addAll(lineList.getControllLines());
-        }
+        //Back up for moves
+        List<Move> tmpMove = new ArrayList<>();
+        tmpMove.addAll(moves);
+        moves.clear();
 
-        for (Line line : badLines) {
-            badMoves.add(line.getMove());
+        //Check for wall moves
+        List<Line> wallLines = lineList.getWallLines();
+        if (!wallLines.isEmpty()) {
+            //Sort the wall Lines
+            for (Line line : wallLines) moves.add(line.getMove());
         }
-        if (badMoves.size() < moves.size()) moves.removeAll(badMoves);
-        moves.sort((m1, m2) -> m2.compareTo(m1)); //Sort Greedy the left moves
+        if (!moves.isEmpty()) return;
+
+        //Check for good moves
+        List<Line> goodLines = lineList.getControllLines();
+        if (!goodLines.isEmpty()) {
+            //sortGoodLines(goodLines);
+            for (Line line : goodLines) moves.add(line.getMove());
+        }
+        if (!moves.isEmpty()) return;
+
+        //Check for caught moves
+        List<Line> caughtLines = lineList.getCaughtLines();
+        if (!caughtLines.isEmpty()) {
+            for (Line line : caughtLines) moves.add(line.getMove());
+        }
+        if (!moves.isEmpty()) return;
+
+        //Check for bad moves
+        List<Line> badLines = lineList.getOpenLines();
+        if (!badLines.isEmpty()) {
+            for (Line line : badLines) moves.add(line.getMove());
+        }
+        if (!moves.isEmpty()) return;
+
+        //Somthing went wrong!
+        System.out.println("Move sorting went wrong!");
+        moves.addAll(tmpMove);
+    }
+
+    /**
+     * Check if this move is one away from a wall
+     * @param goodLines
+     */
+    private void sortGoodLines(List<Line> goodLines) {
+        int maxX  = board.getWidth() - 1;
+        int maxY = board.getHeight() - 1;
+        List<Line> badLines = new ArrayList<>();
+        for (Line line : goodLines) {
+            Move move = line.getMove();
+            int [] direction = move.getFrontDirection();
+
+            int x = move.getX() + 2 * direction[0];
+            int y = move.getY() + 2 * direction[0];
+
+            if (x > maxX || y > maxY || x < 0 || y < 0) { //Check for transition
+                x = x - direction[0];
+                y = y - direction[1];
+                Transition transition = board.getTransition(x, y, Direction.indexOf(direction));
+                if (transition == null) {
+                    badLines.add(line);
+                } else {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+        }
+        if (badLines.size() < goodLines.size()) goodLines.removeAll(badLines);
     }
 
     private LineList analyzeMoves(List<Move> moves, Board board, Player ourPlayer) {
@@ -354,10 +411,8 @@ public class Heuristics {
                 direction[1] = entry.getValue()[1];
             }
 
-            List<Character> stoneRow = new ArrayList<>();
-            for (int j = 0; j <= move.getList().size(); j++) {
-                stoneRow.add(ourNumber);
-            }
+            List<Character> stoneRow = new ArrayList<>(); // <= our pos + new stones
+            for (int j = 0; j <= move.getList().size(); j++) stoneRow.add(ourNumber);
 
             //Check the front stone
             int xFront = move.getX();
@@ -366,17 +421,18 @@ public class Heuristics {
             int [] dirBack = {direction[0], direction[1]};
 
             //build the line
-            boolean wall = buildLine(xFront, yFront, dirFront, board, stoneRow, true, ourPlayer);
-            buildLine(pos[0], pos[1], dirBack, board, stoneRow, false, ourPlayer);
+            boolean wallFront = buildLine(xFront, yFront, dirFront, board, stoneRow, true, ourPlayer);
+            boolean wallBack = buildLine(pos[0], pos[1], dirBack, board, stoneRow, false, ourPlayer);
 
 
-            if (wall) {
+            if (wallFront) {
                 lineList.add(new Line(move, stoneRow), LineState.WALL);
-                continue; // We will get crner/wall place -> safe
+                continue; // We will get corner/wall place -> safe
             }
             int lastInLines = stoneRow.size() - 1;
             if (stoneRow.get(0) == ourNumber && stoneRow.get(lastInLines) == ourNumber) {
                 //We will control this line, we are first and last player
+                move.setFrontDirection(dirFront); //Safe the direction -> later can filter
                 lineList.add(new Line(move, stoneRow), LineState.CONTROLL);
                 continue;
             }
@@ -399,6 +455,7 @@ public class Heuristics {
         int maxX  = board.getWidth() - 1;
         int maxY = board.getHeight() - 1;
         char stone = boardField[y][x];
+        if(front) stone = ourPlayer.getCharNumber();
 
         int xStart = x;
         int yStart = y;
@@ -426,31 +483,22 @@ public class Heuristics {
                 }
             }
             stone = boardField[y][x];
+            if (stone == '-') {
+                x = x - direction[0];
+                y = y - direction[1];
+                Transition transition = board.getTransition(x, y, Direction.indexOf(direction));
+                if (transition == null) break;
+                direction[0] = Direction.valueOf(transition.getR())[0] * (-1);
+                direction[1] = Direction.valueOf(transition.getR())[1] * (-1);
+                x = transition.getX();
+                y = transition.getY();
+                stone = boardField[y][x];
+            }
             if ("-0bic".indexOf(stone) > -1) break;
             if (front)  lines.add(stone);
             else lines.add(0, stone);
         }
         return false;
-    }
-
-    private boolean isStable(Move initMove, Move justExecuted) {
-        List<int[]> initMoves = initMove.getList();
-        int newStone = initMoves.size();
-        List<int[]> executedMoves = justExecuted.getList();
-        int lost = 0;
-
-        if (!initMove.isBonus() && !initMove.isChoice() && !initMove.isInversion()) {
-            for (int[] initM : initMoves) {
-                for (int[] executedM : executedMoves) {
-                    if(initM[0] == executedM[0] && initM[1] == executedM[1]) {
-                        lost++;
-                        break;
-                    }
-                }
-            }
-            if(lost == newStone) return false;
-        }
-        return true;
     }
 
     private Move onlyOverrideStones(Board board, Player player, List<Move> myMoves) {
@@ -540,13 +588,12 @@ public class Heuristics {
     }
 
     public int getEvaluationForPlayer(Player player, Board board, Move move) {
-        int mapValue = getMapValue2(player, board);
+        int mapValue = getMapValue(player, board);
         int coinParity = getCoinParity(player, board);
         int mobility = getMobility(player, board);
-        int specialField = getSpecialFieldValue(move);
 //        System.out.println("MapValue " + mapValue + " CoinParity: " + coinParity +
 //                " Mobility " + mobility + " specialfield: " + specialField);
-        return mapValue + coinParity + mobility + specialField;
+        return mapValue + coinParity + mobility;
     }
 
     public int getEvaluationForPlayerStatistic(Player player, Board board) {
@@ -556,42 +603,8 @@ public class Heuristics {
         return mapValue + coinParity + mobility;
     }
 
-    public int getSpecialFieldValue(Move move) {
-        int value = 0;
-        if (move.isBonus()) {
-            value += 70;
-        }
-        if (move.isChoice()) {
-            value += 70;
-        }
-        return value * MULTIPLIER;
-    }
 
     public int getMapValue(Player player, Board tmpBoard) {
-        /*
-        // TODO: [IWAN] Methoden an erforderlichen Stellen aufrufen
-        long myMapValue = tmpBoard.getPlayerScores()[(Integer.parseInt(String.valueOf(player.getNumber()))-1)];
-
-        long mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += tmpBoard.getPlayerScores()[i];
-        }
-        */
-
-        // TODO: LÖSCHEN
-        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getCharNumber(), tmpBoard);
-
-        long mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getCharNumber(), tmpBoard);
-        }
-        // TODO: BIS HIER HIN
-
-        double tmpMapValue = ((double) myMapValue) / mapValueAll;
-        return (int) (tmpMapValue * MULTIPLIER);
-    }
-
-    public int getMapValue2(Player player, Board tmpBoard) {
         return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, MULTIPLIER);
     }
 

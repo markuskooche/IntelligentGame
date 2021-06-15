@@ -24,6 +24,7 @@ public class Move {
     private Player player = null;
     private Map<int[], int[]> playerDirection;
     private String aims;
+    private int[] frontDirection;
 
     /**
      * Creates a Move class that contains all information about a legal move.
@@ -35,6 +36,7 @@ public class Move {
         choice = false;
         playerDirection = new HashMap<>();
         aims = "";
+        frontDirection = new int[2];
     }
 
     /**
@@ -51,6 +53,7 @@ public class Move {
         choice = false;
         playerDirection = new HashMap<>();
         aims = "";
+        frontDirection = new int[2];
     }
 
     /**
@@ -69,13 +72,22 @@ public class Move {
         this.choice = move.isChoice();
         this.bonus = move.isBonus();
         this.aims = move.getAims();
+        this.frontDirection = move.getFrontDirection();
+    }
+
+    public int[] getFrontDirection() {
+        return frontDirection;
+    }
+
+    public void setFrontDirection(int [] frontDirection) {
+        this.frontDirection = frontDirection;
     }
 
     public String getAims() {
         return aims;
     }
 
-    public void appendAimes(char enemy) {
+    public void appendAims(char enemy) {
         if (aims.indexOf(enemy) == -1) aims += enemy;
     }
 
