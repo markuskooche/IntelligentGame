@@ -674,41 +674,6 @@ public class MapAnalyzer {
         }
     }
 
-    /**
-     * Calculates the Map-Score for the given Player
-     *
-     * @return int with the value of the Player-Score for the given player
-     */
-    public int calculateScoreForPlayerOLD(char playerNumber, Board tmpBoard) {
-        int playerScore = 0;
-        int minFieldValue = Integer.MAX_VALUE;
-
-        //find smallest field value
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if(minFieldValue > field[i][j]){
-                    minFieldValue = field[i][j];
-                }
-            }
-        }
-
-        if(minFieldValue < 0){
-            minFieldValue *= (-1);
-        }
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-
-                char currField = tmpBoard.getField()[i][j];
-
-                if (currField == playerNumber) {
-                    playerScore += (field[i][j] + minFieldValue);
-                }
-            }
-        }
-        return playerScore;
-    }
-
     public int calculateScoreForPlayers(Player ourPlayer, Board tmpBoard, Player[] players, int factor) {
         String playersNum = "";
         for(Player p : players) {

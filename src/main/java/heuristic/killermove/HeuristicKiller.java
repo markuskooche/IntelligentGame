@@ -314,26 +314,6 @@ public class HeuristicKiller {
         playerMoves.addAll(rest);
     }
 
-    private boolean isStable(Move initMove, Move justExecuted) {
-        List<int[]> initMoves = initMove.getList();
-        int newStone = initMoves.size();
-        List<int[]> executedMoves = justExecuted.getList();
-        int lost = 0;
-
-        if (!initMove.isBonus() && !initMove.isChoice() && !initMove.isInversion()) {
-            for (int[] initM : initMoves) {
-                for (int[] executedM : executedMoves) {
-                    if(initM[0] == executedM[0] && initM[1] == executedM[1]) {
-                        lost++;
-                        break;
-                    }
-                }
-            }
-            if(lost == newStone) return false;
-        }
-        return true;
-    }
-
     private Move onlyOverrideStones(Board board, Player player, List<Move> myMoves) {
         Move move = myMoves.get(0); //Pick the first possible Move
         List<BoardMove> executedStartMoves;
@@ -447,27 +427,7 @@ public class HeuristicKiller {
     }
 
     public int getMapValue(Player player, Board tmpBoard) {
-        /*
-        // TODO: [IWAN] Methoden an erforderlichen Stellen aufrufen
-        long myMapValue = tmpBoard.getPlayerScores()[(Integer.parseInt(String.valueOf(player.getNumber()))-1)];
-
-        long mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += tmpBoard.getPlayerScores()[i];
-        }
-        */
-
-        // TODO: LÖSCHEN
-        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getCharNumber(), tmpBoard);
-
-        long mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getCharNumber(), tmpBoard);
-        }
-        // TODO: BIS HIER HIN
-
-        double tmpMapValue = ((double) myMapValue) / mapValueAll;
-        return (int) (tmpMapValue * MULTIPLIER);
+        return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, MULTIPLIER);
     }
 
     public int getCoinParity(Player player, Board board) {

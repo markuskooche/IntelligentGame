@@ -405,27 +405,7 @@ public class HeuristicsBRS {
     }
 
     public int getMapValue(Player player, Board tmpBoard) {
-        /*
-        // TODO: [IWAN] Methoden an erforderlichen Stellen aufrufen
-        long myMapValue = tmpBoard.getPlayerScores()[(Integer.parseInt(String.valueOf(player.getNumber()))-1)];
-
-        long mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += tmpBoard.getPlayerScores()[i];
-        }
-        */
-
-        // TODO: LÖSCHEN
-        long myMapValue = mapAnalyzer.calculateScoreForPlayerOLD(player.getCharNumber(), tmpBoard);
-
-        long mapValueAll = 0;
-        for (int i = 0; i < numPlayers; i++) {
-            mapValueAll += mapAnalyzer.calculateScoreForPlayerOLD(players[i].getCharNumber(), tmpBoard);
-        }
-        // TODO: BIS HIER HIN
-
-        double tmpMapValue = ((double) myMapValue) / mapValueAll;
-        return (int) (tmpMapValue * MULTIPLIER);
+        return mapAnalyzer.calculateScoreForPlayers(player, tmpBoard, players, MULTIPLIER);
     }
 
     public int getCoinParity(Player player, Board board) {

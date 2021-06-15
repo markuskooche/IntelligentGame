@@ -104,7 +104,7 @@ public class Heuristics {
         ourMoves.sort((m1, m2) -> m2.compareTo(m1)); //Sort Greedy the left moves
 
         //MapAnalyzer: Try to create reachable fields
-        try { createReachableFiled(); } catch (TimeExceededException e) { return move; }
+        try { createReachableField(); } catch (TimeExceededException e) { return move; }
 
 
 

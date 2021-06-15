@@ -98,9 +98,9 @@ public class Game {
             }
             move = monteCarlo.getMove(board, time);
         } else {
-            //move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
             //move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
+            //move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
             //move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         }
 
