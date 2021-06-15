@@ -230,12 +230,14 @@ public class Game {
         if (move != null) {
             board.colorizeMove(move, currentPlayer, additionalOperation);
 
-            int moveX = move.getX();
-            int moveY = move.getY();
+            if (mapAnalyzer.isReachableFinished()) {
+                int moveX = move.getX();
+                int moveY = move.getY();
 
-            if (mapAnalyzer.getReachablePiece(moveX, moveY) != MapAnalyzer.REACHABLE) {
-                System.err.println("WARNING: Incorrect initialization, board has been reset!");
-                mapAnalyzer.resetReachableField();
+                if (mapAnalyzer.getReachablePiece(moveX, moveY) != MapAnalyzer.REACHABLE) {
+                    System.err.println("WARNING: Incorrect initialization, board has been reset!");
+                    mapAnalyzer.resetReachableField();
+                }
             }
         }
     }
