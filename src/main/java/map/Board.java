@@ -236,7 +236,7 @@ public class Board {
         }
 
         // if a player has overridestones and override is selected
-        if (legalMove == null && player.hasOverrideStone() && field[y][x] == 'x') {
+        if ((legalMove == null || legalMove.isEmpty()) && player.hasOverrideStone() && field[y][x] == 'x') {
             legalMove = new Move(new int[] {x, y});
         }
 
