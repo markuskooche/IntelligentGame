@@ -470,8 +470,6 @@ public class Heuristics {
         while ("-0bic".indexOf(stone) == -1) {
             x += direction [0];
             y += direction [1];
-            if (xStart == x && yStart == y) break; // Loop
-
             if (x > maxX || y > maxY || x < 0 || y < 0) { //Check for transition
                 x = x - direction[0];
                 y = y - direction[1];
@@ -509,6 +507,7 @@ public class Heuristics {
             if ("-0bic".indexOf(stone) > -1) break;
             if (front)  lines.add(stone);
             else lines.add(0, stone);
+            if (xStart == x && yStart == y) break; // Loop
         }
         return false;
     }
