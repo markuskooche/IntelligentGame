@@ -184,7 +184,7 @@ public class Board {
         // inserts all legal moves of a player's pieces into a list
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                //if (reachableField[y][x] == MapAnalyzer.REACHABLE) {
+                if (reachableField[y][x] == MapAnalyzer.REACHABLE) {
                     char piece = field[y][x];
                     // if it is a possible field
                     if ("0bic".indexOf(piece) != -1) {
@@ -205,7 +205,7 @@ public class Board {
                             alreadyAdded[moveY][moveX] = true;
                         }
                     }
-                //}
+                }
             }
         }
 
