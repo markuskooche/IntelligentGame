@@ -838,13 +838,17 @@ public class MapAnalyzer {
                         oldX = currX;
                         oldY = currY;
 
-                            //calculate the scores of the adjacent players
+                        //calculate the scores of the adjacent players
+                        if (playerNumber > 0) {
                             if (currRange % playerNumber == 0) {
-                                field[currY][currX] += ((startValue)) ;
+                                field[currY][currX] += ((startValue));
                             } else {
-                                field[currY][currX] += ((startValue)) *(playerNumber - (currRange % playerNumber)) * omen ;
+                                field[currY][currX] += ((startValue)) * (playerNumber - (currRange % playerNumber)) * omen;
                             }
+                        }else{
+                            System.err.println("Error with playerNumber" + playerNumber);
                         }
+                    }
                 }
             }
         }

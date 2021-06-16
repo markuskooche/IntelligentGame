@@ -11,7 +11,6 @@ import server.ServerConnection;
 public class Main {
 
     private static void printClient() {
-        System.out.println("┌─────────────────────────────────────────────────────┐");
         System.out.println("│   ______          _    __  __             _         │");
         System.out.println("│  |___  /         | |  |  \\/  |           | |        │");
         System.out.println("│     / / ___   ___| | _| \\  / | ___  _ __ | |_ ___   │");
@@ -22,7 +21,6 @@ public class Main {
         System.out.println("│     Created by: Benedikt Halbritter                 │");
         System.out.println("│                 Iwan Eckert                         │");
         System.out.println("│                 Markus Koch                         │");
-        System.out.println("└─────────────────────────────────────────────────────┘");
     }
 
     private static void printHelp() {
