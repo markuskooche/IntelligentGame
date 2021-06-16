@@ -229,7 +229,7 @@ public class BombHeuristic {
                     int transitionX = transition.getX();
                     int transitionY = transition.getY();
 
-                    if(field[transitionX][transitionY] < radius) {
+                    if(field[transitionY][transitionX] < radius) {
                         updateBombValueRecursive(startX, startY, transitionX, transitionY, (radius - 1));
                     }
                 }
