@@ -454,6 +454,14 @@ public class Game {
         return returnTransitions;
     }
 
+    /**
+     * Get the MapAnalyzer.
+     *
+     * @return the MapAnalyzer of the current game
+     */
+    public MapAnalyzer getMapAnalyzer() {
+        return mapAnalyzer;
+    }
 
     @Override
     public String toString() {

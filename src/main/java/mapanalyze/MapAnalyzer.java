@@ -49,10 +49,10 @@ public class MapAnalyzer {
         MapAnalyzer.analyzeParser = analyzeParser;
 
         board = b;
-        playerNumber = pNumber/2;
-        if(playerNumber < 2){
+        //playerNumber = pNumber/2;
+        //if(playerNumber < 2){
             playerNumber = 2;
-        }
+        //}
 
         initAllFields();
         reachableFinished = false;
