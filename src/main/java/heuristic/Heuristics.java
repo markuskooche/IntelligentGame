@@ -356,7 +356,6 @@ public class Heuristics {
 
     private void sortWallMoves(List<Line> wallLines) {
         int [][] mapVal = mapAnalyzer.getField();
-
         int biggest = Integer.MIN_VALUE;
         for (Line line : wallLines) {
             Move move = line.getMove();
@@ -367,7 +366,7 @@ public class Heuristics {
 
         for (int i = 0; i < wallLines.size(); i++) {
             Line line = wallLines.get(i);
-            if (line.getMoveValue() < biggest) {
+            if (line.getMoveValue() < biggest || line.getMoveValue() < 0) {
                 wallLines.remove(i);
                 i--;
             }
