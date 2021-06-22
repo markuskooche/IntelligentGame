@@ -470,7 +470,6 @@ public class Heuristics {
         while ("-0bic".indexOf(stone) == -1) {
             x += direction [0];
             y += direction [1];
-
             if (x > maxX || y > maxY || x < 0 || y < 0) { //Check for transition
                 x = x - direction[0];
                 y = y - direction[1];

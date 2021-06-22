@@ -132,13 +132,12 @@ public class Game {
 
         if (move.isChoice()) {
             additional = heuristics.getBestPlayer(ourPlayerNumber, board);
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = ADDITIONAL_OVERRIDE;
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+
         } else if (move.isInversion()) {
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+            //TODO inversion logik
         }
 
         return additional;
@@ -225,8 +224,18 @@ public class Game {
 
         Move move = board.getLegalMove(x, y, currentPlayer);
 
+        //System.out.println(mapAnalyzer.getBoardValues());
+
         if (!move.isEmpty()) {
             board.colorizeMove(move, currentPlayer, additionalOperation);
+
+            if(move.isBonus()){
+                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+            }else if(move.isChoice()){
+                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
+            }else if(move.isInversion()){
+                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+            }
 
             if (mapAnalyzer.isReachableFinished()) {
                 int moveX = move.getX();
@@ -454,6 +463,14 @@ public class Game {
         return returnTransitions;
     }
 
+    /**
+     * Get the MapAnalyzer.
+     *
+     * @return the MapAnalyzer of the current game
+     */
+    public MapAnalyzer getMapAnalyzer() {
+        return mapAnalyzer;
+    }
 
     @Override
     public String toString() {
