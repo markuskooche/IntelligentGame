@@ -91,6 +91,7 @@ public class Heuristics {
         //No normal moves found, check for overrideStone-Moves
         if(ourMoves.isEmpty()) {
             ourMoves = board.getLegalMoves(ourPlayer, true);
+            if (ourMoves.isEmpty()) System.out.println(board.toString());
             return onlyOverrideStones(startBoard, ourPlayer, ourMoves);
         }
 
