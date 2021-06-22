@@ -367,7 +367,7 @@ public class Heuristics {
 
         for (int i = 0; i < wallLines.size(); i++) {
             Line line = wallLines.get(i);
-            if (line.getMoveValue() < biggest) {
+            if (line.getMoveValue() < biggest || line.getMoveValue() < 0) {
                 wallLines.remove(i);
                 i--;
             }
