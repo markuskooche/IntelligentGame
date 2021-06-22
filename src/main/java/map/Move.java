@@ -21,6 +21,7 @@ public class Move {
     private boolean override;
     private boolean choice;
     private boolean bonus;
+    private int choicePlayer;
     private Player player = null;
     private Map<int[], int[]> playerDirection;
     private String aims;
@@ -37,6 +38,7 @@ public class Move {
         playerDirection = new HashMap<>();
         aims = "";
         frontDirection = new int[2];
+        choicePlayer = -1;
     }
 
     /**
@@ -54,6 +56,7 @@ public class Move {
         playerDirection = new HashMap<>();
         aims = "";
         frontDirection = new int[2];
+        choicePlayer = -1;
     }
 
     /**
@@ -73,6 +76,15 @@ public class Move {
         this.bonus = move.isBonus();
         this.aims = move.getAims();
         this.frontDirection = move.getFrontDirection();
+        this.choicePlayer = move.getChoicePlayer();
+    }
+
+    public void setChoicePlayer(int pickedPlayer) {
+        choicePlayer = pickedPlayer;
+    }
+
+    public int getChoicePlayer() {
+        return choicePlayer;
     }
 
     public int[] getFrontDirection() {
