@@ -907,12 +907,15 @@ public class MapAnalyzer {
 
                     oldX = startX;
                     oldY = startY;
-
+                if(playerNumber > 0){
                         if (range % playerNumber == 0) {
                             field[startY][startX] += (startValue);
                         } else {
                             field[startY][startX] += ((startValue)) *(playerNumber - (range % playerNumber)) * omen ;
                         }
+                }else{
+                    System.err.println("Error with playerNumber" + playerNumber);
+                }
                     }
                 }
             range--;
