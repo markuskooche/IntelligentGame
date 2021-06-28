@@ -52,6 +52,7 @@ public class GameAnalyzer extends JFrame {
     private final JMenuItem mapValueItem;
     private final JMenuItem heuristicItem;
     private final JMenuItem visitedBoardItem;
+    private final JMenuItem printMapValue;
 
     private final JLabel moveSize;
     private final JLabel ownPlayer;
@@ -91,8 +92,8 @@ public class GameAnalyzer extends JFrame {
         };
         Object group = JOptionPane.showInputDialog (
                 GameAnalyzer.this,
-                "Bitte wählen Sie Ihre Gruppe:",
-                "Gruppe wählen",
+                "Bitte w\u00e4hlen Sie Ihre Gruppe:",
+                "Gruppe w\u00e4hlen",
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 groups, groups[0]
@@ -106,7 +107,7 @@ public class GameAnalyzer extends JFrame {
             System.exit(0);
         }
 
-        title = "GameAnalyzer v0.7.0  [Gruppe " + groupNumber + "]";
+        title = "GameAnalyzer v0.7.1  [Gruppe " + groupNumber + "]";
         setTitle(title);
         if (OSValidator.isMac()) {
             setSize(1110, 890);
@@ -176,6 +177,15 @@ public class GameAnalyzer extends JFrame {
         });
         gameControl.setEnabled(false);
         menu.add(gameControl);
+
+        printMapValue = new JMenuItem("MapValue ausgeben");
+        printMapValue.addActionListener(e -> {
+            Game currentGame = gamePanelManager.getGameState(counter);
+            System.out.println(currentGame.getMapAnalyzer().getBoardValues());
+        });
+
+        printMapValue.setEnabled(false);
+        menu.add(printMapValue);
 
         // ----- ----- ----- ----- GAME ANALYZER - MENU FENSTER ----- ----- ----- -----
 
@@ -545,6 +555,7 @@ public class GameAnalyzer extends JFrame {
             exportItem.setEnabled(true);
             visibleItem.setEnabled(true);
             hideTransition.setEnabled(false);
+            printMapValue.setEnabled(true);
 
             setTitle(title + " -> [" + fd.getFile() + "]");
 

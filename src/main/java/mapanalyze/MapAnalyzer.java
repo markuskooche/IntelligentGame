@@ -49,10 +49,10 @@ public class MapAnalyzer {
         MapAnalyzer.analyzeParser = analyzeParser;
 
         board = b;
-        playerNumber = pNumber/2;
-        if(playerNumber < 2){
+        //playerNumber = pNumber/2;
+        //if(playerNumber < 2){
             playerNumber = 2;
-        }
+        //}
 
         initAllFields();
         reachableFinished = false;
@@ -124,19 +124,19 @@ public class MapAnalyzer {
                         //set the value of the current evaluated field
                         field[i][j] += newValue * multiplier * 4;
                         // set the values of the Fields adjacent to the current evaluated field
-                        createWaves(j, i, waveLength, (newValue * multiplier)/8);
+                        createWaves(j, i, waveLength, (newValue * multiplier)*2);
                     } else if (newValue == 6) {
                         multiplier = 15;
                         field[i][j] += newValue * multiplier * 4;
-                        createWaves(j, i, waveLength, (newValue * multiplier)/8);
+                        createWaves(j, i, waveLength, (newValue * multiplier)*2);
                     } else if (newValue == 5) {
                         multiplier = 10;
                         field[i][j] += newValue * multiplier * 4;
-                        createWaves(j, i, waveLength, (newValue * multiplier)/8);
+                        createWaves(j, i, waveLength, (newValue * multiplier)*2);
                     }else {
                         multiplier = 8;
-                        field[i][j] += newValue * multiplier * 4;
-                        createWaves(j, i, waveLength, newValue/3);
+                        field[i][j] += newValue * multiplier * 3;
+                        createWaves(j, i, waveLength, newValue * 2);
                     }
                     int[] position = new int[2];
                     position[0] = j; //set x position
@@ -167,7 +167,7 @@ public class MapAnalyzer {
      */
     public void activateSpecialStone(int x, int y, char type) {
 
-        int waveLength = playerNumber + 1;
+        int waveLength = playerNumber;
 
         if (type == 'c') {
             field[y][x] -= 10000;
@@ -907,12 +907,15 @@ public class MapAnalyzer {
 
                     oldX = startX;
                     oldY = startY;
-
+                if(playerNumber > 0){
                         if (range % playerNumber == 0) {
                             field[startY][startX] += (startValue);
                         } else {
                             field[startY][startX] += ((startValue)) *(playerNumber - (range % playerNumber)) * omen ;
                         }
+                }else{
+                    System.err.println("Error with playerNumber" + playerNumber);
+                }
                     }
                 }
             range--;

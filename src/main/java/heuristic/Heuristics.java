@@ -91,6 +91,7 @@ public class Heuristics {
         //No normal moves found, check for overrideStone-Moves
         if(ourMoves.isEmpty()) {
             ourMoves = board.getLegalMoves(ourPlayer, true);
+            if (ourMoves.isEmpty()) System.out.println(board.toString());
             return onlyOverrideStones(startBoard, ourPlayer, ourMoves);
         }
 
@@ -99,7 +100,7 @@ public class Heuristics {
 
         move = ourMoves.get(0); //Pick the first possible Move
         LineList lineList = analyzeMoves(ourMoves, startBoard, ourPlayer);
-        filterMoves(lineList, ourMoves);
+        filterMoves(lineList, ourMoves, ourPlayer);
         ourMoves.sort((m1, m2) -> m2.compareTo(m1)); //Sort Greedy the left moves
 
         //MapAnalyzer: Try to create reachable fields
@@ -304,13 +305,23 @@ public class Heuristics {
         return playerMoves;
     }
 
-    private void filterMoves(LineList lineList, List<Move> moves) {
+    private void filterMoves(LineList lineList, List<Move> moves, Player ourPlayer) {
 
         //We take always Bonus when possible
         List<Move> bonus = lineList.getBonusMoves();
         if (!bonus.isEmpty()) {
             moves.clear();
             moves.addAll(bonus);
+            return;
+        }
+
+        //We take always Choice when possible
+        List<Move> choice = lineList.getChoiceMoves();
+        if (!choice.isEmpty()) {
+//            int bestPlayer = getBestPlayer(ourPlayer.getIntNumber(), board);
+//            for (Move m : choice) m.setChoicePlayer(bestPlayer);
+            moves.clear();
+            moves.addAll(choice);
             return;
         }
 
@@ -356,7 +367,6 @@ public class Heuristics {
 
     private void sortWallMoves(List<Line> wallLines) {
         int [][] mapVal = mapAnalyzer.getField();
-
         int biggest = Integer.MIN_VALUE;
         for (Line line : wallLines) {
             Move move = line.getMove();
@@ -367,7 +377,7 @@ public class Heuristics {
 
         for (int i = 0; i < wallLines.size(); i++) {
             Line line = wallLines.get(i);
-            if (line.getMoveValue() < biggest) {
+            if (line.getMoveValue() < biggest || line.getMoveValue() < 0) {
                 wallLines.remove(i);
                 i--;
             }

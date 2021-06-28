@@ -97,9 +97,6 @@ public class Game {
             move = monteCarlo.getMove(board, time);
         } else {
             move = heuristics.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            //move = heuristicsBRS.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            //move = brsPlus.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
-            //move = heuristicKiller.getMoveByTime(ourPlayer, time, alphaBeta, moveSorting);
         }
 
         //System.out.println(move);
@@ -112,9 +109,6 @@ public class Game {
     public int[] executeOurMoveDepth(int depth, boolean alphaBeta, boolean moveSorting) {
         Player ourPlayer = getPlayer(ourPlayerNumber);
         Move move = heuristics.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-        //Move move = heuristicsBRS.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-        //Move move = brsPlus.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
-        //Move move = heuristicKiller.getMoveByDepth(ourPlayer, depth, alphaBeta, moveSorting);
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
@@ -131,14 +125,14 @@ public class Game {
         int additional = 0;
 
         if (move.isChoice()) {
+            //int test = move.getChoicePlayer();
             additional = heuristics.getBestPlayer(ourPlayerNumber, board);
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = ADDITIONAL_OVERRIDE;
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+
         } else if (move.isInversion()) {
-            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+            //TODO inversion logik
         }
 
         return additional;
@@ -225,8 +219,18 @@ public class Game {
 
         Move move = board.getLegalMove(x, y, currentPlayer);
 
+        //System.out.println(mapAnalyzer.getBoardValues());
+
         if (!move.isEmpty()) {
             board.colorizeMove(move, currentPlayer, additionalOperation);
+
+            if(move.isBonus()){
+                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+            }else if(move.isChoice()){
+                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
+            }else if(move.isInversion()){
+                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+            }
 
             if (mapAnalyzer.isReachableFinished()) {
                 int moveX = move.getX();
@@ -454,6 +458,14 @@ public class Game {
         return returnTransitions;
     }
 
+    /**
+     * Get the MapAnalyzer.
+     *
+     * @return the MapAnalyzer of the current game
+     */
+    public MapAnalyzer getMapAnalyzer() {
+        return mapAnalyzer;
+    }
 
     @Override
     public String toString() {
