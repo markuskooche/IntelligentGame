@@ -42,6 +42,7 @@ public class MapAnalyzer {
     private int width;
     private int height;
     private int minFieldValue;
+    private final static int WAVELENGTH = 2;
 
     private Token timeToken = new Token();
     private boolean timeLimited = false;
@@ -52,26 +53,15 @@ public class MapAnalyzer {
         MapAnalyzer.analyzeParser = analyzeParser;
 
         board = b;
-        //playerNumber = pNumber/2;
-        //if(playerNumber < 2){
-            playerNumber = 2;
-        //}
+        playerNumber = board.getPlayerAmount();
 
         initAllFields();
         reachableFinished = false;
         createField();
         minFieldValue = getMinFieldValue();
-        createFactorField();
-        //TODO zeitkontrolle
-        findFieldValueFactor(interestingCornerFieldList);
-        findFieldValueFactor(interestingEdgeFieldList);
-    }
-
-    private void createFactorField() {
-
-
 
     }
+
 
     public void startReachableField(boolean timeLimited, Token timeToken) throws TimeExceededException {
         this.timeLimited = timeLimited;
@@ -115,13 +105,14 @@ public class MapAnalyzer {
      */
     public void createField() {
 
+        cleanLists();
+
         //field reset is important to prevent endless addition of values.
         for (int y = 0; y < height; y++) {
             if (width >= 0) System.arraycopy(initialField[y], 0, field[y], 0, width);
         }
 
         //waveLength is the number of Fields a calculated Field influenced adjacent Fields
-        int waveLength = 1 + 1;
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -141,19 +132,19 @@ public class MapAnalyzer {
                         //set the value of the current evaluated field
                         field[i][j] += newValue * multiplier * 4;
                         // set the values of the Fields adjacent to the current evaluated field
-                        createWaves(j, i, waveLength, (newValue * multiplier)*2);
+                        createWaves(j, i, WAVELENGTH, (newValue * multiplier)*2);
                     } else if (newValue == 6) {
                         multiplier = 15;
                         field[i][j] += newValue * multiplier * 4;
-                        createWaves(j, i, waveLength, (newValue * multiplier)*2);
+                        createWaves(j, i, WAVELENGTH, (newValue * multiplier)*2);
                     } else if (newValue == 5) {
                         multiplier = 10;
                         field[i][j] += newValue * multiplier * 4;
-                        createWaves(j, i, waveLength, (newValue * multiplier)*2);
+                        createWaves(j, i, WAVELENGTH, (newValue * multiplier)*2);
                     }else {
                         multiplier = 8;
                         field[i][j] += newValue * multiplier * 3;
-                        createWaves(j, i, waveLength, newValue * 2);
+                        createWaves(j, i, WAVELENGTH, newValue * 2);
                     }
                     int[] position = new int[2];
                     position[0] = j; //set x position
@@ -161,15 +152,15 @@ public class MapAnalyzer {
                     // to make them more appealing the current field gets a bonus value if the field is a bonus, choice or inversion field
                     if (currField == 'c') {
                         field[i][j] += 10000;
-                        createWaves(j, i, waveLength, 250);
+                        createWaves(j, i, WAVELENGTH, 250);
                         interestingChoiceFieldList.add(new int[]{j,i});
                     } else if (currField == 'b') {
                         field[i][j] += 8000;
-                        createWaves(j, i, waveLength, 200);
+                        createWaves(j, i, WAVELENGTH, 200);
                         interestingBonusFieldList.add(new int[]{j,i});
                     } else if (currField == 'i') {
                         field[i][j] += 9000;
-                        createWaves(j, i, waveLength, 220);
+                        createWaves(j, i, WAVELENGTH, 220);
                         interestingInversionFieldList.add(new int[]{j,i});
                     } else if(currField == 'x'){
                         expansionStoneList.add(new int[]{j,i});
@@ -177,17 +168,20 @@ public class MapAnalyzer {
                 }
             }
         }
+
+        //TODO zeitkontrolle
+        findFieldValueFactor(interestingCornerFieldList);
+        findFieldValueFactor(interestingEdgeFieldList);
     }
 
     public void activateField(int x, int y){
 
-        int waveLength = 2;
         int multiplier = 10;
         int[] position = {x, y};
         for(int[] posCorner : interestingCornerFieldList){
             if(Arrays.equals(position,posCorner)){
                 int newValue = getLocationValue(y, x);
-                createWaves(x, y, waveLength, (newValue * multiplier)*2*(-1));
+                createWaves(x, y, WAVELENGTH, (newValue * multiplier)*2*(-1));
                 break;
             }
         }
@@ -201,7 +195,6 @@ public class MapAnalyzer {
      */
     public void activateSpecialStone(int x, int y, char type) {
 
-        int waveLength = playerNumber;
         int[] position = {x, y};
         double factor = 1.0;
 
@@ -221,13 +214,13 @@ public class MapAnalyzer {
 
         if (type == 'c') {
             field[y][x] -= 10000 * factor;
-            createWaves(x, y, waveLength, -250);
+            createWaves(x, y, WAVELENGTH, -250);
         } else if (type == 'b') {
             field[y][x] -= 8000 * factor;
-            createWaves(x, y, waveLength, -200);
+            createWaves(x, y, WAVELENGTH, -200);
         } else if (type == 'i') {
             field[y][x] -= 9000 * factor;
-            createWaves(x, y, waveLength, -220);
+            createWaves(x, y, WAVELENGTH, -220);
         }
     }
 
@@ -961,18 +954,15 @@ public class MapAnalyzer {
                         oldY = currY;
 
                         //calculate the scores of the adjacent players
-                        if (playerNumber > 0) {
-                            if (currRange % playerNumber == 0) {
+                            if (currRange % WAVELENGTH == 0) {
                                 field[currY][currX] += ((startValue));
                             } else {
                                 double factor = factorField[currY][currX];
                                 if(factor < 1.0) factor = 1.0;
 
-                                field[currY][currX] += ((startValue)) * factor * (playerNumber - (currRange % playerNumber)) * omen;
+                                field[currY][currX] += ((startValue)) * factor * (WAVELENGTH - (currRange % WAVELENGTH)) * omen;
                             }
-                        }else{
-                            System.err.println("Error with playerNumber" + playerNumber);
-                        }
+
                     }
                 }
             }
@@ -1105,20 +1095,25 @@ public class MapAnalyzer {
 
                     oldX = startX;
                     oldY = startY;
-                if(playerNumber > 0)
-                        if (range % playerNumber == 0) {
+                        if (range % WAVELENGTH == 0) {
                             field[startY][startX] += (startValue);
                         } else {
-                            field[startY][startX] += ((startValue)) *(playerNumber - (range % playerNumber)) * omen ;
+                            field[startY][startX] += ((startValue)) *(WAVELENGTH - (range % WAVELENGTH)) * omen ;
                         }
-                }else{
-                    System.err.println("Error with playerNumber" + playerNumber);
-                }
+                    }
                 }
             range--;
             }
         }
 
+    public void cleanLists(){
+        interestingBonusFieldList.clear();
+        interestingCornerFieldList.clear();
+        interestingChoiceFieldList.clear();
+        interestingInversionFieldList.clear();
+        interestingEdgeFieldList.clear();
+        expansionStoneList.clear();
+    }
 
     /**
      * Get the value of a field depending on the aligning fields that are reachable
@@ -1126,6 +1121,10 @@ public class MapAnalyzer {
      * @return Location Value = the number of adjacent not reachable fields
      */
     private int getLocationValue(int x, int y) {
+
+        if(x == 0 && y == 48){
+            System.out.println("feld");
+        }
 
         int[] currentDirection;
         int currNumbers = 0;
@@ -1144,8 +1143,10 @@ public class MapAnalyzer {
                 Transition transition = board.getTransition(x, y, directionValue);
 
                 if (transition != null) {
+                    if(reachableField[transition.getY()][transition.getX()] == 4){
                     sb.append('.');
                     continue;
+                    }
                 }
                 sb.append('-');
                 currNumbers++;
@@ -1156,8 +1157,10 @@ public class MapAnalyzer {
                     Transition transition = board.getTransition(x, y, directionValue);
 
                     if (transition != null) {
-                        sb.append('.');
-                        continue;
+                        if(reachableField[transition.getY()][transition.getX()] == 4) {
+                            sb.append('.');
+                            continue;
+                        }
                     }
                 }
 
@@ -1290,14 +1293,6 @@ public class MapAnalyzer {
         createField();
     }
 
-    public int getPlayerNumber(){
-        return playerNumber;
-    }
-
-    public void setPlayerNumber(int playerNumber){
-        this.playerNumber = playerNumber;
-        createField();
-    }
 
     public List<int[]> getInterestingBonusFieldList() {
         return interestingBonusFieldList;
