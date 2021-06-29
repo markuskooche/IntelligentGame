@@ -35,6 +35,7 @@ public class MapAnalyzer {
     private List<int[]> interestingInversionFieldList;
     private List<int[]> interestingCornerFieldList;
     private List<int[]> interestingEdgeFieldList;
+    private List<int[]> expansionStoneList;
     private int[][] visibleField;
     private int[][] tmpField;
     private int playerNumber;
@@ -106,6 +107,7 @@ public class MapAnalyzer {
         interestingChoiceFieldList = new ArrayList<>();
         interestingInversionFieldList = new ArrayList<>();
         interestingEdgeFieldList = new ArrayList<>();
+        expansionStoneList = new ArrayList<>();
     }
 
     /**
@@ -169,6 +171,8 @@ public class MapAnalyzer {
                         field[i][j] += 9000;
                         createWaves(j, i, waveLength, 220);
                         interestingInversionFieldList.add(new int[]{j,i});
+                    } else if(currField == 'x'){
+                        expansionStoneList.add(new int[]{j,i});
                     }
                 }
             }
@@ -915,8 +919,9 @@ public class MapAnalyzer {
             // go until the range runs out or there are no more reachable fields
             for (int currRange = 1; currRange < range; currRange++) {
 
-                currX = x + (direction[0] * currRange);
-                currY = y + (direction[1] * currRange);
+                    currX = x + (direction[0] * currRange);
+                    currY = y + (direction[1] * currRange);
+
 
                 if (currX < 0 || currX >= board.getWidth() || currY < 0 || currY >= board.getHeight() || board.getField()[currY][currX] == '-') {
 
@@ -934,10 +939,19 @@ public class MapAnalyzer {
                     break;
 
                 } else {
+                    int[] position = {x, y};
+                    boolean skipnext = false;
+                    for(int[] posExpansions : expansionStoneList){
+                        if(Arrays.equals(position,posExpansions)){
+                            skipnext = true;
+                            break;
+                        }
+                    }
 
                     // if the current Field is an expansion stone, skip it
-                    if(board.getField()[currY][currX] == 'x'){
-                        currRange--;
+                    if(skipnext){
+                        currRange++;
+                        range++;
                         continue;
                     }
 
@@ -1072,8 +1086,17 @@ public class MapAnalyzer {
                 }
             }else{
 
+                int[] position = {startX, startY};
+                boolean skipnext = false;
+                for(int[] posExpansions : expansionStoneList){
+                    if(Arrays.equals(position,posExpansions)){
+                        skipnext = true;
+                        break;
+                    }
+                }
+
                 // if the current Field is an expansion stone, skip it
-                if(board.getField()[startY][startX] == 'x'){
+                if(skipnext){
                     range++;
                     continue;
                 }
