@@ -583,7 +583,7 @@ public class Heuristics {
         if(!createdReachableFields && !mapAnalyzer.failedToSetup()) {
             mapAnalyzer.startReachableField(timeLimited, timeToken);
             //TODO im Auge behalten
-            System.out.println(mapAnalyzer.getBoardValues());
+           // System.out.println(mapAnalyzer.getBoardValues());
         }
         createdReachableFields = true;
     }
