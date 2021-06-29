@@ -103,6 +103,7 @@ public class Game {
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
+        updateMapValues(move);
         return new int[] {move.getX(), move.getY(), additional};
     }
 
@@ -112,6 +113,7 @@ public class Game {
         int additional = getAdditional(move);
 
         board.colorizeMove(move, ourPlayer, additional);
+        updateMapValues(move);
         return new int[] {move.getX(), move.getY(), additional};
     }
 
@@ -224,13 +226,7 @@ public class Game {
         if (!move.isEmpty()) {
             board.colorizeMove(move, currentPlayer, additionalOperation);
 
-            if(move.isBonus()){
-                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
-            }else if(move.isChoice()){
-                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
-            }else if(move.isInversion()){
-                mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
-            }
+            updateMapValues(move);
 
             if (mapAnalyzer.isReachableFinished()) {
                 int moveX = move.getX();
@@ -242,6 +238,21 @@ public class Game {
                 }
             }
         }
+    }
+
+    private void updateMapValues(Move move){
+        if(move.isOverride()) return;
+        if(move.isOverride()) return;
+
+        if(move.isBonus()){
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'b');
+        }else if(move.isChoice()){
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'c');
+        }else if(move.isInversion()){
+            mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
+        }
+        mapAnalyzer.activateField(move.getX(),move.getY());
+        //System.out.println(mapAnalyzer.getBoardValues());
     }
 
     /**
