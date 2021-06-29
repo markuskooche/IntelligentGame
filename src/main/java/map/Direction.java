@@ -29,7 +29,7 @@ public class Direction {
      * @return list of all directions
      */
     public static int[][] getList() {
-        return directions;
+        return directions.clone();
     }
 
     /**

@@ -26,6 +26,7 @@ public class MapAnalyzer {
     private int[][] initialField;
     private Board board;
     private int[][] reachableField;
+    private double[][] factorField;
     private List<int[]> specialFieldListSidePath;
     private List<int[]> specialFieldListMainPath;
     private List<int[]> followFieldsPath;
@@ -33,6 +34,7 @@ public class MapAnalyzer {
     private List<int[]> interestingChoiceFieldList;
     private List<int[]> interestingInversionFieldList;
     private List<int[]> interestingCornerFieldList;
+    private List<int[]> interestingEdgeFieldList;
     private int[][] visibleField;
     private int[][] tmpField;
     private int playerNumber;
@@ -58,6 +60,16 @@ public class MapAnalyzer {
         reachableFinished = false;
         createField();
         minFieldValue = getMinFieldValue();
+        createFactorField();
+        //TODO zeitkontrolle
+        findFieldValueFactor(interestingCornerFieldList);
+        findFieldValueFactor(interestingEdgeFieldList);
+    }
+
+    private void createFactorField() {
+
+
+
     }
 
     public void startReachableField(boolean timeLimited, Token timeToken) throws TimeExceededException {
@@ -86,11 +98,14 @@ public class MapAnalyzer {
         initialField = new int[height][width];
         // init the visibleFiled: all 1's are Fields that are near our stones.
         visibleField = new int[height][width];
+        // init the factorField
+        factorField = new double[height][width];
         // init the interestingFieldList. It contains interesting fields like corners or the position of special stones
         interestingBonusFieldList = new ArrayList<>();
         interestingCornerFieldList = new ArrayList<>();
         interestingChoiceFieldList = new ArrayList<>();
         interestingInversionFieldList = new ArrayList<>();
+        interestingEdgeFieldList = new ArrayList<>();
     }
 
     /**
@@ -160,6 +175,21 @@ public class MapAnalyzer {
         }
     }
 
+    public void activateField(int x, int y){
+
+        int waveLength = 2;
+        int multiplier = 10;
+        int[] position = {x, y};
+        for(int[] posCorner : interestingCornerFieldList){
+            if(Arrays.equals(position,posCorner)){
+                int newValue = getLocationValue(y, x);
+                createWaves(x, y, waveLength, (newValue * multiplier)*2*(-1));
+                break;
+            }
+        }
+
+    }
+
     /**
      * Marks a special Stone at a position as activated
      *
@@ -168,15 +198,31 @@ public class MapAnalyzer {
     public void activateSpecialStone(int x, int y, char type) {
 
         int waveLength = playerNumber;
+        int[] position = {x, y};
+        double factor = 1.0;
+
+        for(int[] posCorner : interestingCornerFieldList){
+            if(Arrays.equals(position,posCorner)){
+                factor = calculateFactor(x, y);
+                break;
+            }
+        }
+
+        for(int[] posEdge : interestingEdgeFieldList){
+            if(Arrays.equals(posEdge,position)){
+                factor = calculateFactor(x, y);
+                break;
+            }
+        }
 
         if (type == 'c') {
-            field[y][x] -= 10000;
+            field[y][x] -= 10000 * factor;
             createWaves(x, y, waveLength, -250);
         } else if (type == 'b') {
-            field[y][x] -= 8000;
+            field[y][x] -= 8000 * factor;
             createWaves(x, y, waveLength, -200);
         } else if (type == 'i') {
-            field[y][x] -= 9000;
+            field[y][x] -= 9000 * factor;
             createWaves(x, y, waveLength, -220);
         }
     }
@@ -582,6 +628,61 @@ public class MapAnalyzer {
         }
     }
 
+
+    private void findFieldValueFactor(List<int[]> cornerFieldList){
+        for(int[] currField : cornerFieldList){
+
+            double factor = calculateFactor(currField[0], currField[1]);
+
+            factorField[currField[1]][currField[0]] = factor;
+            field[currField[1]][currField[0]] = (int) ((double) field[currField[1]][currField[0]] *  factor);
+        }
+    }
+
+    public double calculateFactor(int x, int y){
+
+        int currX;
+        int currY;
+        int oldX = x;
+        int oldY = y;
+        double factor = 1;
+        int maxRange = 100;
+
+        // go in each direction
+        for (int[] direction : Direction.getList()) {
+            // go until the range runs out or there are no more reachable fields
+            for (int currRange = 1; currRange < maxRange; currRange++) {
+
+                currX = x + (direction[0] * currRange);
+                currY = y + (direction[1] * currRange);
+
+                if (currX < 0 || currX >= board.getWidth() || currY < 0 || currY >= board.getHeight() || board.getField()[currY][currX] == '-') {
+
+                    int directionValue = Direction.indexOf(direction);
+                    Transition transition;
+                    if(currRange == 1){
+                        transition = board.getTransition(x, y, directionValue);
+                    }else{
+                        transition = board.getTransition(oldX, oldY, directionValue);
+                    }
+                    // follow transition if available
+                    if (transition != null) {
+                        followTransitionForFactor(transition,(maxRange - currRange), factor);
+                    }
+                    break;
+                } else {
+                    if (board.getField()[currY][currX] != '-' && field[currY][currX] != Integer.MIN_VALUE) {
+                        factor += 0.1;
+                    }
+                }
+            }
+        }
+
+        return factor;
+    }
+
+
+
     /**
      * searches for each player and expansion Stone whether a turn is possible or not.
      *
@@ -754,7 +855,7 @@ public class MapAnalyzer {
         return tmpBoard;
     }
 
-    // TODO: Board has playerScores as attribute this is way faster than the currently method
+    // TODO: Board has playerScores as attribute this is way faster than the current method
     /**
      * inits the playerScores by initializing the playerScores array in a Board
      * @param tmpBoard board that is initialized
@@ -793,6 +894,7 @@ public class MapAnalyzer {
         tmpBoard.setPlayerScores(playerScores);
         return tmpBoard;
     }
+
 
     /**
      * Creates a wave in all directions that changes sign every Field and gets smaller.
@@ -833,6 +935,12 @@ public class MapAnalyzer {
 
                 } else {
 
+                    // if the current Field is an expansion stone, skip it
+                    if(board.getField()[currY][currX] == 'x'){
+                        currRange--;
+                        continue;
+                    }
+
                     if (board.getField()[currY][currX] != '-' && field[currY][currX] != Integer.MIN_VALUE) {
                         // remember last reachable Field in case there is a transaction
                         oldX = currX;
@@ -843,7 +951,10 @@ public class MapAnalyzer {
                             if (currRange % playerNumber == 0) {
                                 field[currY][currX] += ((startValue));
                             } else {
-                                field[currY][currX] += ((startValue)) * (playerNumber - (currRange % playerNumber)) * omen;
+                                double factor = factorField[currY][currX];
+                                if(factor < 1.0) factor = 1.0;
+
+                                field[currY][currX] += ((startValue)) * factor * (playerNumber - (currRange % playerNumber)) * omen;
                             }
                         }else{
                             System.err.println("Error with playerNumber" + playerNumber);
@@ -853,6 +964,63 @@ public class MapAnalyzer {
             }
         }
 
+    }
+
+    /**
+     * continues the wave after a transition is followed
+     *
+     * @param transition is the transition the wave went through
+     * @param range the leftover range of the wave
+     */
+    private double followTransitionForFactor(Transition transition, int range, double factor) {
+
+        int[][] directions = {{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}};
+        int omen = -1;
+        int directionValue;
+
+        //get the opposite side of the given transaction
+        int[] newPosition = transition.getDestination();
+        int startX = newPosition[0];
+        int startY = newPosition[1];
+        int[] newDirection = directions[newPosition[2]];
+        // new direction must be turned by 180 degrees
+        newDirection[0] *= (-1);
+        newDirection[1] *= (-1);
+        boolean first = true;
+        int oldX = startX;
+        int oldY = startY;
+
+        while (range >= 0) {
+
+            //Skip the first iteration, because the field the transaction ends in must also be counted
+            if (!first) {
+                startX += (newDirection[0]);
+                startY += (newDirection[1]);
+            } else {
+                first = false;
+                factor+=0.1;
+            }
+
+            if (startX < 0 || startX >= board.getWidth() || startY < 0 || startY >= board.getHeight() || board.getField()[startY][startX] == '-') {
+
+                directionValue = Direction.indexOf(newDirection);
+
+                transition = board.getTransition(oldX, oldY, directionValue);
+
+                if (transition == null) {
+                    return factor;
+                } else {
+                    factor = followTransitionForFactor(transition, range-1, factor);
+                    break;
+                }
+            }else{
+                if (board.getField()[startY][startX] != '-' && field[startY][startX] != Integer.MIN_VALUE) {
+                    factor+=0.1;
+                }
+            }
+            range--;
+        }
+        return factor;
     }
 
     /**
@@ -903,11 +1071,18 @@ public class MapAnalyzer {
                     break;
                 }
             }else{
+
+                // if the current Field is an expansion stone, skip it
+                if(board.getField()[startY][startX] == 'x'){
+                    range++;
+                    continue;
+                }
+
                 if (board.getField()[startY][startX] != '-' && field[startY][startX] != Integer.MIN_VALUE) {
 
                     oldX = startX;
                     oldY = startY;
-                if(playerNumber > 0){
+                if(playerNumber > 0)
                         if (range % playerNumber == 0) {
                             field[startY][startX] += (startValue);
                         } else {
@@ -916,7 +1091,6 @@ public class MapAnalyzer {
                 }else{
                     System.err.println("Error with playerNumber" + playerNumber);
                 }
-                    }
                 }
             range--;
             }
@@ -953,6 +1127,17 @@ public class MapAnalyzer {
                 sb.append('-');
                 currNumbers++;
             } else {
+
+                if(board.getField()[nextY][nextX] == '-'){
+                    int directionValue = Direction.indexOf(direction);
+                    Transition transition = board.getTransition(x, y, directionValue);
+
+                    if (transition != null) {
+                        sb.append('.');
+                        continue;
+                    }
+                }
+
                 //if the adjacent field is not reachable increase currNumbers
                 if(board.getField()[nextY][nextX] == '-' || field[nextY][nextX] == Integer.MIN_VALUE){
                     sb.append('-');
@@ -962,6 +1147,14 @@ public class MapAnalyzer {
                 }
             }
         }
+        //if the field is an edge add it to the interesting Field list for Edges
+        if(currNumbers == 3){
+            int[] position = new int[2];
+            position[0] = x; //set x position
+            position[1] = y; //set y position
+            interestingEdgeFieldList.add(position);
+        }
+
         //if the field is a real Corner add id to the interesting Field list.
         if(isCorner(sb.toString()) && currNumbers >= 5){
             int[] position = new int[2];
