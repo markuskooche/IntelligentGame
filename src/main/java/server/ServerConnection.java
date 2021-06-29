@@ -238,7 +238,6 @@ public class ServerConnection {
                         // remove the disqualified player
                         Player disqualifiedPlayer = game.getPlayer(byteMessage[0]);
                         disqualifiedPlayer.setDisqualified();
-                        game.decreasePlayerNumber();
 
                         // terminate in case our client was disqualified
                         if (byteMessage[0] == ourPlayer) {

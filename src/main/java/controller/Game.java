@@ -221,8 +221,6 @@ public class Game {
 
         Move move = board.getLegalMove(x, y, currentPlayer);
 
-        //System.out.println(mapAnalyzer.getBoardValues());
-
         if (!move.isEmpty()) {
             board.colorizeMove(move, currentPlayer, additionalOperation);
 
@@ -241,7 +239,6 @@ public class Game {
     }
 
     private void updateMapValues(Move move){
-        if(move.isOverride()) return;
         if(move.isOverride()) return;
 
         if(move.isBonus()){
@@ -375,11 +372,6 @@ public class Game {
 
         Move emptyMove = new Move();
         return heuristics.getEvaluationForPlayer(selectedPlayer, board, emptyMove);
-    }
-
-
-    public void decreasePlayerNumber(){
-        mapAnalyzer.setPlayerNumber(mapAnalyzer.getPlayerNumber()-1);
     }
 
     /**
