@@ -585,8 +585,8 @@ public class Heuristics {
             mapAnalyzer.createField();
             createdReachableFields = true;
             //TODO im Auge behalten
-            System.out.println("Geschafft_______________________________________________________________");
-            System.out.println(mapAnalyzer.getBoardValues());
+           // System.out.println("Geschafft_______________________________________________________________");
+           // System.out.println(mapAnalyzer.getBoardValues());
         }
 
     }
