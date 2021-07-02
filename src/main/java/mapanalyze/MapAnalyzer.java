@@ -1354,6 +1354,14 @@ public class MapAnalyzer {
     }
 
 
+    public List<int[]> getInterestingEdgeFieldList() {
+        return interestingEdgeFieldList;
+    }
+
+    public void setInterestingEdgeFieldList(List<int[]> interestingEdgeFieldList) {
+        this.interestingEdgeFieldList = interestingEdgeFieldList;
+    }
+
     public List<int[]> getInterestingBonusFieldList() {
         return interestingBonusFieldList;
     }

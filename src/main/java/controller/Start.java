@@ -96,11 +96,12 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/fancyMaps/big_eight.map");
+        Game game = createGame("maps/lsd.map");
         game.setOurPlayerNumber(PLAYER_NUMBER);
         System.out.println(game);
 
         Player player = game.getPlayer(PLAYER_NUMBER);
+        game.executeOurMoveDepth(4, true, true);
 
         // EXECUTE NORMAL MOVE
         // printLegalMoves(game, player);

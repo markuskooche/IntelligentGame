@@ -36,9 +36,6 @@ public class Game {
     private Board board;
     private BombHeuristic bombHeuristic;
     private Heuristics heuristics;
-    private HeuristicsBRS heuristicsBRS;
-    private BRSPlus brsPlus;
-    private HeuristicKiller heuristicKiller;
     private MapAnalyzer mapAnalyzer;
     private int ourPlayerNumber;
 
@@ -49,11 +46,8 @@ public class Game {
         createBoard(initMap);
         mapAnalyzer = new MapAnalyzer(board, players.length, analyzeParser);
         heuristics = new Heuristics(board, players, mapAnalyzer, analyzeParser);
-        heuristicsBRS = new HeuristicsBRS(board, players, mapAnalyzer, analyzeParser);
-        brsPlus = new BRSPlus(board, players, mapAnalyzer, analyzeParser);
-        heuristicKiller = new HeuristicKiller(board, players, mapAnalyzer, analyzeParser);
         //mapAnalyzer.createVisibleField('1');
-        //this.ourPlayerNumber = 1;
+        //System.out.println(mapAnalyzer.getBoardValues());
     }
 
     public Game(Game game) {
@@ -117,24 +111,14 @@ public class Game {
         return new int[] {move.getX(), move.getY(), additional};
     }
 
-    /**
-     *
-     *
-     * @param move
-     * @return
-     */
     private int getAdditional(Move move) {
         int additional = 0;
 
         if (move.isChoice()) {
-            //int test = move.getChoicePlayer();
-            additional = heuristics.getBestPlayer(ourPlayerNumber, board);
+            additional = move.getChoicePlayer();
         } else if (move.isBonus()) {
             // always choosing an overridestone
             additional = ADDITIONAL_OVERRIDE;
-
-        } else if (move.isInversion()) {
-            //TODO inversion logik
         }
 
         return additional;
@@ -318,8 +302,8 @@ public class Game {
         if (selectedPlayer == null) {
             return Integer.MIN_VALUE;
         }
-
-        return heuristics.getMobility(selectedPlayer, board);
+        PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
+        return evaluation.getMobility(selectedPlayer, board);
     }
 
     /**
@@ -335,8 +319,8 @@ public class Game {
         if (selectedPlayer == null) {
             return Integer.MIN_VALUE;
         }
-
-        return heuristics.getCoinParity(selectedPlayer, board);
+        PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
+        return evaluation.getCoinParity(selectedPlayer, board);
     }
 
     /**
@@ -353,7 +337,8 @@ public class Game {
             return Integer.MIN_VALUE;
         }
 
-        return heuristics.getMapValue(selectedPlayer, board);
+        PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
+        return evaluation.getMapValue(selectedPlayer, board);
     }
 
     /**
@@ -370,8 +355,8 @@ public class Game {
             return Integer.MIN_VALUE;
         }
 
-        Move emptyMove = new Move();
-        return heuristics.getEvaluationForPlayer(selectedPlayer, board, emptyMove);
+        PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
+        return evaluation.getEvaluationForPlayer(selectedPlayer, board);
     }
 
     /**
@@ -432,7 +417,7 @@ public class Game {
         Collection<Transition> transitions = board.getAllTransitions().values();
 
         // creates a string array to store all transitions
-        String[] returnTransitions = new String[transitions.size() / 2];
+        String[] returnTransitions = new String[(transitions.size() / 2) + 1];
 
         // a list to safe read transitions
         ArrayList<Transition> list = new ArrayList<>();

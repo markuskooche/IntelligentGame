@@ -189,6 +189,7 @@ public class Board {
                     // if it is a possible field
                     if ("0bic".indexOf(piece) != -1) {
                         Move legalMove = checkMove(x, y, player.getCharNumber(), false);
+                        legalMove.setPlayer(player);
 
                         if (!legalMove.isEmpty()) {
                             legalMoves.add(legalMove);
@@ -198,6 +199,7 @@ public class Board {
                     // if a player has an overridestone, it is selected and it is a possible field
                     if (player.hasOverrideStone() && overrideMoves && "x12345678".indexOf(field[y][x]) != -1) {
                         Move legalOverrideMove = checkMove(x, y, player.getCharNumber(), true);
+                        legalOverrideMove.setPlayer(player);
                         if (!legalOverrideMove.isEmpty()) {
                             legalMoves.add(legalOverrideMove);
                             int moveX = legalOverrideMove.getX();
@@ -423,9 +425,9 @@ public class Board {
                     if (!checkMove.isEmpty()) {
                         if (legalMove.isEmpty()) {
                             legalMove.add(new int[] {x, y});
-                            legalMove.addPlayerDirection(new int[]{direction[0], direction[1]}, nextX, nextY);
                         }
                         legalMove.merge(checkMove);
+                        legalMove.addPlayerDirection(new int[]{direction[0], direction[1]}, nextX, nextY);
                     }
                     break;
                 }

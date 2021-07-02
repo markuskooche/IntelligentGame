@@ -7,18 +7,20 @@ import java.util.List;
 
 public class LineList {
 
-    private List<Line> wallLines;
+    private List<Line> cornerLines;
+    private List<Line> edgeLines;
     private List<Line> openLines;
-    private List<Line> controllLines;
+    private List<Line> controlLines;
     private List<Line> caughtLines;
     private List<Move> bonusMoves;
     private List<Move> inversionMoves;
     private List<Move> choiceMoves;
 
     public LineList() {
-        wallLines = new ArrayList<>();
+        cornerLines = new ArrayList<>();
+        edgeLines = new ArrayList<>();
         openLines = new ArrayList<>();
-        controllLines = new ArrayList<>();
+        controlLines = new ArrayList<>();
         caughtLines = new ArrayList<>();
         bonusMoves = new ArrayList<>();
         inversionMoves = new ArrayList<>();
@@ -26,8 +28,9 @@ public class LineList {
     }
 
     public void add(Line line, LineState lineState) {
-        if (lineState == LineState.WALL) wallLines.add(line);
-        if (lineState == LineState.CONTROLL) controllLines.add(line);
+        if (lineState == LineState.CORNER) cornerLines.add(line);
+        if (lineState == LineState.EDGE) edgeLines.add(line);
+        if (lineState == LineState.CONTROL) controlLines.add(line);
         if (lineState == LineState.OPEN) openLines.add(line);
         if (lineState == LineState.CAUGHT) caughtLines.add(line);
     }
@@ -56,16 +59,20 @@ public class LineList {
         return choiceMoves;
     }
 
-    public List<Line> getWallLines() {
-        return wallLines;
+    public List<Line> getCornerLines() {
+        return cornerLines;
+    }
+
+    public List<Line> getEdgeLines() {
+        return edgeLines;
     }
 
     public List<Line> getOpenLines() {
         return openLines;
     }
 
-    public List<Line> getControllLines() {
-        return controllLines;
+    public List<Line> getControlLines() {
+        return controlLines;
     }
 
     public List<Line> getCaughtLines() {
