@@ -111,6 +111,11 @@ public class MapAnalyzer {
         for (int y = 0; y < height; y++) {
             if (width >= 0) System.arraycopy(initialField[y], 0, field[y], 0, width);
         }
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                field[i][j] = 0;
+            }
+        }
 
         //waveLength is the number of Fields a calculated Field influenced adjacent Fields
 
@@ -122,7 +127,7 @@ public class MapAnalyzer {
 
                 if (currField != '-' && field[i][j] != Integer.MIN_VALUE) {
                     //calculates the value for the current field position
-                    int newValue = getLocationValue(j, i);
+                    int newValue = getLocationValue(j, i, true);
                     // multiplier is used to increase the values oft he Fields depending on the number of adjacent Fields
                     int multiplier;
                     // basic Case: a field that is only reachable by 1 destination or 7 Sides are blocked
@@ -170,12 +175,64 @@ public class MapAnalyzer {
         }
 
         //TODO zeitkontrolle
+        initializeFieldValue();
         findFieldValueFactor(interestingCornerFieldList);
         findFieldValueFactor(interestingEdgeFieldList);
+
+        setFactorForFieldValues(true);
+    }
+
+    private void initializeFieldValue(){
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                factorField[i][j] = 1.0;
+            }
+        }
+    }
+
+    private void setFactorForFieldValues(boolean activate){
+        double factor;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                factor = factorField[i][j];
+
+                if(activate){
+                    field[i][j] = (int) ((double) field[i][j] *  factor);
+                }else{
+                    field[i][j] = (int) ((double) field[i][j] /  factor);
+                }
+            }
+        }
     }
 
     public void activateField(int x, int y){
 
+        if (factorField[y][x] == 1.0){
+            return;
+        }
+        //Deactivate the FieldFactors
+        setFactorForFieldValues(false);
+        int newValue = getLocationValue(x, y, false);
+        // multiplier is used to increase the values oft he Fields depending on the number of adjacent Fields
+        int multiplier;
+        // basic Case: a field that is only reachable by 1 destination or 7 Sides are blocked
+        if (newValue == 7) {
+            //set multiplier
+            multiplier = 25;
+            createWaves(x, y, WAVELENGTH, (newValue * multiplier)*2*(-1));
+        } else if (newValue == 6) {
+            multiplier = 15;
+            createWaves(x, y, WAVELENGTH, (newValue * multiplier)*2*(-1));
+        } else if (newValue == 5) {
+            multiplier = 10;
+            createWaves(x, y, WAVELENGTH, (newValue * multiplier)*2*(-1));
+        }else {
+            //multiplier = 8;
+            createWaves(x, y, WAVELENGTH, newValue * 2 *(-1));
+        }
+        //Activate the Field Factors again
+        setFactorForFieldValues(true);
+    /*
         int multiplier = 10;
         int[] position = {x, y};
         for(int[] posCorner : interestingCornerFieldList){
@@ -185,7 +242,15 @@ public class MapAnalyzer {
                 break;
             }
         }
-
+        multiplier = 8;
+        for(int[] posCorner : interestingEdgeFieldList){
+            if(Arrays.equals(position,posCorner)){
+                int newValue = getLocationValue(y, x);
+                createWaves(x, y, WAVELENGTH, (newValue * multiplier)*2*(-1));
+                break;
+            }
+        }
+*/
     }
 
     /**
@@ -196,9 +261,9 @@ public class MapAnalyzer {
     public void activateSpecialStone(int x, int y, char type) {
 
         int[] position = {x, y};
-        double factor = 1.0;
 
-        for(int[] posCorner : interestingCornerFieldList){
+        setFactorForFieldValues(false);
+     /*   for(int[] posCorner : interestingCornerFieldList){
             if(Arrays.equals(position,posCorner)){
                 factor = calculateFactor(x, y);
                 break;
@@ -212,16 +277,18 @@ public class MapAnalyzer {
             }
         }
 
+*/
         if (type == 'c') {
-            field[y][x] -= 10000 * factor;
+            field[y][x] -= 10000;
             createWaves(x, y, WAVELENGTH, -250);
         } else if (type == 'b') {
-            field[y][x] -= 8000 * factor;
+            field[y][x] -= 8000;
             createWaves(x, y, WAVELENGTH, -200);
         } else if (type == 'i') {
-            field[y][x] -= 9000 * factor;
+            field[y][x] -= 9000;
             createWaves(x, y, WAVELENGTH, -220);
         }
+        setFactorForFieldValues(true);
     }
 
     /**
@@ -627,12 +694,10 @@ public class MapAnalyzer {
 
 
     private void findFieldValueFactor(List<int[]> cornerFieldList){
+
         for(int[] currField : cornerFieldList){
-
             double factor = calculateFactor(currField[0], currField[1]);
-
             factorField[currField[1]][currField[0]] = factor;
-            field[currField[1]][currField[0]] = (int) ((double) field[currField[1]][currField[0]] *  factor);
         }
     }
 
@@ -955,12 +1020,11 @@ public class MapAnalyzer {
 
                         //calculate the scores of the adjacent players
                             if (currRange % WAVELENGTH == 0) {
-                                field[currY][currX] += ((startValue));
+                               // field[currY][currX] += ((startValue));
                             } else {
-                                double factor = factorField[currY][currX];
-                                if(factor < 1.0) factor = 1.0;
 
-                                field[currY][currX] += ((startValue)) * factor * (WAVELENGTH - (currRange % WAVELENGTH)) * omen;
+                                field[currY][currX] += ((startValue))  * (WAVELENGTH - (currRange % WAVELENGTH)) * omen;
+                                field[currY][currX] += ((startValue))  * (WAVELENGTH - (currRange % WAVELENGTH)) * omen;
                             }
 
                     }
@@ -1096,7 +1160,7 @@ public class MapAnalyzer {
                     oldX = startX;
                     oldY = startY;
                         if (range % WAVELENGTH == 0) {
-                            field[startY][startX] += (startValue);
+                            //field[startY][startX] += (startValue);
                         } else {
                             field[startY][startX] += ((startValue)) *(WAVELENGTH - (range % WAVELENGTH)) * omen ;
                         }
@@ -1120,11 +1184,7 @@ public class MapAnalyzer {
      *
      * @return Location Value = the number of adjacent not reachable fields
      */
-    private int getLocationValue(int x, int y) {
-
-        if(x == 0 && y == 48){
-            System.out.println("feld");
-        }
+    private int getLocationValue(int x, int y, boolean addToLists) {
 
         int[] currentDirection;
         int currNumbers = 0;
@@ -1174,7 +1234,7 @@ public class MapAnalyzer {
             }
         }
         //if the field is an edge add it to the interesting Field list for Edges
-        if(currNumbers == 3){
+        if(currNumbers == 3 && addToLists){
             int[] position = new int[2];
             position[0] = x; //set x position
             position[1] = y; //set y position
@@ -1182,7 +1242,7 @@ public class MapAnalyzer {
         }
 
         //if the field is a real Corner add id to the interesting Field list.
-        if(isCorner(sb.toString()) && currNumbers >= 5){
+        if(isCorner(sb.toString()) && currNumbers >= 5 && addToLists){
             int[] position = new int[2];
             position[0] = x; //set x position
             position[1] = y; //set y position
