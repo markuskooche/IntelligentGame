@@ -24,20 +24,20 @@ public class MoveFilter {
 
     public void filterMoves(LineList lineList, List<Move> moves, Player ourPlayer) {
 
-        //We take always Bonus when possible
+        //Bonus
         List<Move> bonus = lineList.getBonusMoves();
         if (!bonus.isEmpty()) {
             moves.clear();
-            int [][] mapVal = mapAnalyzer.getField();
             for (Move m : bonus) {
-                int value = mapVal[m.getY()][m.getX()];
+                int value = m.getList().size(); //Kills
                 m.setMoveValue(value);
             }
-            moves.addAll(bonus);
+            bonus.sort((m1, m2) -> m2.compareToMoveValue(m1));
+            moves.add(bonus.get(0));
             return;
         }
 
-        //We take always Choice when possible
+        //Choice
         List<Move> choice = lineList.getChoiceMoves();
         if (!choice.isEmpty()) {
             PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
@@ -65,7 +65,7 @@ public class MoveFilter {
         tmpMove.addAll(moves);
         moves.clear();
 
-        //Check for corner moves
+        //Corner Moves
         List<Line> cornerLines = lineList.getCornerLines();
         if (!cornerLines.isEmpty()) {
             sortCornerLines(cornerLines);
@@ -73,14 +73,14 @@ public class MoveFilter {
         }
         if (!moves.isEmpty()) return;
 
-        //Check for corner moves
+        //Edge Moves
         List<Line> edgeLines = lineList.getEdgeLines();
         if (!edgeLines.isEmpty()) {
             sortEdgeLines(edgeLines);
             for (Line line : edgeLines) moves.add(line.getMove());
         }
 
-        //Check for good moves
+        //Good Moves
         List<Line> goodLines = lineList.getControlLines();
         goodLines.addAll(lineList.getCaughtLines()); // CaughtLines
         if (!goodLines.isEmpty()) {
@@ -89,7 +89,7 @@ public class MoveFilter {
         }
         if (!moves.isEmpty()) return;
 
-        //Check for bad moves
+        //Bad Moves
         List<Line> badLines = lineList.getOpenLines();
         if (!badLines.isEmpty()) {
             sortBadLines(badLines);
@@ -104,7 +104,6 @@ public class MoveFilter {
 
     private void sortEdgeLines(List<Line> edgeLines) {
         getBiggestMoveValue(edgeLines);
-
         removeUnderValue(edgeLines, 0);
 
         //Evaluate by summing map value
@@ -112,16 +111,10 @@ public class MoveFilter {
         for(Line line : edgeLines) {
             Move move = line.getMove();
             List<int[]> positions = move.getList();
-            int sum = 0;
+            int sum = move.getList().size(); // Kills;
             int[][] field = mapAnalyzer.getField();
             for(int[] pos : positions) {
                 sum += field[pos[1]][pos[0]];
-            }
-            //Add also startPositions
-            int rowValue = line.getStoneRow().size() * 10;
-            for (Map.Entry<int[], int[]> entry : move.getPlayerDirections().entrySet()) {
-                int []pos = entry.getKey();
-                sum += field[pos[1]][pos[0]] + rowValue;
             }
             move.setMoveValue(sum);
             if (sum > maxSum)  maxSum = sum;
@@ -147,17 +140,16 @@ public class MoveFilter {
     }
 
     private void sortGoodLines(List<Line> goodLines) {
-
+        //delete moves to negative fields
         getBiggestMoveValue(goodLines);
-
-        removeUnderValue(goodLines, 0); //delete moves to negative fields
+        removeUnderValue(goodLines, 0);
 
         //Evaluate by summing map value
         int maxSum = Integer.MIN_VALUE;
         for(Line line : goodLines) {
             Move move = line.getMove();
             List<int[]> positions = move.getList();
-            int sum = 0;
+            int sum = move.getList().size(); // Kills
             int[][] field = mapAnalyzer.getField();
             for(int[] pos : positions) {
                 sum += field[pos[1]][pos[0]];
@@ -165,7 +157,8 @@ public class MoveFilter {
             move.setMoveValue(sum);
             if (sum > maxSum)  maxSum = sum;
         }
-        removeUnderValue(goodLines, maxSum);
+        //removeUnderValue(goodLines, maxSum);
+        // Try: Analyze all moves
     }
 
     private int getBiggestMoveValue(List<Line> lines) {

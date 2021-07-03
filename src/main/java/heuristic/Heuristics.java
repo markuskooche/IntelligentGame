@@ -8,7 +8,6 @@ import timelimit.TimeExceededException;
 import timelimit.TimeOutTask;
 import timelimit.Token;
 
-import java.sql.SQLOutput;
 import java.util.*;
 
 public class Heuristics {
@@ -108,13 +107,12 @@ public class Heuristics {
 
         new MoveFilter(mapAnalyzer, players, board).filterMoves(lineList, ourMoves, ourPlayer);
         if (ourMoves.size() == 1) return ourMoves.get(0);
+
+        ourMoves.sort((m1, m2) -> m2.compareToMoveValue(m1)); //Sort Greedy the left moves
         move = ourMoves.get(0);
 
         //MapAnalyzer: Try to create reachable fields
-        try { createReachableField(); } catch (TimeExceededException e) {
-            System.out.println("Choice Player " + move.getChoicePlayer() + " - + " + move);
-            return move;
-        }
+        try { createReachableField(); } catch (TimeExceededException e) { return move; }
 
         //Get all possible Boards with out possible moves
         List<BoardMove> executedStartMoves;
@@ -123,8 +121,8 @@ public class Heuristics {
 
 
         ourPickedMoves = ourMoves;
-        if (lineList.getEdgeLines().size() > 0) edgeMoves = false;
-        else edgeMoves = true;
+        if (lineList.getEdgeLines().size() > 0) edgeMoves = true;
+        else edgeMoves = false;
 
         if (timeLimited) {
             int searchDepth = 2;
@@ -138,26 +136,27 @@ public class Heuristics {
                     analyzeParser.searchDepth(searchDepth);
                 } catch (TimeExceededException e) { return move; }
 
-                if (tmpMove != null) move = tmpMove;
+                if (tmpMove != null || !tmpMove.isEmpty()) {
+                    int searValue = tmpMove.getSearchValue();
+                    if (searValue > 100000) {
+                        System.out.println(searValue);
+                        move = tmpMove;
+                    }
+                }
             }
         } else {
             if (maxSearchDepth >= 2) {
                 try {
-                    move = startSearching(executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum);
-                } catch (TimeExceededException e) { }
+                    Move tmpMove = startSearching(executedStartMoves, maxSearchDepth, nextPlayerNum, ourPlayerNum);
+
+                    int searchValue = tmpMove.getSearchValue();
+                    if (searchValue > 100000) {
+                        move = tmpMove;
+                    }
+                } catch (TimeExceededException ignored) { }
             }
         }
         return move;
-    }
-
-    private void printMoves(List<Move> moves) {
-        for (Move m : moves) {
-            System.out.println("X: " + m.getX() + " Y: " + m.getY() + " Value: " + m.getMoveValue());
-        }
-    }
-
-    private void printMove(Move move) {
-        System.out.println("Selected: X: " + move.getX() + " Y: " + move.getY() + " Value: " + move.getMoveValue());
     }
 
     private Move startSearching(List<BoardMove> executedStartMoves, int searchDepth, int nextPlayerNum,
@@ -175,6 +174,7 @@ public class Heuristics {
             if (tmpValue > value) {
                 value = tmpValue;
                 move = boardMove.getMove();
+                move.setSearchValue(value);
                 if (alphaBeta) alpha = tmpValue;
             }
             depth = 1;
@@ -230,8 +230,10 @@ public class Heuristics {
         }
         notAgainstUs(playerMoves, player, ourPlayer);
 
-        LineList lineList = new LineFinder(mapAnalyzer).findLines(playerMoves, board, player, timeLimited, timeToken);
-        new MoveFilter(mapAnalyzer, players, board).filterMoves(lineList, playerMoves, player);
+        if (player == ourPlayer) {
+            LineList lineList = new LineFinder(mapAnalyzer).findLines(playerMoves, board, player, timeLimited, timeToken);
+            new MoveFilter(mapAnalyzer, players, board).filterMoves(lineList, playerMoves, player);
+        }
 
         executedMoves = executeAllMoves(player, board, playerMoves);
 
@@ -273,14 +275,6 @@ public class Heuristics {
             return 499999;
         }
 
-        List<int[]> corners = mapAnalyzer.getInterestingCornerFieldList();
-        for (int[] corner : corners) {
-            if (corner[0] == move.getX() && corner[1] == move.getY()) {
-                int cornerValue = move.getMoveValue();
-                return 400000 + cornerValue;
-            }
-        }
-
         for (Move m : ourPickedMoves) {
             // We can make now this move
             // We are looking for new good moves, not for one we already have
@@ -290,7 +284,15 @@ public class Heuristics {
             }
         }
 
-        if (edgeMoves) {
+        List<int[]> corners = mapAnalyzer.getInterestingCornerFieldList();
+        for (int[] corner : corners) {
+            if (corner[0] == move.getX() && corner[1] == move.getY()) {
+                int cornerValue = move.getMoveValue();
+                return 400000 + cornerValue;
+            }
+        }
+
+        if (!edgeMoves) {
             List<int[]> edges = mapAnalyzer.getInterestingEdgeFieldList();
             for (int[] edge : edges) {
                 if (edge[0] == move.getX() && edge[1] == move.getY()) {
@@ -299,11 +301,6 @@ public class Heuristics {
                     return 100000 + edgeValue + kills;
                 }
             }
-        }
-
-        if (value == 0) { // Amount of new stones
-            int kills = move.getList().size();
-            return kills;
         }
 
         if (value == Integer.MIN_VALUE) {

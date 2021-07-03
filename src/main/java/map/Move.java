@@ -27,6 +27,7 @@ public class Move {
     private String aims;
 
     private int moveValue;
+    private int searchValue;
 
     /**
      * Creates a Move class that contains all information about a legal move.
@@ -39,7 +40,9 @@ public class Move {
         playerDirection = new HashMap<>();
         aims = "";
         choicePlayer = -1;
+
         moveValue = Integer.MIN_VALUE;
+        searchValue = Integer.MIN_VALUE;
     }
 
     /**
@@ -57,7 +60,9 @@ public class Move {
         playerDirection = new HashMap<>();
         aims = "";
         choicePlayer = -1;
+
         moveValue = Integer.MIN_VALUE;
+        searchValue = Integer.MIN_VALUE;
     }
 
     /**
@@ -77,7 +82,17 @@ public class Move {
         this.bonus = move.isBonus();
         this.aims = move.getAims();
         this.choicePlayer = move.getChoicePlayer();
+
         this.moveValue = move.getMoveValue();
+        this.searchValue = move.getSearchValue();
+    }
+
+    public int getSearchValue() {
+        return searchValue;
+    }
+
+    public void setSearchValue(int searchValue) {
+        this.searchValue = searchValue;
     }
 
     public int getMoveValue() {
@@ -310,12 +325,15 @@ public class Move {
         return moveString.toString();
     }
 
-    public int compareTo(Move m) {
+    public int compareToMoveValue(Move m) {
+        if (moveValue > m.getMoveValue()) return 1;
+        if (moveValue < m.getMoveValue()) return -1;
+        else return 0;
+    }
+
+    public int compareToKills(Move m) {
         if (list.size() > m.getList().size()) return 1;
-        if (list.size() < m.getList().size()) {
-            return -1;
-        } else {
-            return 0;
-        }
+        if (list.size() < m.getList().size()) return -1;
+        else return 0;
     }
 }
