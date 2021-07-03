@@ -220,6 +220,7 @@ public class Board {
                 // if a position is not added you could move to this position
                 if (!alreadyAdded[expansionY][expansionX]) {
                     Move expansionMove = new Move(expansion);
+                    expansionMove.setPlayer(player);
                     legalMoves.add(expansionMove);
                 }
             }
