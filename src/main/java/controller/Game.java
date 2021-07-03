@@ -233,7 +233,7 @@ public class Game {
             mapAnalyzer.activateSpecialStone(move.getX(), move.getY(), 'i');
         }
         mapAnalyzer.activateField(move.getX(),move.getY());
-        //System.out.println(mapAnalyzer.getBoardValues());
+        System.out.println(mapAnalyzer.getBoardValues(true));
     }
 
     /**
