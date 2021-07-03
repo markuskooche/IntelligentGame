@@ -11,6 +11,7 @@ import map.Transition;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 public class MapAnalyzer {
 
@@ -41,7 +42,7 @@ public class MapAnalyzer {
     private int playerNumber;
     private int width;
     private int height;
-    private int minFieldValue;
+    private double minFieldValue;
     private final static int WAVELENGTH = 2;
 
     private Token timeToken = new Token();
@@ -179,7 +180,6 @@ public class MapAnalyzer {
         findFieldValueFactor(interestingCornerFieldList);
         findFieldValueFactor(interestingEdgeFieldList);
 
-        setFactorForFieldValues(true);
     }
 
     private void initializeFieldValue(){
@@ -190,28 +190,24 @@ public class MapAnalyzer {
         }
     }
 
-    private void setFactorForFieldValues(boolean activate){
+    private int[][] getFieldValuesWithFactors(){
         double factor;
+        int[][] factorFieldValues = new int[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 factor = factorField[i][j];
-
-                if(activate){
-                    field[i][j] = (int) ((double) field[i][j] *  factor);
-                }else{
-                    field[i][j] = (int) ((double) field[i][j] /  factor);
-                }
+                factorFieldValues[i][j] = (int) (field[i][j] *  factor);
             }
         }
+
+        return factorFieldValues;
+
     }
 
     public void activateField(int x, int y){
+        System.out.println("Activate X: " + x + " Y: " + y + "Factor: " + factorField[y][x]);
 
-        if (factorField[y][x] == 1.0){
-            return;
-        }
         //Deactivate the FieldFactors
-        setFactorForFieldValues(false);
         int newValue = getLocationValue(x, y, false);
         // multiplier is used to increase the values oft he Fields depending on the number of adjacent Fields
         int multiplier;
@@ -231,7 +227,6 @@ public class MapAnalyzer {
             createWaves(x, y, WAVELENGTH, newValue * 2 *(-1));
         }
         //Activate the Field Factors again
-        setFactorForFieldValues(true);
     /*
         int multiplier = 10;
         int[] position = {x, y};
@@ -262,7 +257,6 @@ public class MapAnalyzer {
 
         int[] position = {x, y};
 
-        setFactorForFieldValues(false);
      /*   for(int[] posCorner : interestingCornerFieldList){
             if(Arrays.equals(position,posCorner)){
                 factor = calculateFactor(x, y);
@@ -288,7 +282,6 @@ public class MapAnalyzer {
             field[y][x] -= 9000;
             createWaves(x, y, WAVELENGTH, -220);
         }
-        setFactorForFieldValues(true);
     }
 
     /**
@@ -863,8 +856,8 @@ public class MapAnalyzer {
         return (int) (tmpMapValue * factor);
     }
 
-    private int getMinFieldValue() {
-        int minFieldValue = Integer.MAX_VALUE;
+    private double getMinFieldValue() {
+        double minFieldValue = Double.MAX_VALUE;
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if(minFieldValue > field[i][j]){
@@ -894,7 +887,7 @@ public class MapAnalyzer {
 
         int[] playerScores = tmpBoard.getPlayerScores();
         int[] fieldLocation;
-        int fieldScore;
+        double fieldScore;
         char oldFieldValue;
 
         for (int[] changedField : changedFields) {
@@ -926,7 +919,7 @@ public class MapAnalyzer {
     public Board initPlayerScores(Board tmpBoard){
         int height = tmpBoard.getHeight();
         int width = tmpBoard.getWidth();
-        int minFieldValue = Integer.MAX_VALUE;
+        double minFieldValue = Integer.MAX_VALUE;
         int[] playerScores = new int[tmpBoard.getPlayerAmount()];
         //find smallest field value
         for (int i = 0; i < height; i++) {
@@ -1023,7 +1016,6 @@ public class MapAnalyzer {
                                // field[currY][currX] += ((startValue));
                             } else {
 
-                                field[currY][currX] += ((startValue))  * (WAVELENGTH - (currRange % WAVELENGTH)) * omen;
                                 field[currY][currX] += ((startValue))  * (WAVELENGTH - (currRange % WAVELENGTH)) * omen;
                             }
 
@@ -1318,7 +1310,7 @@ public class MapAnalyzer {
     /**
      * returns the current calculated field with all values
      */
-    public String getBoardValues() {
+    public String getBoardValues(boolean withFactor) {
         StringBuilder boardString = new StringBuilder();
 
         for (int y = 0; y < board.getHeight(); y++) {
@@ -1326,7 +1318,11 @@ public class MapAnalyzer {
                 if(field[y][x] == Integer.MIN_VALUE){
                     boardString.append(String.format("%5s", "inf"));
                 }else{
-                    boardString.append(String.format("%5s", field[y][x]));
+                    if(withFactor){
+                        boardString.append(String.format("%5s", (int) Math.floor(field[y][x]*factorField[y][x])));
+                    }else{
+                        boardString.append(String.format("%5s", field[y][x]));
+                    }
                 }
             }
             boardString.append("\n");
@@ -1337,7 +1333,7 @@ public class MapAnalyzer {
 
 
     public int[][] getField() {
-        return field;
+        return getFieldValuesWithFactors();
     }
 
     public void setField(int[][] field) {

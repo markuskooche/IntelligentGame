@@ -181,7 +181,7 @@ public class GameAnalyzer extends JFrame {
         printMapValue = new JMenuItem("MapValue ausgeben");
         printMapValue.addActionListener(e -> {
             Game currentGame = gamePanelManager.getGameState(counter);
-            System.out.println(currentGame.getMapAnalyzer().getBoardValues());
+            System.out.println(currentGame.getMapAnalyzer().getBoardValues(true));
         });
 
         printMapValue.setEnabled(false);

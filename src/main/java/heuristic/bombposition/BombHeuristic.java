@@ -16,6 +16,7 @@ public class BombHeuristic {
     private final int[] sortedPlayer;
     private int ourSortPosition;
 
+    private final boolean[][] visitedField;
     private final int[][] evaluatedField;
     private final int[][] cachedField;
     private final int[][] bombField;
@@ -38,6 +39,7 @@ public class BombHeuristic {
         this.ourPlayerNumber = ourPlayerNumber;
         this.startRadius = radius;
 
+        this.visitedField = new boolean[height][width];
         this.evaluatedField = new int[height][width];
         this.cachedField = new int[height][width];
         this.bombField = new int[height][width];
@@ -162,12 +164,14 @@ public class BombHeuristic {
     }
 
     private void prepareHelperField() {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if(field[i][j] != '-'){
-                    bombField[i][j] = 0;
-                }else{
-                    bombField[i][j] = -1;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                visitedField[y][x] = false;
+
+                if(field[y][x] != '-') {
+                    bombField[y][x] = 0;
+                } else {
+                    bombField[y][x] = -1;
                 }
             }
         }
@@ -212,7 +216,11 @@ public class BombHeuristic {
 
         int newX, newY;
         bombField[y][x] = radius;
-        cachedField[startY][startX] += evaluatedField[y][x];
+
+        if (!visitedField[y][x]) {
+            cachedField[startY][startX] += evaluatedField[y][x];
+            visitedField[y][x] = true;
+        }
 
         for (int[] direction : Direction.getList()) {
             //set next field
@@ -236,7 +244,7 @@ public class BombHeuristic {
             } else {
                 //update the field if a shorter path is found
                 if ((bombField[y][x] - 1) > bombField[newY][newX]) {
-                    updateBombValueRecursive(startX, startY, newX, newY, radius - 1);
+                    updateBombValueRecursive(startX, startY, newX, newY, (radius - 1));
                 }
             }
 
