@@ -96,12 +96,12 @@ public class Start {
     }
 
     public static void main(String[] args) {
-        Game game = createGame("maps/lsd.map");
+        Game game = createGame("maps/disq.map");
         game.setOurPlayerNumber(PLAYER_NUMBER);
         System.out.println(game);
 
         Player player = game.getPlayer(PLAYER_NUMBER);
-        game.executeOurMoveDepth(4, true, true);
+        game.executeOurMoveDepth(1, true, true);
 
         // EXECUTE NORMAL MOVE
         // printLegalMoves(game, player);

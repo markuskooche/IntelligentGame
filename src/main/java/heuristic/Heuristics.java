@@ -86,7 +86,6 @@ public class Heuristics {
         Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
 
         boolean override = false;
-        //if (ourMoveCount > 15 && ourPlayer.getOverrideStone() > 0) override = true;
         List<Move> ourMoves = board.getLegalMoves(ourPlayer, override);
 
         //No normal moves found, check for overrideStone-Moves
@@ -97,10 +96,18 @@ public class Heuristics {
         }
 
         //We have only one normal Move (maybe a lot OverrideStones Moves)
-        if (ourMoves.size() == 1) return ourMoves.get(0);
+        if (ourMoves.size() == 1) {
+            Move m = ourMoves.get(0);
+            if (m.isChoice()) {
+                PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
+                int choicePlayer = evaluation.getBestPlayer(ourPlayer.getIntNumber(), board);
+                m.setChoicePlayer(choicePlayer);
+            }
+            return ourMoves.get(0);
+        }
 
         move = ourMoves.get(0); //Pick the first possible Move
-        LineList lineList = null;
+        LineList lineList;
         try {
             lineList = new LineFinder(mapAnalyzer).findLines(ourMoves, startBoard, ourPlayer, timeLimited, timeToken);
         } catch (TimeExceededException e) { return move; }
