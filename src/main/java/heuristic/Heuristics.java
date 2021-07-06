@@ -80,7 +80,6 @@ public class Heuristics {
     private Move getMove(Player ourPlayer) {
         if (timeLimited) startTimer(maxTimeForMove);
         ourMoveCount++;
-        Move move;
         int ourPlayerNum = ourPlayer.getIntNumber();
         int nextPlayerNum = (ourPlayerNum % numPlayers) + 1;
         Board startBoard = new Board(board.getField(), board.getAllTransitions(), numPlayers, board.getBombRadius());
@@ -95,18 +94,16 @@ public class Heuristics {
             return onlyOverrideStones(startBoard, ourPlayer, ourMoves);
         }
 
-        //We have only one normal Move (maybe a lot OverrideStones Moves)
-        if (ourMoves.size() == 1) {
-            Move m = ourMoves.get(0);
-            if (m.isChoice()) {
-                PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
-                int choicePlayer = evaluation.getBestPlayer(ourPlayer.getIntNumber(), board);
-                m.setChoicePlayer(choicePlayer);
-            }
-            return ourMoves.get(0);
+        Move move = ourMoves.get(0); // Pick the first possible Move
+        if (move.isChoice()) {
+            PlayerEvaluation evaluation = new PlayerEvaluation(mapAnalyzer, players);
+            int choicePlayer = evaluation.getBestPlayer(ourPlayer.getIntNumber(), board);
+            move.setChoicePlayer(choicePlayer);
         }
 
-        move = ourMoves.get(0); //Pick the first possible Move
+        //We have only one normal Move (maybe a lot OverrideStones Moves)
+        if (ourMoves.size() == 1)  return move;
+
         LineList lineList;
         try {
             lineList = new LineFinder(mapAnalyzer).findLines(ourMoves, startBoard, ourPlayer, timeLimited, timeToken);
