@@ -95,10 +95,10 @@ public class MoveFilter {
             sortBadLines(badLines);
             for (Line line : badLines) moves.add(line.getMove());
         }
+
         if (!moves.isEmpty()) return;
 
-        //Somthing went wrong!
-        //System.out.print("Error :(");
+        //Everything is negativ
         moves.addAll(tmpMove);
     }
 
@@ -122,6 +122,9 @@ public class MoveFilter {
     }
 
     private void sortBadLines(List<Line> badLines) {
+        getBiggestMoveValue(badLines);
+        removeUnderValue(badLines, 0);
+
         int [][] mapVal = mapAnalyzer.getField();
         int notSoBad = Integer.MIN_VALUE;
         for (Line line : badLines) {

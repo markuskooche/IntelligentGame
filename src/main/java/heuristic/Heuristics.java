@@ -143,7 +143,6 @@ public class Heuristics {
                 if (tmpMove != null || !tmpMove.isEmpty()) {
                     int searValue = tmpMove.getSearchValue();
                     if (searValue > 100000) {
-                        System.out.println(searValue);
                         move = tmpMove;
                     }
                 }
