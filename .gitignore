@@ -24,7 +24,7 @@ hs_err_pid*
 /out/*
 /projektbericht/Projektbericht.*
 !/projektbericht/Projektbericht.tex
-!/projektbericht/Projektbericht.pdf
+!/projektbericht/Projektbericht-Final.pdf
 
 # JavaDoc Files
 /javadoc/
