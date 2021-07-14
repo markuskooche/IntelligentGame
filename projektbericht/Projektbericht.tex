@@ -1,0 +1,111 @@
+\documentclass[12pt,a4paper,bibliography=totocnumbered,listof=totocnumbered]{article}
+\input{lib/includes}
+\input{lib/commands}
+
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+
+\begin{document}
+
+% ----------------------------------------------------------------------------------------------------------
+% Titelseite
+% ----------------------------------------------------------------------------------------------------------
+\MyTitlepage[pics/group-image]{01}{
+\texttt{benedikt.halbritter@st.oth-regensburg.de}\\
+\texttt{markus1.koch@st.oth-regensburg.de}\\
+\texttt{iwan.eckert@st.oth-regensburg.de}}
+{14.07.\the\year}
+
+% ----------------------------------------------------------------------------------------------------------
+% Inhaltsverzeichnis
+% ----------------------------------------------------------------------------------------------------------
+\setcounter{page}{1}
+\tableofcontents
+\pagebreak
+
+
+% ----------------------------------------------------------------------------------------------------------
+% Inhalt
+% ----------------------------------------------------------------------------------------------------------
+% Abstände Überschrift
+%\titlespacing{\section}{0pt}{12pt plus 4pt minus 2pt}{6pt plus 2pt minus 2pt}
+%\titlespacing{\subsection}{0pt}{12pt plus 4pt minus 2pt}{4pt plus 2pt minus 2pt}
+%\titlespacing{\subsubsection}{0pt}{12pt plus 4pt minus 2pt}{2pt plus 2pt minus 2pt}
+
+% Kopfzeile
+\renewcommand{\sectionmark}[1]{\markright{#1}}
+\renewcommand{\subsectionmark}[1]{}
+\renewcommand{\subsubsectionmark}[1]{}
+\lhead{Kapitel \thesection}
+\rhead{\rightmark}
+
+\onehalfspacing
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\theHsection}{\arabic{section}}
+\setcounter{section}{0}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Einleitung
+% ----------------------------------------------------------------------------------
+\section{Einleitung}\label{sec:einleitung}
+\input{chapters/einleitung}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Allgemeine Informationen
+% ----------------------------------------------------------------------------------
+\section{Allgemeine Informationen}\label{sec:allgemeine-informationen}
+\input{chapters/allgemeine-informationen}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Spielfeldbewertung
+% ----------------------------------------------------------------------------------
+\section{Spielfeldbewertung}\label{sec:spielfeldbewertung}
+\input{chapters/spielfeldbewertung}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Spielanalyse
+% ----------------------------------------------------------------------------------
+\section{Spielanalyse}\label{sec:spielanalyse}
+\input{chapters/spiel-analyse}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Kartenanalyse
+% ----------------------------------------------------------------------------------
+\section{Kartenanalyse}\label{sec:kartenanalyse}
+\input{chapters/kartenanalyse}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Karten für den Wettkampf
+% ----------------------------------------------------------------------------------
+\section{Karten f\"ur den Wettkampf}\label{sec:wettkampf-karten}
+\input{chapters/wettkampf-karten}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Verbesserungen
+% ----------------------------------------------------------------------------------
+\section{Verbesserungen für FightClub und MatchPoint}\label{sec:verbesserungen}
+\input{chapters/verbesserungen}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Fazit
+% ----------------------------------------------------------------------------------
+\section{Fazit}\label{sec:fazit}
+\input{chapters/fazit}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Anhang
+% ----------------------------------------------------------------------------------
+\section{Anhang}\label{sec:anhang}
+\input{chapters/anhang}
+
+% ----------------------------------------------------------------------------------
+% Kapitel: Literaturverzeichnis
+% ----------------------------------------------------------------------------------
+\renewcommand\refname{Literaturverzeichnis}
+\bibliographystyle{unsrt}
+\bibliography{quellen}
+\pagebreak
+
+\end{document}
