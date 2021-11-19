@@ -21,48 +21,48 @@ Table of Contents
 Before you can build this project, you must first install gradle. Here is a short tutorial on how to install Gradle on Ubuntu. Alternatively, the ready-built .jar files are also in the /bin folder.
 
 1. Start by updating the package index
-```
+``` sh
 sudo apt update
 ``` 
 
 2. Install the OpenJDK package
-```
+``` sh
 sudo apt install openjdk-14-jdk
 ```
 
 3. Download Gradle
-```
+``` sh
 wget https://services.gradle.org/distributions/gradle-6.8.3-bin.zip -P /tmp
 ```
 
 4. Extract the zip file in the /opt/gradle directory
-```
+``` sh
 sudo unzip -d /opt/gradle /tmp/gradle-*.zip
 ```
 
 5. Setup environment variables
-```
+``` sh
 sudo nano /etc/profile.d/gradle.sh
 ```
 
 6. Paste the following configuration
-```
+``` sh
 export GRADLE_HOME=/opt/gradle/gradle-6.8.3
 export PATH=${GRADLE_HOME}/bin:${PATH}
 ```
 
 7. Make the script executable
-```
+``` sh
 sudo chmod +x /etc/profile.d/gradle.sh
 ```
 
 8. Load the environment variables
-```
+``` sh
 source /etc/profile.d/gradle.sh
 ```
 
 9. Verify the Gradle installation
-```
+``` sh
 gradle -v
 ```
 
@@ -85,7 +85,7 @@ OS:           Linux 4.15.0-142-generic amd64
 
 ## How to start a java file
 You can start the .jar files as follows:
-```
+``` sh
 java -jar <filename.jar>
 ```
 Alternatively, it can be started with a simple double-click, but this may cause problems.
@@ -93,7 +93,7 @@ Alternatively, it can be started with a simple double-click, but this may cause 
 ## How to start the client
 The client can only be started if the server has been executed before. The client can not be controlled manually, but searches independently for the best possible move.
 You can start the client as follows:
-```
+``` sh
 java -jar ./bin/client01.jar
 ```
 
