@@ -98,6 +98,7 @@ java -jar ./bin/client01.jar
 ```
 
 ## How to start the game analyzer
+![startscreen](./projektbericht/pics/startscreen.png)
 The GameAnalyzer was developed to be able to analyze the game afterwards and thus improve parts of the heuristics. It is also possible to view each move in detail. All information of the players at this time is displayed.
 Furthermore, all evaluation functions can be viewed in detail as well as in total.
 
